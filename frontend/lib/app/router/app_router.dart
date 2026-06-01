@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/admin/presentation/pages/admin_database_page.dart';
+import '../../features/goals/presentation/pages/goal_detail_page.dart';
+import '../../features/goals/presentation/pages/goals_page.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
@@ -143,6 +145,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           key: state.pageKey,
           child: const AdminDatabasePage(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.goals.path,
+        name: AppRoutes.goals.name,
+        pageBuilder: (ctx, state) => fadeThroughPage(
+          key: state.pageKey,
+          child: const GoalsPage(),
+        ),
+        routes: [
+          GoRoute(
+            path: ':id',
+            pageBuilder: (ctx, state) => fadeThroughPage(
+              key: state.pageKey,
+              child: GoalDetailPage(goalId: state.pathParameters['id']!),
+            ),
+          ),
+        ],
       ),
     ],
     errorBuilder: (ctx, state) => Scaffold(

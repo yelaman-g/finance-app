@@ -1,0 +1,33 @@
+import 'package:aifb/core/network/api_result.dart';
+import 'package:aifb/core/network/dio_client.dart';
+import 'package:aifb/features/goals/data/goals_data_source.dart';
+import 'package:aifb/features/goals/data/goals_repository.dart';
+import 'package:aifb/features/goals/data/models/goal_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final goalsDataSourceProvider = Provider<GoalsDataSource>((ref) {
+  return GoalsDataSource(ref.watch(dioProvider));
+});
+
+final goalsRepositoryProvider = Provider<GoalsRepository>((ref) {
+  return GoalsRepository(ref.watch(goalsDataSourceProvider));
+});
+
+final goalsProvider = FutureProvider.autoDispose<List<GoalModel>>((ref) async {
+  final result = await ref.watch(goalsRepositoryProvider).list();
+  return switch (result) {
+    Ok<List<GoalModel>>(value: final v) => v,
+    Err<List<GoalModel>>(failure: final f) => throw Exception(f.toString()),
+  };
+});
+
+final goalContributionsProvider =
+    FutureProvider.autoDispose.family<List<ContributionModel>, String>(
+        (ref, goalId) async {
+  final result = await ref.watch(goalsRepositoryProvider).contributions(goalId);
+  return switch (result) {
+    Ok<List<ContributionModel>>(value: final v) => v,
+    Err<List<ContributionModel>>(failure: final f) =>
+      throw Exception(f.toString()),
+  };
+});
