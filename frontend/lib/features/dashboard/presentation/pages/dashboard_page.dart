@@ -7,108 +7,26 @@ import '../../../../app/router/routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/utils/hex_color.dart';
 import '../../../../shared/widgets/gradient_background.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/state/auth_state.dart';
+import '../../../goals/presentation/providers/goals_providers.dart';
+import '../../../statistics/presentation/providers/statistics_providers.dart';
+import '../../../transactions/presentation/providers/finance_providers.dart';
 import '../models/dashboard_mock.dart';
-import '../widgets/ai_insight_card.dart';
 import '../widgets/balance_card.dart';
-import '../widgets/family_activity_card.dart';
 import '../widgets/goal_progress_card.dart';
 import '../widgets/quick_actions.dart';
 import '../widgets/recent_transactions.dart';
 import '../widgets/section_header.dart';
 import '../widgets/spending_chart_card.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
 
-  // TODO(domain): replace with Riverpod-fed providers from analytics/ai/family.
-  static const _insights = <InsightItem>[
-    InsightItem(
-      title: 'Spending up 24%',
-      body: 'Restaurants drove most of this month\'s increase. Consider a 80k₸ cap.',
-      icon: Icons.trending_up_rounded,
-      tint: AppColors.warning,
-    ),
-    InsightItem(
-      title: 'Vacation goal on track',
-      body: 'At current pace you\'ll reach Bali fund in 5 months.',
-      icon: Icons.flight_takeoff_rounded,
-      tint: AppColors.brand500,
-    ),
-    InsightItem(
-      title: 'Subscription drift',
-      body: '3 unused subscriptions detected. Save up to 12,400₸/mo.',
-      icon: Icons.refresh_rounded,
-      tint: AppColors.success,
-    ),
-  ];
-
-  static const _txs = <TxItem>[
-    TxItem(
-      title: 'Magnum Cosmos',
-      subtitle: 'Groceries · Today',
-      amount: 18420,
-      icon: Icons.shopping_bag_rounded,
-      color: AppColors.brand500,
-    ),
-    TxItem(
-      title: 'Salary',
-      subtitle: 'Income · Yesterday',
-      amount: 820000,
-      icon: Icons.payments_rounded,
-      color: AppColors.success,
-      isIncome: true,
-    ),
-    TxItem(
-      title: 'Yandex Taxi',
-      subtitle: 'Transport · 2d ago',
-      amount: 3100,
-      icon: Icons.local_taxi_rounded,
-      color: AppColors.warning,
-    ),
-    TxItem(
-      title: 'Netflix',
-      subtitle: 'Subscriptions · 3d ago',
-      amount: 4990,
-      icon: Icons.movie_rounded,
-      color: AppColors.danger,
-    ),
-  ];
-
-  static const _goals = <GoalItem>[
-    GoalItem(
-      title: 'Bali vacation',
-      current: 1450000,
-      target: 2500000,
-      color: AppColors.brand500,
-    ),
-    GoalItem(
-      title: 'Emergency fund',
-      current: 620000,
-      target: 1000000,
-      color: AppColors.success,
-    ),
-  ];
-
-  static const _members = <FamilyMemberItem>[
-    FamilyMemberItem(
-      name: 'Aibek S.',
-      role: 'PARENT',
-      color: AppColors.brand500,
-      lastAction: 'Spent 18,420 ₸ at Magnum',
-    ),
-    FamilyMemberItem(
-      name: 'Aisha S.',
-      role: 'CHILD',
-      color: AppColors.warning,
-      lastAction: 'Reached 80% of weekly limit',
-    ),
-  ];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: GradientBackground(
@@ -127,8 +45,8 @@ class DashboardPage extends StatelessWidget {
                       AppSpacing.xxxl,
                     ),
                     sliver: SliverList.list(
-                      children:
-                          _staggered(_buildSections(context, wide: wide)),
+                      children: _staggered(
+                          _buildSections(context, ref, wide: wide),),
                     ),
                   ),
                 ],
@@ -140,50 +58,102 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildSections(BuildContext context, {required bool wide}) {
-    final left = <Widget>[
-      const BalanceCard(
-        balance: 4287500,
+  List<Widget> _buildSections(BuildContext context, WidgetRef ref,
+      {required bool wide,}) {
+    final summary = ref.watch(summaryProvider);
+    final trend = ref.watch(trendProvider);
+    final txs = ref.watch(transactionsProvider);
+    final goals = ref.watch(goalsProvider);
+
+    final balanceCard = summary.when(
+      loading: () => const BalanceCard(
+          balance: 0, currency: '₸', delta: 0, income: 0, expense: 0,),
+      error: (_, __) => const BalanceCard(
+          balance: 0, currency: '₸', delta: 0, income: 0, expense: 0,),
+      data: (s) => BalanceCard(
+        balance: s.net,
         currency: '₸',
-        delta: 0.082,
+        delta: 0,
+        income: s.income,
+        expense: s.expense,
       ),
+    );
+
+    final spendingCard = trend.when(
+      loading: () =>
+          const SpendingChartCard(monthly: [], totalThisMonth: 0),
+      error: (_, __) =>
+          const SpendingChartCard(monthly: [], totalThisMonth: 0),
+      data: (points) => SpendingChartCard(
+        monthly: points.map((p) => p.expense).toList(),
+        totalThisMonth: points.isEmpty ? 0 : points.last.expense,
+      ),
+    );
+
+    final recent = txs.when(
+      loading: () => const SizedBox(
+          height: 80, child: Center(child: CircularProgressIndicator()),),
+      error: (e, _) => _ErrorBox(message: 'Операции: $e'),
+      data: (page) => RecentTransactions(
+        items: page.items
+            .take(5)
+            .map((t) => TxItem(
+                  title: t.categoryName ?? '—',
+                  subtitle:
+                      '${t.isIncome ? 'Доход' : 'Расход'} · ${t.occurredOn.toIso8601String().split('T').first}',
+                  amount: t.amount,
+                  icon: t.isIncome
+                      ? Icons.south_west_rounded
+                      : Icons.north_east_rounded,
+                  color: hexToColor(t.categoryColor),
+                  isIncome: t.isIncome,
+                ),)
+            .toList(),
+      ),
+    );
+
+    final goalsCard = goals.when(
+      loading: () => const SizedBox(
+          height: 80, child: Center(child: CircularProgressIndicator()),),
+      error: (e, _) => _ErrorBox(message: 'Цели: $e'),
+      data: (list) => list.isEmpty
+          ? const _ErrorBox(message: 'Целей пока нет')
+          : GoalProgressCard(
+              goals: list
+                  .take(3)
+                  .map((g) => GoalItem(
+                        title: g.name,
+                        current: g.savedAmount,
+                        target: g.targetAmount,
+                        color: hexToColor(g.color),
+                      ),)
+                  .toList(),
+            ),
+    );
+
+    final left = <Widget>[
+      balanceCard,
       const SizedBox(height: AppSpacing.lg),
       const QuickActions(),
       const SizedBox(height: AppSpacing.xl),
-      const SpendingChartCard(),
-      const SizedBox(height: AppSpacing.xl),
-      SectionHeader(
-        title: 'AI insights',
-        action: 'See all',
-        onAction: () => context.go(AppRoutes.ai.path),
-      ),
-      const SizedBox(height: AppSpacing.md),
-      const AiInsightsRow(items: _insights),
+      spendingCard,
     ];
     final right = <Widget>[
       SectionHeader(
         title: 'Goals',
         action: 'Manage',
-        onAction: () => _showSoon(context, 'Goals'),
+        onAction: () => context.push(AppRoutes.goals.path),
       ),
       const SizedBox(height: AppSpacing.md),
-      GoalProgressCard(goals: _goals),
-      const SizedBox(height: AppSpacing.xl),
-      SectionHeader(
-        title: 'Family activity',
-        action: 'Open',
-        onAction: () => _showSoon(context, 'Family activity'),
-      ),
-      const SizedBox(height: AppSpacing.md),
-      FamilyActivityCard(members: _members),
+      goalsCard,
       const SizedBox(height: AppSpacing.xl),
       SectionHeader(
         title: 'Recent transactions',
         action: 'View all',
-        onAction: () => context.go(AppRoutes.analytics.path),
+        onAction: () => context.push(AppRoutes.transactions.path),
       ),
       const SizedBox(height: AppSpacing.md),
-      RecentTransactions(items: _txs),
+      recent,
     ];
     if (!wide) return [...left, const SizedBox(height: AppSpacing.xl), ...right];
     return [
@@ -208,11 +178,22 @@ class DashboardPage extends StatelessWidget {
             ),
     ];
   }
+}
 
-  static void _showSoon(BuildContext context, String label) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$label — coming soon')));
+class _ErrorBox extends StatelessWidget {
+  const _ErrorBox({required this.message});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+      child: Text(message, style: AppTypography.caption),
+    );
   }
 }
 

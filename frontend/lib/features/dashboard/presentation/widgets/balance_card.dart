@@ -12,11 +12,15 @@ class BalanceCard extends StatelessWidget {
     required this.balance,
     required this.currency,
     required this.delta,
+    required this.income,
+    required this.expense,
     super.key,
   });
 
   final double balance;
   final String currency;
+  final double income;
+  final double expense;
 
   /// Percent change vs last month (e.g. 0.082 = +8.2%).
   final double delta;
@@ -102,9 +106,9 @@ class BalanceCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               Row(
                 children: [
-                  _MiniStat(label: 'Income', value: '+${fmt.format(820000)}'),
+                  _MiniStat(label: 'Income', value: '+${fmt.format(income)}'),
                   const SizedBox(width: AppSpacing.lg),
-                  _MiniStat(label: 'Expense', value: '-${fmt.format(412300)}'),
+                  _MiniStat(label: 'Expense', value: '-${fmt.format(expense)}'),
                 ],
               ),
             ],
