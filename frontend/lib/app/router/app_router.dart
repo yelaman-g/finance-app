@@ -10,6 +10,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/state/auth_state.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
+import '../../features/household/presentation/pages/family_page.dart';
 import '../../features/transactions/presentation/pages/transactions_page.dart';
 import 'router_refresh.dart';
 import 'routes.dart';
@@ -162,6 +163,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ),
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.family.path,
+        name: AppRoutes.family.name,
+        pageBuilder: (ctx, state) => fadeThroughPage(
+          key: state.pageKey,
+          child: const FamilyPage(),
+        ),
       ),
     ],
     errorBuilder: (ctx, state) => Scaffold(
