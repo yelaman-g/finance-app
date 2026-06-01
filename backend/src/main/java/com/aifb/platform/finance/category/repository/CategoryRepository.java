@@ -36,4 +36,6 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
             UUID userId, CategoryType type, String name);
 
     List<Category> findByIdInAndDeletedAtIsNull(Collection<UUID> ids);
+
+    List<Category> findByIdIn(Collection<UUID> ids);
 }
