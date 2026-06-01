@@ -30,7 +30,7 @@ class StatisticsApiIT extends AbstractIntegrationTest {
         TestAuth.AuthedUser user = testAuth.createUser();
         UUID incomeId = categoryService.list(user.id(), CategoryType.INCOME, Scope.PERSONAL).get(0).id();
         transactionService.create(user.id(), new CreateTransactionRequest(
-                incomeId, CategoryType.INCOME, new BigDecimal("900.00"), null, LocalDate.now()));
+                incomeId, CategoryType.INCOME, new BigDecimal("900.00"), null, LocalDate.now(), false));
 
         mockMvc.perform(get("/api/v1/statistics/summary")
                         .header(HttpHeaders.AUTHORIZATION, user.bearer()))
@@ -44,7 +44,7 @@ class StatisticsApiIT extends AbstractIntegrationTest {
         TestAuth.AuthedUser user = testAuth.createUser();
         UUID expenseId = categoryService.list(user.id(), CategoryType.EXPENSE, Scope.PERSONAL).get(0).id();
         transactionService.create(user.id(), new CreateTransactionRequest(
-                expenseId, CategoryType.EXPENSE, new BigDecimal("123.00"), null, LocalDate.now()));
+                expenseId, CategoryType.EXPENSE, new BigDecimal("123.00"), null, LocalDate.now(), false));
 
         mockMvc.perform(get("/api/v1/statistics/by-category")
                         .param("type", "EXPENSE")

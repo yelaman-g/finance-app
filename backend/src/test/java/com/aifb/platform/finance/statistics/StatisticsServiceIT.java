@@ -30,7 +30,7 @@ class StatisticsServiceIT extends AbstractIntegrationTest {
 
     private void tx(UUID userId, UUID categoryId, CategoryType type, String amount, LocalDate when) {
         transactionService.create(userId, new CreateTransactionRequest(
-                categoryId, type, new BigDecimal(amount), null, when));
+                categoryId, type, new BigDecimal(amount), null, when, false));
     }
 
     @Test
