@@ -28,4 +28,10 @@ class ApiEndpoints {
 
   // Goals
   static const String goals = '/goals';
+
+  // Households
+  static const String households = '/households';
+
+  // Statistics (family)
+  static const String statByMember = '/statistics/by-member';
 }
