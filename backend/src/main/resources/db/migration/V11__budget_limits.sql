@@ -12,7 +12,13 @@ CREATE TABLE budget_limits (
     CONSTRAINT chk_budget_limits_one_target CHECK ((category_id IS NULL) <> (group_id IS NULL))
 );
 
-CREATE UNIQUE INDEX uk_budget_limits_category ON budget_limits (category_id) WHERE category_id IS NOT NULL;
-CREATE UNIQUE INDEX uk_budget_limits_group ON budget_limits (group_id) WHERE group_id IS NOT NULL;
+CREATE UNIQUE INDEX uk_budget_limits_category_personal
+    ON budget_limits (category_id, user_id) WHERE category_id IS NOT NULL AND household_id IS NULL;
+CREATE UNIQUE INDEX uk_budget_limits_category_household
+    ON budget_limits (category_id, household_id) WHERE category_id IS NOT NULL AND household_id IS NOT NULL;
+CREATE UNIQUE INDEX uk_budget_limits_group_personal
+    ON budget_limits (group_id, user_id) WHERE group_id IS NOT NULL AND household_id IS NULL;
+CREATE UNIQUE INDEX uk_budget_limits_group_household
+    ON budget_limits (group_id, household_id) WHERE group_id IS NOT NULL AND household_id IS NOT NULL;
 CREATE INDEX idx_budget_limits_user ON budget_limits (user_id) WHERE household_id IS NULL;
 CREATE INDEX idx_budget_limits_household ON budget_limits (household_id) WHERE household_id IS NOT NULL;
