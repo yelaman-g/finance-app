@@ -1,10 +1,12 @@
 package com.aifb.platform.finance.statistics.api;
 
 import com.aifb.platform.common.api.ApiResponse;
+import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.common.security.AuthPrincipal;
 import com.aifb.platform.common.security.CurrentUser;
 import com.aifb.platform.finance.category.domain.CategoryType;
 import com.aifb.platform.finance.statistics.api.dto.CategoryBreakdownResponse;
+import com.aifb.platform.finance.statistics.api.dto.MemberBreakdownResponse;
 import com.aifb.platform.finance.statistics.api.dto.SummaryResponse;
 import com.aifb.platform.finance.statistics.api.dto.TrendPointResponse;
 import com.aifb.platform.finance.statistics.service.StatisticsService;
@@ -31,8 +33,9 @@ public class StatisticsController {
     public ApiResponse<SummaryResponse> summary(
             @CurrentUser AuthPrincipal principal,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return ApiResponse.ok(service.summary(principal.userId(), from, to));
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(defaultValue = "PERSONAL") Scope scope) {
+        return ApiResponse.ok(service.summary(principal.userId(), from, to, scope));
     }
 
     @GetMapping("/by-category")
@@ -40,15 +43,22 @@ public class StatisticsController {
             @CurrentUser AuthPrincipal principal,
             @RequestParam(defaultValue = "EXPENSE") CategoryType type,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return ApiResponse.ok(service.byCategory(principal.userId(), type, from, to));
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(defaultValue = "PERSONAL") Scope scope) {
+        return ApiResponse.ok(service.byCategory(principal.userId(), type, from, to, scope));
     }
 
     @GetMapping("/trend")
     public ApiResponse<List<TrendPointResponse>> trend(
             @CurrentUser AuthPrincipal principal,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return ApiResponse.ok(service.trend(principal.userId(), from, to));
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(defaultValue = "PERSONAL") Scope scope) {
+        return ApiResponse.ok(service.trend(principal.userId(), from, to, scope));
+    }
+
+    @GetMapping("/by-member")
+    public ApiResponse<List<MemberBreakdownResponse>> byMember(@CurrentUser AuthPrincipal principal) {
+        return ApiResponse.ok(service.byMember(principal.userId()));
     }
 }
