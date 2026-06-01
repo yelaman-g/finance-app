@@ -14,4 +14,18 @@ class ApiEndpoints {
   // Admin
   static const String adminDbTables = '/admin/db/tables';
   static const String adminDbQuery = '/admin/db/query';
+
+  // Categories
+  static const String categories = '/categories';
+
+  // Transactions
+  static const String transactions = '/transactions';
+
+  // Statistics
+  static const String statSummary = '/statistics/summary';
+  static const String statByCategory = '/statistics/by-category';
+  static const String statTrend = '/statistics/trend';
+
+  // Goals
+  static const String goals = '/goals';
 }
