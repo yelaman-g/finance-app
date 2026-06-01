@@ -1,4 +1,5 @@
 import 'package:aifb/core/network/api_result.dart';
+import 'package:aifb/features/categorization/presentation/providers/categorization_providers.dart';
 import 'package:aifb/features/transactions/data/models/category_model.dart';
 import 'package:aifb/features/transactions/data/models/transaction_model.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
@@ -168,9 +169,21 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
           const SizedBox(height: 12),
           TextField(
             controller: _note,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Заметка (необязательно)',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.auto_awesome),
+                tooltip: 'Подобрать категорию',
+                onPressed: () async {
+                  final result = await ref
+                      .read(categorizationRepositoryProvider)
+                      .suggest(note: _note.text, type: _type);
+                  if (result is Ok<String?> && result.value != null) {
+                    setState(() => _categoryId = result.value);
+                  }
+                },
+              ),
             ),
           ),
           if (_error != null) ...[

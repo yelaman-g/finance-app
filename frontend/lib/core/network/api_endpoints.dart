@@ -40,4 +40,8 @@ class ApiEndpoints {
 
   // Budgets
   static const String budgets = '/budgets';
+
+  // Categorization
+  static const String categorizationRules = '/categorization/rules';
+  static const String categorizationSuggest = '/categorization/suggest';
 }
