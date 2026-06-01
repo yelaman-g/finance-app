@@ -9,5 +9,6 @@ public record CreateCategoryRequest(
         @NotBlank @Size(max = 80) String name,
         @NotNull CategoryType type,
         @Size(max = 40) String icon,
-        @Size(max = 9) String color) {
+        @Size(max = 9) String color,
+        boolean shared) {
 }

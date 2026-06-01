@@ -6,6 +6,7 @@ import com.aifb.platform.common.security.CurrentUser;
 import com.aifb.platform.finance.category.api.dto.CategoryResponse;
 import com.aifb.platform.finance.category.api.dto.CreateCategoryRequest;
 import com.aifb.platform.finance.category.api.dto.UpdateCategoryRequest;
+import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.finance.category.domain.CategoryType;
 import com.aifb.platform.finance.category.service.CategoryService;
 import jakarta.validation.Valid;
@@ -35,8 +36,9 @@ public class CategoryController {
     @GetMapping
     public ApiResponse<List<CategoryResponse>> list(
             @CurrentUser AuthPrincipal principal,
-            @RequestParam(required = false) CategoryType type) {
-        return ApiResponse.ok(service.list(principal.userId(), type));
+            @RequestParam(required = false) CategoryType type,
+            @RequestParam(defaultValue = "PERSONAL") Scope scope) {
+        return ApiResponse.ok(service.list(principal.userId(), type, scope));
     }
 
     @PostMapping

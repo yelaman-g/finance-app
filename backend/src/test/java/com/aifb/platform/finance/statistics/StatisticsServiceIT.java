@@ -1,5 +1,6 @@
 package com.aifb.platform.finance.statistics;
 
+import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.finance.category.domain.CategoryType;
 import com.aifb.platform.finance.category.service.CategoryService;
 import com.aifb.platform.finance.statistics.api.dto.CategoryBreakdownResponse;
@@ -35,8 +36,8 @@ class StatisticsServiceIT extends AbstractIntegrationTest {
     @Test
     void summaryComputesIncomeExpenseNet() {
         UUID userId = testAuth.createUser().id();
-        UUID expenseId = categoryService.list(userId, CategoryType.EXPENSE).get(0).id();
-        UUID incomeId = categoryService.list(userId, CategoryType.INCOME).get(0).id();
+        UUID expenseId = categoryService.list(userId, CategoryType.EXPENSE, Scope.PERSONAL).get(0).id();
+        UUID incomeId = categoryService.list(userId, CategoryType.INCOME, Scope.PERSONAL).get(0).id();
 
         tx(userId, incomeId, CategoryType.INCOME, "1000.00", LocalDate.now());
         tx(userId, expenseId, CategoryType.EXPENSE, "300.00", LocalDate.now());
@@ -61,7 +62,7 @@ class StatisticsServiceIT extends AbstractIntegrationTest {
     void byCategoryReturnsTotalsAndPercentages() {
         UUID userId = testAuth.createUser().id();
         List<com.aifb.platform.finance.category.api.dto.CategoryResponse> cats =
-                categoryService.list(userId, CategoryType.EXPENSE);
+                categoryService.list(userId, CategoryType.EXPENSE, Scope.PERSONAL);
         UUID c1 = cats.get(0).id();
         UUID c2 = cats.get(1).id();
 
@@ -79,8 +80,8 @@ class StatisticsServiceIT extends AbstractIntegrationTest {
     @Test
     void trendGroupsByMonth() {
         UUID userId = testAuth.createUser().id();
-        UUID incomeId = categoryService.list(userId, CategoryType.INCOME).get(0).id();
-        UUID expenseId = categoryService.list(userId, CategoryType.EXPENSE).get(0).id();
+        UUID incomeId = categoryService.list(userId, CategoryType.INCOME, Scope.PERSONAL).get(0).id();
+        UUID expenseId = categoryService.list(userId, CategoryType.EXPENSE, Scope.PERSONAL).get(0).id();
 
         tx(userId, incomeId, CategoryType.INCOME, "1000.00", LocalDate.now());
         tx(userId, expenseId, CategoryType.EXPENSE, "400.00", LocalDate.now());

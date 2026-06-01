@@ -1,5 +1,6 @@
 package com.aifb.platform.finance.transaction;
 
+import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.finance.category.domain.CategoryType;
 import com.aifb.platform.finance.category.service.CategoryService;
 import com.aifb.platform.support.AbstractIntegrationTest;
@@ -25,7 +26,7 @@ class TransactionApiIT extends AbstractIntegrationTest {
     @Test
     void createAndListTransaction() throws Exception {
         TestAuth.AuthedUser user = testAuth.createUser();
-        UUID categoryId = categoryService.list(user.id(), CategoryType.EXPENSE).get(0).id();
+        UUID categoryId = categoryService.list(user.id(), CategoryType.EXPENSE, Scope.PERSONAL).get(0).id();
 
         mockMvc.perform(post("/api/v1/transactions")
                         .header(HttpHeaders.AUTHORIZATION, user.bearer())
@@ -48,7 +49,7 @@ class TransactionApiIT extends AbstractIntegrationTest {
     @Test
     void createRejectsTypeMismatch() throws Exception {
         TestAuth.AuthedUser user = testAuth.createUser();
-        UUID expenseId = categoryService.list(user.id(), CategoryType.EXPENSE).get(0).id();
+        UUID expenseId = categoryService.list(user.id(), CategoryType.EXPENSE, Scope.PERSONAL).get(0).id();
         mockMvc.perform(post("/api/v1/transactions")
                         .header(HttpHeaders.AUTHORIZATION, user.bearer())
                         .contentType(MediaType.APPLICATION_JSON)

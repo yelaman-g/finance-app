@@ -3,6 +3,7 @@ package com.aifb.platform.finance.category;
 import com.aifb.platform.common.exception.ConflictException;
 import com.aifb.platform.common.exception.ForbiddenException;
 import com.aifb.platform.common.exception.NotFoundException;
+import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.finance.category.api.dto.CategoryResponse;
 import com.aifb.platform.finance.category.api.dto.CreateCategoryRequest;
 import com.aifb.platform.finance.category.api.dto.UpdateCategoryRequest;
@@ -29,7 +30,7 @@ class CategoryServiceIT extends AbstractIntegrationTest {
     @Test
     void listReturnsSystemCategoriesForNewUser() {
         UUID userId = testAuth.createUser().id();
-        List<CategoryResponse> expense = service.list(userId, CategoryType.EXPENSE);
+        List<CategoryResponse> expense = service.list(userId, CategoryType.EXPENSE, Scope.PERSONAL);
         assertThat(expense).isNotEmpty();
         assertThat(expense).allMatch(c -> c.type().equals("EXPENSE"));
         assertThat(expense).anyMatch(CategoryResponse::system);
@@ -41,21 +42,21 @@ class CategoryServiceIT extends AbstractIntegrationTest {
         UUID other = testAuth.createUser().id();
 
         CategoryResponse created = service.create(owner,
-                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, "coffee", "#FFAA00"));
+                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, "coffee", "#FFAA00", false));
 
         assertThat(created.system()).isFalse();
-        assertThat(service.list(owner, CategoryType.EXPENSE))
+        assertThat(service.list(owner, CategoryType.EXPENSE, Scope.PERSONAL))
                 .anyMatch(c -> c.id().equals(created.id()));
-        assertThat(service.list(other, CategoryType.EXPENSE))
+        assertThat(service.list(other, CategoryType.EXPENSE, Scope.PERSONAL))
                 .noneMatch(c -> c.id().equals(created.id()));
     }
 
     @Test
     void createRejectsDuplicateActiveName() {
         UUID owner = testAuth.createUser().id();
-        service.create(owner, new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null));
+        service.create(owner, new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false));
         assertThatThrownBy(() -> service.create(owner,
-                new CreateCategoryRequest("кафе", CategoryType.EXPENSE, null, null)))
+                new CreateCategoryRequest("кафе", CategoryType.EXPENSE, null, null, false)))
                 .isInstanceOf(ConflictException.class);
     }
 
@@ -63,7 +64,7 @@ class CategoryServiceIT extends AbstractIntegrationTest {
     void updateChangesOwnedCategory() {
         UUID owner = testAuth.createUser().id();
         CategoryResponse created = service.create(owner,
-                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null));
+                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false));
         CategoryResponse updated = service.update(owner, created.id(),
                 new UpdateCategoryRequest("Кофейни", "coffee", "#112233"));
         assertThat(updated.name()).isEqualTo("Кофейни");
@@ -84,14 +85,14 @@ class CategoryServiceIT extends AbstractIntegrationTest {
     void deleteSoftDeletesAndHidesFromList() {
         UUID owner = testAuth.createUser().id();
         CategoryResponse created = service.create(owner,
-                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null));
+                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false));
         service.delete(owner, created.id());
 
-        assertThat(service.list(owner, CategoryType.EXPENSE))
+        assertThat(service.list(owner, CategoryType.EXPENSE, Scope.PERSONAL))
                 .noneMatch(c -> c.id().equals(created.id()));
         assertThat(repository.findById(created.id()).orElseThrow().isDeleted()).isTrue();
         assertThat(service.create(owner,
-                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null)).id())
+                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false)).id())
                 .isNotNull();
     }
 
@@ -100,7 +101,7 @@ class CategoryServiceIT extends AbstractIntegrationTest {
         UUID owner = testAuth.createUser().id();
         UUID other = testAuth.createUser().id();
         CategoryResponse created = service.create(owner,
-                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null));
+                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false));
         assertThatThrownBy(() -> service.update(other, created.id(),
                 new UpdateCategoryRequest("X", null, null)))
                 .isInstanceOf(NotFoundException.class);

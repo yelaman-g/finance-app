@@ -38,4 +38,43 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findByIdInAndDeletedAtIsNull(Collection<UUID> ids);
 
     List<Category> findByIdIn(Collection<UUID> ids);
+
+    @Query("""
+            select c from Category c
+            where c.deletedAt is null
+              and (c.userId is null or (c.userId = :userId and c.householdId is null))
+              and (:type is null or c.type = :type)
+            order by c.system desc, c.name asc
+            """)
+    List<Category> findVisiblePersonal(@Param("userId") UUID userId,
+                                       @Param("type") CategoryType type);
+
+    @Query("""
+            select c from Category c
+            where c.deletedAt is null
+              and (c.userId is null or c.householdId = :householdId)
+              and (:type is null or c.type = :type)
+            order by c.system desc, c.name asc
+            """)
+    List<Category> findVisibleFamily(@Param("householdId") UUID householdId,
+                                     @Param("type") CategoryType type);
+
+    @Query("""
+            select c from Category c
+            where c.id = :id and c.deletedAt is null
+              and (c.userId is null or (c.userId = :userId and c.householdId is null))
+            """)
+    Optional<Category> findVisibleByIdPersonal(@Param("id") UUID id,
+                                               @Param("userId") UUID userId);
+
+    @Query("""
+            select c from Category c
+            where c.id = :id and c.deletedAt is null
+              and (c.userId is null or c.householdId = :householdId)
+            """)
+    Optional<Category> findVisibleByIdFamily(@Param("id") UUID id,
+                                             @Param("householdId") UUID householdId);
+
+    boolean existsByHouseholdIdAndTypeAndNameIgnoreCaseAndDeletedAtIsNull(
+            UUID householdId, CategoryType type, String name);
 }

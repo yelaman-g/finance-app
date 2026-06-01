@@ -3,6 +3,7 @@ package com.aifb.platform.finance.transaction;
 import com.aifb.platform.common.api.PageResponse;
 import com.aifb.platform.common.exception.DomainException;
 import com.aifb.platform.common.exception.NotFoundException;
+import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.finance.category.api.dto.CategoryResponse;
 import com.aifb.platform.finance.category.api.dto.CreateCategoryRequest;
 import com.aifb.platform.finance.category.domain.CategoryType;
@@ -29,7 +30,7 @@ class TransactionServiceIT extends AbstractIntegrationTest {
     @Autowired TestAuth testAuth;
 
     private UUID expenseCategory(UUID userId) {
-        return categoryService.list(userId, CategoryType.EXPENSE).get(0).id();
+        return categoryService.list(userId, CategoryType.EXPENSE, Scope.PERSONAL).get(0).id();
     }
 
     @Test
@@ -60,7 +61,7 @@ class TransactionServiceIT extends AbstractIntegrationTest {
         UUID owner = testAuth.createUser().id();
         UUID other = testAuth.createUser().id();
         CategoryResponse ownCat = categoryService.create(owner,
-                new CreateCategoryRequest("Личное", CategoryType.EXPENSE, null, null));
+                new CreateCategoryRequest("Личное", CategoryType.EXPENSE, null, null, false));
         assertThatThrownBy(() -> service.create(other, new CreateTransactionRequest(
                 ownCat.id(), CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now())))
                 .isInstanceOf(NotFoundException.class);
@@ -71,7 +72,7 @@ class TransactionServiceIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID other = testAuth.createUser().id();
         UUID expenseId = expenseCategory(userId);
-        UUID incomeId = categoryService.list(userId, CategoryType.INCOME).get(0).id();
+        UUID incomeId = categoryService.list(userId, CategoryType.INCOME, Scope.PERSONAL).get(0).id();
 
         service.create(userId, new CreateTransactionRequest(
                 expenseId, CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now()));

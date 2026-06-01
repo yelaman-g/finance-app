@@ -1,5 +1,6 @@
 package com.aifb.platform.finance.statistics;
 
+import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.finance.category.domain.CategoryType;
 import com.aifb.platform.finance.category.service.CategoryService;
 import com.aifb.platform.finance.transaction.api.dto.CreateTransactionRequest;
@@ -27,7 +28,7 @@ class StatisticsApiIT extends AbstractIntegrationTest {
     @Test
     void summaryEndpointReturnsTotals() throws Exception {
         TestAuth.AuthedUser user = testAuth.createUser();
-        UUID incomeId = categoryService.list(user.id(), CategoryType.INCOME).get(0).id();
+        UUID incomeId = categoryService.list(user.id(), CategoryType.INCOME, Scope.PERSONAL).get(0).id();
         transactionService.create(user.id(), new CreateTransactionRequest(
                 incomeId, CategoryType.INCOME, new BigDecimal("900.00"), null, LocalDate.now()));
 
@@ -41,7 +42,7 @@ class StatisticsApiIT extends AbstractIntegrationTest {
     @Test
     void byCategoryEndpointReturnsArray() throws Exception {
         TestAuth.AuthedUser user = testAuth.createUser();
-        UUID expenseId = categoryService.list(user.id(), CategoryType.EXPENSE).get(0).id();
+        UUID expenseId = categoryService.list(user.id(), CategoryType.EXPENSE, Scope.PERSONAL).get(0).id();
         transactionService.create(user.id(), new CreateTransactionRequest(
                 expenseId, CategoryType.EXPENSE, new BigDecimal("123.00"), null, LocalDate.now()));
 
