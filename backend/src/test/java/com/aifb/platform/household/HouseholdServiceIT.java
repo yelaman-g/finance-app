@@ -1,7 +1,9 @@
 package com.aifb.platform.household;
 
 import com.aifb.platform.common.exception.ConflictException;
+import com.aifb.platform.common.exception.ForbiddenException;
 import com.aifb.platform.common.exception.NotFoundException;
+import com.aifb.platform.household.domain.HouseholdRole;
 import com.aifb.platform.household.api.dto.CreateHouseholdRequest;
 import com.aifb.platform.household.api.dto.HouseholdResponse;
 import com.aifb.platform.household.api.dto.JoinHouseholdRequest;
@@ -83,5 +85,95 @@ class HouseholdServiceIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         assertThatThrownBy(() -> service.getMine(userId))
                 .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void ownerChangesMemberRoleToChild() {
+        UUID owner = testAuth.createUser().id();
+        UUID joiner = testAuth.createUser().id();
+        String code = service.create(owner, new CreateHouseholdRequest("С")).inviteCode();
+        service.join(joiner, new JoinHouseholdRequest(code));
+
+        service.changeRole(owner, joiner, HouseholdRole.CHILD);
+        assertThat(service.getMine(joiner).myRole()).isEqualTo("CHILD");
+    }
+
+    @Test
+    void nonOwnerCannotChangeRole() {
+        UUID owner = testAuth.createUser().id();
+        UUID joiner = testAuth.createUser().id();
+        String code = service.create(owner, new CreateHouseholdRequest("С")).inviteCode();
+        service.join(joiner, new JoinHouseholdRequest(code));
+        assertThatThrownBy(() -> service.changeRole(joiner, owner, HouseholdRole.CHILD))
+                .isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    void ownerCannotChangeOwnRole() {
+        UUID owner = testAuth.createUser().id();
+        service.create(owner, new CreateHouseholdRequest("С"));
+        assertThatThrownBy(() -> service.changeRole(owner, owner, HouseholdRole.ADULT))
+                .isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    void cannotPromoteToSecondOwner() {
+        UUID owner = testAuth.createUser().id();
+        UUID joiner = testAuth.createUser().id();
+        String code = service.create(owner, new CreateHouseholdRequest("С")).inviteCode();
+        service.join(joiner, new JoinHouseholdRequest(code));
+        assertThatThrownBy(() -> service.changeRole(owner, joiner, HouseholdRole.OWNER))
+                .isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    void ownerRemovesMember() {
+        UUID owner = testAuth.createUser().id();
+        UUID joiner = testAuth.createUser().id();
+        String code = service.create(owner, new CreateHouseholdRequest("С")).inviteCode();
+        service.join(joiner, new JoinHouseholdRequest(code));
+
+        service.removeMember(owner, joiner);
+        assertThat(service.getMine(owner).members()).hasSize(1);
+        assertThatThrownBy(() -> service.getMine(joiner)).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void memberLeaves() {
+        UUID owner = testAuth.createUser().id();
+        UUID joiner = testAuth.createUser().id();
+        String code = service.create(owner, new CreateHouseholdRequest("С")).inviteCode();
+        service.join(joiner, new JoinHouseholdRequest(code));
+
+        service.leave(joiner);
+        assertThatThrownBy(() -> service.getMine(joiner)).isInstanceOf(NotFoundException.class);
+        assertThat(service.getMine(owner).members()).hasSize(1);
+    }
+
+    @Test
+    void ownerCannotLeaveMustDisband() {
+        UUID owner = testAuth.createUser().id();
+        service.create(owner, new CreateHouseholdRequest("С"));
+        assertThatThrownBy(() -> service.leave(owner)).isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    void ownerDisbandsHousehold() {
+        UUID owner = testAuth.createUser().id();
+        UUID joiner = testAuth.createUser().id();
+        String code = service.create(owner, new CreateHouseholdRequest("С")).inviteCode();
+        service.join(joiner, new JoinHouseholdRequest(code));
+
+        service.disband(owner);
+        assertThatThrownBy(() -> service.getMine(owner)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> service.getMine(joiner)).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void rotateCodeChangesInviteCode() {
+        UUID owner = testAuth.createUser().id();
+        String oldCode = service.create(owner, new CreateHouseholdRequest("С")).inviteCode();
+        String newCode = service.rotateCode(owner).inviteCode();
+        assertThat(newCode).isNotEqualTo(oldCode).isNotBlank();
     }
 }
