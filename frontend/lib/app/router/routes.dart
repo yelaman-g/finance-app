@@ -22,6 +22,7 @@ class AppRoutes {
   static const goals = _Route('goals', '/goals');
   static const family = _Route('family', '/family');
   static const groups = _Route('groups', '/groups');
+  static const budgets = _Route('budgets', '/budgets');
 
   // Admin
   static const admin = _Route('admin', '/admin');

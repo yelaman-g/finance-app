@@ -1,5 +1,6 @@
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/features/transactions/data/models/category_model.dart';
+import 'package:aifb/features/transactions/data/models/transaction_model.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,7 +58,15 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
         );
     if (!mounted) return;
     switch (result) {
-      case Ok<dynamic>():
+      case Ok<dynamic>(value: final created):
+        if (created is TransactionModel && created.budgetWarnings.isNotEmpty) {
+          final w = created.budgetWarnings.first;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Бюджет «${w.targetName}» превышен (${w.status})'),
+            ),
+          );
+        }
         Navigator.of(context).pop(true);
       case Err<dynamic>(failure: final f):
         setState(() {

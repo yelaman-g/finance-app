@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/admin/presentation/pages/admin_database_page.dart';
+import '../../features/budgets/presentation/pages/budgets_page.dart';
 import '../../features/goals/presentation/pages/goal_detail_page.dart';
 import '../../features/goals/presentation/pages/goals_page.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
@@ -179,6 +180,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (ctx, state) => fadeThroughPage(
           key: state.pageKey,
           child: const GroupsPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.budgets.path,
+        name: AppRoutes.budgets.name,
+        pageBuilder: (ctx, state) => fadeThroughPage(
+          key: state.pageKey,
+          child: const BudgetsPage(),
         ),
       ),
     ],

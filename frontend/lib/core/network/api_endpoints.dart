@@ -37,4 +37,7 @@ class ApiEndpoints {
 
   // Statistics (family)
   static const String statByMember = '/statistics/by-member';
+
+  // Budgets
+  static const String budgets = '/budgets';
 }
