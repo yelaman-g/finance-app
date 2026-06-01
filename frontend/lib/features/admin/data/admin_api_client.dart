@@ -29,7 +29,7 @@ class AdminApiClient {
       data: {'query': query},
     );
     if (response.statusCode == 200) {
-      return SqlResult.fromJson(response.data['data']);
+      return SqlResult.fromJson(response.data['data'] as Map<String, dynamic>);
     }
     throw Exception('Failed to execute query');
   }

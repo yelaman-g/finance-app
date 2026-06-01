@@ -5,6 +5,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../controllers/admin_db_controller.dart';
+import '../state/admin_db_state.dart';
 
 class AdminDatabasePage extends ConsumerStatefulWidget {
   const AdminDatabasePage({super.key});
@@ -143,7 +144,7 @@ class _AdminDatabasePageState extends ConsumerState<AdminDatabasePage> {
     );
   }
 
-  Widget _buildQueryResult(state) {
+  Widget _buildQueryResult(AdminDbState state) {
     if (state.queryResult == null) {
       return const Center(child: Text('Run a query to see results'));
     }
