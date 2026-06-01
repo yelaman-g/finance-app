@@ -39,6 +39,9 @@ public class Category extends BaseEntity {
     @Column(name = "household_id")
     private UUID householdId;
 
+    @Column(name = "group_id")
+    private UUID groupId;
+
     protected Category() {
     }
 
@@ -63,6 +66,8 @@ public class Category extends BaseEntity {
     public UUID getHouseholdId() { return householdId; }
     public boolean isShared() { return householdId != null; }
     public void assignHousehold(UUID householdId) { this.householdId = householdId; }
+    public UUID getGroupId() { return groupId; }
+    public void assignGroup(UUID groupId) { this.groupId = groupId; }
 
     public void setName(String name) { this.name = name; }
     public void setIcon(String icon) { this.icon = icon; }
