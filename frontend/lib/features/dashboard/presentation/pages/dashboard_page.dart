@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../app/router/routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/domain/scope.dart';
 import '../../../../core/utils/hex_color.dart';
 import '../../../../shared/widgets/gradient_background.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/state/auth_state.dart';
 import '../../../goals/presentation/providers/goals_providers.dart';
+import '../../../statistics/data/models/member_breakdown_model.dart';
 import '../../../statistics/presentation/providers/statistics_providers.dart';
 import '../../../transactions/presentation/providers/finance_providers.dart';
 import '../models/dashboard_mock.dart';
@@ -22,11 +25,18 @@ import '../widgets/recent_transactions.dart';
 import '../widgets/section_header.dart';
 import '../widgets/spending_chart_card.dart';
 
-class DashboardPage extends ConsumerWidget {
+class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends ConsumerState<DashboardPage> {
+  Scope _scope = Scope.personal;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: GradientBackground(
@@ -46,7 +56,7 @@ class DashboardPage extends ConsumerWidget {
                     ),
                     sliver: SliverList.list(
                       children: _staggered(
-                          _buildSections(context, ref, wide: wide),),
+                          _buildSections(context, wide: wide),),
                     ),
                   ),
                 ],
@@ -58,12 +68,26 @@ class DashboardPage extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildSections(BuildContext context, WidgetRef ref,
-      {required bool wide,}) {
-    final summary = ref.watch(summaryProvider);
-    final trend = ref.watch(trendProvider);
-    final txs = ref.watch(transactionsProvider);
-    final goals = ref.watch(goalsProvider);
+  List<Widget> _buildSections(BuildContext context, {required bool wide}) {
+    final summary = ref.watch(summaryProvider(_scope));
+    final trend = ref.watch(trendProvider(_scope));
+    final txs = ref.watch(transactionsProvider(_scope));
+    final goals = ref.watch(goalsProvider(_scope));
+
+    final scopeSelector = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SegmentedButton<Scope>(
+          segments: const [
+            ButtonSegment(value: Scope.personal, label: Text('Личное')),
+            ButtonSegment(value: Scope.family, label: Text('Семья')),
+          ],
+          selected: {_scope},
+          onSelectionChanged: (s) => setState(() => _scope = s.first),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
 
     final balanceCard = summary.when(
       loading: () => const BalanceCard(
@@ -131,7 +155,15 @@ class DashboardPage extends ConsumerWidget {
             ),
     );
 
+    final memberBreakdown = _scope == Scope.family
+        ? ref.watch(memberBreakdownProvider).maybeWhen(
+            data: (rows) => _MemberBreakdownCard(rows: rows),
+            orElse: () => const SizedBox.shrink(),
+          )
+        : null;
+
     final left = <Widget>[
+      scopeSelector,
       balanceCard,
       const SizedBox(height: AppSpacing.lg),
       const QuickActions(),
@@ -142,10 +174,14 @@ class DashboardPage extends ConsumerWidget {
       SectionHeader(
         title: 'Goals',
         action: 'Manage',
-        onAction: () => context.push(AppRoutes.goals.path),
+        onAction: () => context.push(AppRoutes.family.path),
       ),
       const SizedBox(height: AppSpacing.md),
       goalsCard,
+      if (memberBreakdown != null) ...[
+        const SizedBox(height: AppSpacing.xl),
+        memberBreakdown,
+      ],
       const SizedBox(height: AppSpacing.xl),
       SectionHeader(
         title: 'Recent transactions',
@@ -193,6 +229,54 @@ class _ErrorBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Text(message, style: AppTypography.caption),
+    );
+  }
+}
+
+class _MemberBreakdownCard extends StatelessWidget {
+  const _MemberBreakdownCard({required this.rows});
+
+  final List<MemberBreakdownModel> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final fmt = NumberFormat.decimalPattern();
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.shadowSoft,
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Расходы участников', style: AppTypography.title),
+          const SizedBox(height: AppSpacing.md),
+          for (final row in rows)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(row.fullName, style: AppTypography.body),
+                  Text(
+                    '-${fmt.format(row.expense)} ₸',
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.danger,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -253,6 +337,13 @@ class _TopBar extends ConsumerWidget {
                 onTap: () => context.push(AppRoutes.admin.path),
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.md),
+            child: _IconBubble(
+              icon: Icons.group_rounded,
+              onTap: () => context.push(AppRoutes.family.path),
+            ),
+          ),
           _IconBubble(
             icon: Icons.notifications_none_rounded,
             badge: true,

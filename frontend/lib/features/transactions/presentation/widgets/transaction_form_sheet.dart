@@ -28,6 +28,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
   DateTime _date = DateTime.now();
   bool _saving = false;
   String? _error;
+  bool _shared = false;
 
   @override
   void dispose() {
@@ -52,6 +53,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
           amount: amount,
           occurredOn: _date,
           note: _note.text,
+          shared: _shared,
         );
     if (!mounted) return;
     switch (result) {
@@ -67,7 +69,9 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
 
   @override
   Widget build(BuildContext context) {
-    final categoriesAsync = ref.watch(categoriesProvider(_type));
+    final categoriesAsync = _shared
+        ? ref.watch(familyCategoriesProvider(_type))
+        : ref.watch(categoriesProvider(_type));
     final bottom = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottom),
@@ -91,7 +95,17 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
               _categoryId = null;
             }),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
+          SwitchListTile(
+            title: const Text('Семейная операция'),
+            value: _shared,
+            onChanged: (v) => setState(() {
+              _shared = v;
+              _categoryId = null;
+            }),
+            contentPadding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 4),
           TextField(
             controller: _amount,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),

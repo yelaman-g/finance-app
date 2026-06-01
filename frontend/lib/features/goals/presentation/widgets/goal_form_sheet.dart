@@ -24,6 +24,7 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
   DateTime? _deadline;
   bool _saving = false;
   String? _error;
+  bool _shared = false;
 
   @override
   void dispose() {
@@ -46,6 +47,7 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
           name: _name.text.trim(),
           targetAmount: target,
           deadline: _deadline,
+          shared: _shared,
         );
     if (!mounted) return;
     switch (result) {
@@ -86,7 +88,14 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
               border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
+          SwitchListTile(
+            title: const Text('Семейная цель'),
+            value: _shared,
+            onChanged: (v) => setState(() => _shared = v),
+            contentPadding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 4),
           Row(
             children: [
               Expanded(
