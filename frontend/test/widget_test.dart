@@ -18,8 +18,11 @@ void main() {
       ),
     );
 
-    // Let all animations and routing resolve
-    await tester.pumpAndSettle();
+    // Pump a few bounded frames. We intentionally avoid pumpAndSettle():
+    // the dashboard shows loading spinners while data providers resolve
+    // network calls, which never settle without a backend in a unit test.
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     // Verify that the app launches without errors.
     expect(find.byType(AifbApp), findsOneWidget);
