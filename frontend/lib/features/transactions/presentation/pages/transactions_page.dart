@@ -1,3 +1,4 @@
+import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
 import 'package:aifb/features/transactions/presentation/widgets/transaction_form_sheet.dart';
 import 'package:flutter/material.dart';
@@ -9,20 +10,20 @@ class TransactionsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final async = ref.watch(transactionsProvider);
+    final async = ref.watch(transactionsProvider(Scope.personal));
     final fmt = NumberFormat.decimalPattern();
     return Scaffold(
       appBar: AppBar(title: const Text('Операции')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final created = await showTransactionForm(context);
-          if (created ?? false) ref.invalidate(transactionsProvider);
+          if (created ?? false) ref.invalidate(transactionsProvider(Scope.personal));
         },
         icon: const Icon(Icons.add),
         label: const Text('Добавить'),
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(transactionsProvider.future),
+        onRefresh: () => ref.refresh(transactionsProvider(Scope.personal).future),
         child: async.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => ListView(
@@ -57,7 +58,7 @@ class TransactionsPage extends ConsumerWidget {
                   ),
                   onDismissed: (_) async {
                     await ref.read(financeRepositoryProvider).delete(t.id);
-                    ref.invalidate(transactionsProvider);
+                    ref.invalidate(transactionsProvider(Scope.personal));
                   },
                   child: ListTile(
                     title: Text(t.categoryName ?? '—'),

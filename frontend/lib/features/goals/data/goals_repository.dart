@@ -1,3 +1,4 @@
+import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/core/errors/error_mapper.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/features/goals/data/goals_data_source.dart';
@@ -7,7 +8,8 @@ class GoalsRepository {
   GoalsRepository(this._ds);
   final GoalsDataSource _ds;
 
-  Future<Result<List<GoalModel>>> list() => _guard(_ds.list);
+  Future<Result<List<GoalModel>>> list({Scope scope = Scope.personal}) =>
+      _guard(() => _ds.list(scope: scope.query));
 
   Future<Result<GoalModel>> get(String id) => _guard(() => _ds.get(id));
 
@@ -17,6 +19,7 @@ class GoalsRepository {
     DateTime? deadline,
     String? icon,
     String? color,
+    bool shared = false,
   }) =>
       _guard(() => _ds.create({
             'name': name,
@@ -24,6 +27,7 @@ class GoalsRepository {
             if (deadline != null) 'deadline': _date(deadline),
             if (icon != null) 'icon': icon,
             if (color != null) 'color': color,
+            'shared': shared,
           },),);
 
   Future<Result<void>> delete(String id) => _guard(() => _ds.delete(id));

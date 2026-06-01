@@ -1,3 +1,4 @@
+import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/network/dio_client.dart';
 import 'package:aifb/features/transactions/data/finance_data_source.dart';
@@ -26,12 +27,26 @@ final categoriesProvider =
 });
 
 final transactionsProvider =
-    FutureProvider.autoDispose<PageResult<TransactionModel>>((ref) async {
-  final result =
-      await ref.watch(financeRepositoryProvider).transactions(size: 50);
+    FutureProvider.autoDispose
+        .family<PageResult<TransactionModel>, Scope>((ref, scope) async {
+  final result = await ref
+      .watch(financeRepositoryProvider)
+      .transactions(scope: scope, size: 50);
   return switch (result) {
     Ok<PageResult<TransactionModel>>(value: final v) => v,
     Err<PageResult<TransactionModel>>(failure: final f) =>
       throw Exception(f.toString()),
+  };
+});
+
+final familyCategoriesProvider =
+    FutureProvider.autoDispose.family<List<CategoryModel>, String?>(
+        (ref, type) async {
+  final result = await ref
+      .watch(financeRepositoryProvider)
+      .categories(type: type, scope: Scope.family);
+  return switch (result) {
+    Ok<List<CategoryModel>>(value: final v) => v,
+    Err<List<CategoryModel>>(failure: final f) => throw Exception(f.toString()),
   };
 });

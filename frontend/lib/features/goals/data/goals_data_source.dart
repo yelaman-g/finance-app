@@ -7,8 +7,11 @@ class GoalsDataSource {
   GoalsDataSource(this._dio);
   final Dio _dio;
 
-  Future<List<GoalModel>> list() async {
-    final res = await _dio.get<Map<String, dynamic>>(ApiEndpoints.goals);
+  Future<List<GoalModel>> list({String scope = 'PERSONAL'}) async {
+    final res = await _dio.get<Map<String, dynamic>>(
+      ApiEndpoints.goals,
+      queryParameters: {'scope': scope},
+    );
     return unwrapList(res.data)
         .map((e) => GoalModel.fromJson(e as Map<String, dynamic>))
         .toList();

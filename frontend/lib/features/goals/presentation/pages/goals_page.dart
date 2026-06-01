@@ -1,4 +1,5 @@
 import 'package:aifb/app/router/routes.dart';
+import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/features/goals/presentation/providers/goals_providers.dart';
 import 'package:aifb/features/goals/presentation/widgets/goal_form_sheet.dart';
 import 'package:flutter/material.dart';
@@ -11,20 +12,20 @@ class GoalsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final async = ref.watch(goalsProvider);
+    final async = ref.watch(goalsProvider(Scope.personal));
     final fmt = NumberFormat.decimalPattern();
     return Scaffold(
       appBar: AppBar(title: const Text('Цели')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final created = await showGoalForm(context);
-          if (created ?? false) ref.invalidate(goalsProvider);
+          if (created ?? false) ref.invalidate(goalsProvider(Scope.personal));
         },
         icon: const Icon(Icons.add),
         label: const Text('Новая цель'),
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(goalsProvider.future),
+        onRefresh: () => ref.refresh(goalsProvider(Scope.personal).future),
         child: async.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => ListView(

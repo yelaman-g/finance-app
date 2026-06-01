@@ -1,3 +1,4 @@
+import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/network/dio_client.dart';
 import 'package:aifb/features/goals/data/goals_data_source.dart';
@@ -13,8 +14,9 @@ final goalsRepositoryProvider = Provider<GoalsRepository>((ref) {
   return GoalsRepository(ref.watch(goalsDataSourceProvider));
 });
 
-final goalsProvider = FutureProvider.autoDispose<List<GoalModel>>((ref) async {
-  final result = await ref.watch(goalsRepositoryProvider).list();
+final goalsProvider =
+    FutureProvider.autoDispose.family<List<GoalModel>, Scope>((ref, scope) async {
+  final result = await ref.watch(goalsRepositoryProvider).list(scope: scope);
   return switch (result) {
     Ok<List<GoalModel>>(value: final v) => v,
     Err<List<GoalModel>>(failure: final f) => throw Exception(f.toString()),

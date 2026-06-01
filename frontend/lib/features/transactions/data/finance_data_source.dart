@@ -10,10 +10,16 @@ class FinanceDataSource {
   FinanceDataSource(this._dio);
   final Dio _dio;
 
-  Future<List<CategoryModel>> categories(String? type) async {
+  Future<List<CategoryModel>> categories(
+    String? type, {
+    String scope = 'PERSONAL',
+  }) async {
     final res = await _dio.get<Map<String, dynamic>>(
       ApiEndpoints.categories,
-      queryParameters: {if (type != null) 'type': type},
+      queryParameters: {
+        if (type != null) 'type': type,
+        'scope': scope,
+      },
     );
     return unwrapList(res.data)
         .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
@@ -27,6 +33,7 @@ class FinanceDataSource {
     DateTime? to,
     int page = 0,
     int size = 20,
+    String scope = 'PERSONAL',
   }) async {
     final res = await _dio.get<Map<String, dynamic>>(
       ApiEndpoints.transactions,
@@ -37,6 +44,7 @@ class FinanceDataSource {
         if (to != null) 'to': _date(to),
         'page': page,
         'size': size,
+        'scope': scope,
       },
     );
     return PageResult.fromJson(

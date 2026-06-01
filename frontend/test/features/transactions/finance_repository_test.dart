@@ -18,7 +18,7 @@ void main() {
   });
 
   test('categories returns Ok with mapped list', () async {
-    when(() => ds.categories('EXPENSE')).thenAnswer(
+    when(() => ds.categories('EXPENSE', scope: 'PERSONAL')).thenAnswer(
       (_) async => const [
         CategoryModel(id: '1', name: 'Еда', type: 'EXPENSE', system: true),
       ],

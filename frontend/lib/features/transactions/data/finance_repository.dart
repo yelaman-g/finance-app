@@ -1,3 +1,4 @@
+import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/core/errors/error_mapper.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/features/transactions/data/finance_data_source.dart';
@@ -9,8 +10,11 @@ class FinanceRepository {
   FinanceRepository(this._ds);
   final FinanceDataSource _ds;
 
-  Future<Result<List<CategoryModel>>> categories({String? type}) =>
-      _guard(() => _ds.categories(type));
+  Future<Result<List<CategoryModel>>> categories({
+    String? type,
+    Scope scope = Scope.personal,
+  }) =>
+      _guard(() => _ds.categories(type, scope: scope.query));
 
   Future<Result<PageResult<TransactionModel>>> transactions({
     String? type,
@@ -19,6 +23,7 @@ class FinanceRepository {
     DateTime? to,
     int page = 0,
     int size = 20,
+    Scope scope = Scope.personal,
   }) =>
       _guard(
         () => _ds.transactions(
@@ -28,6 +33,7 @@ class FinanceRepository {
           to: to,
           page: page,
           size: size,
+          scope: scope.query,
         ),
       );
 
@@ -37,6 +43,7 @@ class FinanceRepository {
     required double amount,
     required DateTime occurredOn,
     String? note,
+    bool shared = false,
   }) =>
       _guard(
         () => _ds.create({
@@ -45,6 +52,7 @@ class FinanceRepository {
           'amount': amount,
           'occurredOn': _date(occurredOn),
           if (note != null && note.isNotEmpty) 'note': note,
+          'shared': shared,
         }),
       );
 
