@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface GoalRepository extends JpaRepository<Goal, UUID> {
-    List<Goal> findByUserIdOrderByCreatedAtDesc(UUID userId);
+    List<Goal> findByUserIdAndHouseholdIdIsNullOrderByCreatedAtDesc(UUID userId);
+    List<Goal> findByHouseholdIdOrderByCreatedAtDesc(UUID householdId);
     Optional<Goal> findByIdAndUserId(UUID id, UUID userId);
 }

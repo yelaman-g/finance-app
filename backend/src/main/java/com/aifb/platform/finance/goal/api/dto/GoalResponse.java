@@ -16,7 +16,8 @@ public record GoalResponse(
         LocalDate deadline,
         String status,
         String icon,
-        String color) {
+        String color,
+        boolean shared) {
 
     public static GoalResponse from(Goal g, BigDecimal saved) {
         BigDecimal safeSaved = saved == null ? BigDecimal.ZERO : saved;
@@ -32,6 +33,7 @@ public record GoalResponse(
                 g.getDeadline(),
                 g.getStatus().name(),
                 g.getIcon(),
-                g.getColor());
+                g.getColor(),
+                g.isShared());
     }
 }

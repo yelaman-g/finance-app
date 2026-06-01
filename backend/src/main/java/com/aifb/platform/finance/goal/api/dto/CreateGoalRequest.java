@@ -14,5 +14,6 @@ public record CreateGoalRequest(
         @NotNull @DecimalMin(value = "0.01") @Digits(integer = 13, fraction = 2) BigDecimal targetAmount,
         LocalDate deadline,
         @Size(max = 40) String icon,
-        @Size(max = 9) String color) {
+        @Size(max = 9) String color,
+        boolean shared) {
 }

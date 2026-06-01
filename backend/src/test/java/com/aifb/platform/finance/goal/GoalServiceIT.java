@@ -1,5 +1,6 @@
 package com.aifb.platform.finance.goal;
 
+import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.common.exception.NotFoundException;
 import com.aifb.platform.finance.goal.api.dto.ContributionResponse;
 import com.aifb.platform.finance.goal.api.dto.CreateContributionRequest;
@@ -26,7 +27,7 @@ class GoalServiceIT extends AbstractIntegrationTest {
 
     private GoalResponse newGoal(UUID userId, String target) {
         return service.create(userId, new CreateGoalRequest(
-                "Отпуск", new BigDecimal(target), LocalDate.now().plusMonths(6), "beach", "#22AAFF"));
+                "Отпуск", new BigDecimal(target), LocalDate.now().plusMonths(6), "beach", "#22AAFF", false));
     }
 
     @Test
@@ -80,7 +81,7 @@ class GoalServiceIT extends AbstractIntegrationTest {
         GoalResponse goal = newGoal(userId, "1000.00");
         service.addContribution(userId, goal.id(),
                 new CreateContributionRequest(new BigDecimal("100.00"), null, LocalDate.now()));
-        assertThat(service.list(userId))
+        assertThat(service.list(userId, Scope.PERSONAL))
                 .anyMatch(g -> g.id().equals(goal.id())
                         && g.savedAmount().compareTo(new BigDecimal("100.00")) == 0);
     }
@@ -114,6 +115,6 @@ class GoalServiceIT extends AbstractIntegrationTest {
         service.addContribution(userId, goal.id(),
                 new CreateContributionRequest(new BigDecimal("100.00"), null, LocalDate.now()));
         service.delete(userId, goal.id());
-        assertThat(service.list(userId)).noneMatch(g -> g.id().equals(goal.id()));
+        assertThat(service.list(userId, Scope.PERSONAL)).noneMatch(g -> g.id().equals(goal.id()));
     }
 }

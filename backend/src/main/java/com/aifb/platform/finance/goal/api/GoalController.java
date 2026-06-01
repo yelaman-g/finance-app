@@ -1,6 +1,7 @@
 package com.aifb.platform.finance.goal.api;
 
 import com.aifb.platform.common.api.ApiResponse;
+import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.common.security.AuthPrincipal;
 import com.aifb.platform.common.security.CurrentUser;
 import com.aifb.platform.finance.goal.api.dto.ContributionResponse;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -33,8 +35,9 @@ public class GoalController {
     }
 
     @GetMapping
-    public ApiResponse<List<GoalResponse>> list(@CurrentUser AuthPrincipal principal) {
-        return ApiResponse.ok(service.list(principal.userId()));
+    public ApiResponse<List<GoalResponse>> list(@CurrentUser AuthPrincipal principal,
+                                                @RequestParam(defaultValue = "PERSONAL") Scope scope) {
+        return ApiResponse.ok(service.list(principal.userId(), scope));
     }
 
     @GetMapping("/{id}")
