@@ -1,6 +1,7 @@
 package com.aifb.platform.auth.domain;
 
 import com.aifb.platform.common.persistence.BaseEntity;
+import com.aifb.platform.household.domain.HouseholdRole;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -50,6 +51,13 @@ public class User extends BaseEntity {
     @Column(name = "role", nullable = false, length = 32)
     private Set<Role> roles = new HashSet<>();
 
+    @Column(name = "household_id")
+    private UUID householdId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "household_role", length = 10)
+    private HouseholdRole householdRole;
+
     protected User() {
     }
 
@@ -70,6 +78,24 @@ public class User extends BaseEntity {
     public int getTokenVersion() { return tokenVersion; }
     public Instant getLastLoginAt() { return lastLoginAt; }
     public Set<Role> getRoles() { return Set.copyOf(roles); }
+
+    public UUID getHouseholdId() { return householdId; }
+    public HouseholdRole getHouseholdRole() { return householdRole; }
+    public boolean isInHousehold() { return householdId != null; }
+
+    public void joinHousehold(UUID householdId, HouseholdRole role) {
+        this.householdId = householdId;
+        this.householdRole = role;
+    }
+
+    public void setHouseholdRole(HouseholdRole role) {
+        this.householdRole = role;
+    }
+
+    public void leaveHousehold() {
+        this.householdId = null;
+        this.householdRole = null;
+    }
 
     public void markLoggedIn() {
         this.lastLoginAt = Instant.now();
