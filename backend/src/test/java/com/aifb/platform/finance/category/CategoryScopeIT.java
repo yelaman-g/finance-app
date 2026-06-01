@@ -35,7 +35,7 @@ class CategoryScopeIT extends AbstractIntegrationTest {
         householdService.join(member, new JoinHouseholdRequest(code));
 
         CategoryResponse shared = service.create(owner,
-                new CreateCategoryRequest("Коммуналка", CategoryType.EXPENSE, null, null, true));
+                new CreateCategoryRequest("Коммуналка", CategoryType.EXPENSE, null, null, true, null));
         assertThat(shared.shared()).isTrue();
 
         assertThat(service.list(owner, CategoryType.EXPENSE, Scope.FAMILY))
@@ -55,7 +55,7 @@ class CategoryScopeIT extends AbstractIntegrationTest {
         householdService.changeRole(owner, child, HouseholdRole.CHILD);
 
         assertThatThrownBy(() -> service.create(child,
-                new CreateCategoryRequest("X", CategoryType.EXPENSE, null, null, true)))
+                new CreateCategoryRequest("X", CategoryType.EXPENSE, null, null, true, null)))
                 .isInstanceOf(ForbiddenException.class);
     }
 
@@ -63,7 +63,7 @@ class CategoryScopeIT extends AbstractIntegrationTest {
     void sharedCreateWithoutHouseholdConflicts() {
         UUID solo = testAuth.createUser().id();
         assertThatThrownBy(() -> service.create(solo,
-                new CreateCategoryRequest("X", CategoryType.EXPENSE, null, null, true)))
+                new CreateCategoryRequest("X", CategoryType.EXPENSE, null, null, true, null)))
                 .isInstanceOf(ConflictException.class);
     }
 
@@ -72,7 +72,7 @@ class CategoryScopeIT extends AbstractIntegrationTest {
         UUID owner = testAuth.createUser().id();
         householdService.create(owner, new CreateHouseholdRequest("Семья"));
         CategoryResponse shared = service.create(owner,
-                new CreateCategoryRequest("Коммуналка", CategoryType.EXPENSE, null, null, true));
+                new CreateCategoryRequest("Коммуналка", CategoryType.EXPENSE, null, null, true, null));
         service.delete(owner, shared.id());
         assertThat(service.list(owner, CategoryType.EXPENSE, Scope.FAMILY))
                 .noneMatch(c -> c.id().equals(shared.id()));

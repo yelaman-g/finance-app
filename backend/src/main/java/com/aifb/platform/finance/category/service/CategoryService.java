@@ -2,6 +2,8 @@ package com.aifb.platform.finance.category.service;
 
 import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.common.exception.ConflictException;
+import com.aifb.platform.common.exception.DomainException;
+import com.aifb.platform.common.exception.ErrorCode;
 import com.aifb.platform.common.exception.ForbiddenException;
 import com.aifb.platform.common.exception.NotFoundException;
 import com.aifb.platform.finance.category.api.dto.CategoryResponse;
@@ -10,6 +12,8 @@ import com.aifb.platform.finance.category.api.dto.UpdateCategoryRequest;
 import com.aifb.platform.finance.category.domain.Category;
 import com.aifb.platform.finance.category.domain.CategoryType;
 import com.aifb.platform.finance.category.repository.CategoryRepository;
+import com.aifb.platform.finance.group.domain.CategoryGroup;
+import com.aifb.platform.finance.group.repository.CategoryGroupRepository;
 import com.aifb.platform.household.service.HouseholdContextService;
 import com.aifb.platform.household.service.HouseholdContextService.HouseholdContext;
 import org.springframework.stereotype.Service;
@@ -24,11 +28,14 @@ public class CategoryService {
 
     private final CategoryRepository repository;
     private final HouseholdContextService householdContext;
+    private final CategoryGroupRepository groupRepository;
 
     public CategoryService(CategoryRepository repository,
-                           HouseholdContextService householdContext) {
+                           HouseholdContextService householdContext,
+                           CategoryGroupRepository groupRepository) {
         this.repository = repository;
         this.householdContext = householdContext;
+        this.groupRepository = groupRepository;
     }
 
     @Transactional(readOnly = true)
@@ -54,6 +61,7 @@ public class CategoryService {
             }
             Category category = new Category(userId, req.name(), req.type(), req.icon(), req.color());
             category.assignHousehold(ctx.householdId());
+            applyGroup(category, req.groupId(), userId, ctx.householdId());
             return CategoryResponse.from(repository.save(category));
         }
         if (repository.existsByUserIdAndTypeAndNameIgnoreCaseAndDeletedAtIsNull(
@@ -61,6 +69,7 @@ public class CategoryService {
             throw new ConflictException("Категория с таким именем уже существует");
         }
         Category category = new Category(userId, req.name(), req.type(), req.icon(), req.color());
+        applyGroup(category, req.groupId(), userId, null);
         return CategoryResponse.from(repository.save(category));
     }
 
@@ -70,6 +79,7 @@ public class CategoryService {
         category.setName(req.name());
         category.setIcon(req.icon());
         category.setColor(req.color());
+        applyGroup(category, req.groupId(), userId, category.getHouseholdId());
         return CategoryResponse.from(repository.save(category));
     }
 
@@ -78,6 +88,25 @@ public class CategoryService {
         Category category = manageableCategory(userId, id);
         category.softDelete(Instant.now());
         repository.save(category);
+    }
+
+    private void applyGroup(Category category, UUID groupId, UUID userId, UUID householdId) {
+        if (groupId == null) {
+            category.assignGroup(null);
+            return;
+        }
+        CategoryGroup group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new DomainException(ErrorCode.VALIDATION_FAILED, "Группа не найдена"));
+        boolean sameScope = householdId == null
+                ? (group.getHouseholdId() == null && userId.equals(group.getUserId()))
+                : householdId.equals(group.getHouseholdId());
+        if (!sameScope) {
+            throw new DomainException(ErrorCode.VALIDATION_FAILED, "Группа недоступна в этом контексте");
+        }
+        if (group.getType() != category.getType()) {
+            throw new DomainException(ErrorCode.VALIDATION_FAILED, "Тип группы не совпадает с категорией");
+        }
+        category.assignGroup(group.getId());
     }
 
     private Category manageableCategory(UUID userId, UUID id) {

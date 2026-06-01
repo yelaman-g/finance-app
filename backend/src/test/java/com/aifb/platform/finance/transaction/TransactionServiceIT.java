@@ -61,7 +61,7 @@ class TransactionServiceIT extends AbstractIntegrationTest {
         UUID owner = testAuth.createUser().id();
         UUID other = testAuth.createUser().id();
         CategoryResponse ownCat = categoryService.create(owner,
-                new CreateCategoryRequest("Личное", CategoryType.EXPENSE, null, null, false));
+                new CreateCategoryRequest("Личное", CategoryType.EXPENSE, null, null, false, null));
         assertThatThrownBy(() -> service.create(other, new CreateTransactionRequest(
                 ownCat.id(), CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now(), false)))
                 .isInstanceOf(NotFoundException.class);

@@ -42,7 +42,7 @@ class CategoryServiceIT extends AbstractIntegrationTest {
         UUID other = testAuth.createUser().id();
 
         CategoryResponse created = service.create(owner,
-                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, "coffee", "#FFAA00", false));
+                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, "coffee", "#FFAA00", false, null));
 
         assertThat(created.system()).isFalse();
         assertThat(service.list(owner, CategoryType.EXPENSE, Scope.PERSONAL))
@@ -54,9 +54,9 @@ class CategoryServiceIT extends AbstractIntegrationTest {
     @Test
     void createRejectsDuplicateActiveName() {
         UUID owner = testAuth.createUser().id();
-        service.create(owner, new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false));
+        service.create(owner, new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false, null));
         assertThatThrownBy(() -> service.create(owner,
-                new CreateCategoryRequest("кафе", CategoryType.EXPENSE, null, null, false)))
+                new CreateCategoryRequest("кафе", CategoryType.EXPENSE, null, null, false, null)))
                 .isInstanceOf(ConflictException.class);
     }
 
@@ -64,9 +64,9 @@ class CategoryServiceIT extends AbstractIntegrationTest {
     void updateChangesOwnedCategory() {
         UUID owner = testAuth.createUser().id();
         CategoryResponse created = service.create(owner,
-                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false));
+                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false, null));
         CategoryResponse updated = service.update(owner, created.id(),
-                new UpdateCategoryRequest("Кофейни", "coffee", "#112233"));
+                new UpdateCategoryRequest("Кофейни", "coffee", "#112233", null));
         assertThat(updated.name()).isEqualTo("Кофейни");
         assertThat(updated.icon()).isEqualTo("coffee");
     }
@@ -77,7 +77,7 @@ class CategoryServiceIT extends AbstractIntegrationTest {
         UUID systemId = repository.findVisible(owner, CategoryType.EXPENSE).stream()
                 .filter(c -> c.isSystem()).findFirst().orElseThrow().getId();
         assertThatThrownBy(() -> service.update(owner, systemId,
-                new UpdateCategoryRequest("Hacked", null, null)))
+                new UpdateCategoryRequest("Hacked", null, null, null)))
                 .isInstanceOf(ForbiddenException.class);
     }
 
@@ -85,14 +85,14 @@ class CategoryServiceIT extends AbstractIntegrationTest {
     void deleteSoftDeletesAndHidesFromList() {
         UUID owner = testAuth.createUser().id();
         CategoryResponse created = service.create(owner,
-                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false));
+                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false, null));
         service.delete(owner, created.id());
 
         assertThat(service.list(owner, CategoryType.EXPENSE, Scope.PERSONAL))
                 .noneMatch(c -> c.id().equals(created.id()));
         assertThat(repository.findById(created.id()).orElseThrow().isDeleted()).isTrue();
         assertThat(service.create(owner,
-                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false)).id())
+                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false, null)).id())
                 .isNotNull();
     }
 
@@ -101,9 +101,9 @@ class CategoryServiceIT extends AbstractIntegrationTest {
         UUID owner = testAuth.createUser().id();
         UUID other = testAuth.createUser().id();
         CategoryResponse created = service.create(owner,
-                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false));
+                new CreateCategoryRequest("Кафе", CategoryType.EXPENSE, null, null, false, null));
         assertThatThrownBy(() -> service.update(other, created.id(),
-                new UpdateCategoryRequest("X", null, null)))
+                new UpdateCategoryRequest("X", null, null, null)))
                 .isInstanceOf(NotFoundException.class);
     }
 }
