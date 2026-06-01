@@ -8,6 +8,7 @@ import com.aifb.platform.common.exception.ForbiddenException;
 import com.aifb.platform.common.exception.NotFoundException;
 import com.aifb.platform.finance.budget.api.dto.BudgetWarning;
 import com.aifb.platform.finance.budget.service.BudgetService;
+import com.aifb.platform.finance.categorization.service.CategorizationService;
 import com.aifb.platform.finance.category.domain.Category;
 import com.aifb.platform.finance.category.domain.CategoryType;
 import com.aifb.platform.finance.category.repository.CategoryRepository;
@@ -39,15 +40,18 @@ public class TransactionService {
     private final CategoryRepository categoryRepository;
     private final HouseholdContextService householdContext;
     private final BudgetService budgetService;
+    private final CategorizationService categorizationService;
 
     public TransactionService(TransactionRepository repository,
                               CategoryRepository categoryRepository,
                               HouseholdContextService householdContext,
-                              BudgetService budgetService) {
+                              BudgetService budgetService,
+                              CategorizationService categorizationService) {
         this.repository = repository;
         this.categoryRepository = categoryRepository;
         this.householdContext = householdContext;
         this.budgetService = budgetService;
+        this.categorizationService = categorizationService;
     }
 
     @Transactional(readOnly = true)
@@ -83,6 +87,10 @@ public class TransactionService {
         Category category;
         Transaction t;
         if (req.shared()) {
+            if (req.categoryId() == null) {
+                throw new DomainException(ErrorCode.VALIDATION_FAILED,
+                        "Категория обязательна для семейной операции");
+            }
             HouseholdContext ctx = householdContext.requireMembership(userId);
             category = categoryRepository.findVisibleByIdFamily(req.categoryId(), ctx.householdId())
                     .orElseThrow(() -> new NotFoundException("Категория не найдена"));
@@ -91,7 +99,13 @@ public class TransactionService {
                     req.amount(), req.note(), req.occurredOn());
             t.assignHousehold(ctx.householdId());
         } else {
-            category = categoryRepository.findVisibleByIdPersonal(req.categoryId(), userId)
+            UUID categoryId = req.categoryId();
+            if (categoryId == null) {
+                categoryId = categorizationService.resolve(userId, req.note(), req.type())
+                        .orElseThrow(() -> new DomainException(ErrorCode.VALIDATION_FAILED,
+                                "Категория не определена"));
+            }
+            category = categoryRepository.findVisibleByIdPersonal(categoryId, userId)
                     .orElseThrow(() -> new NotFoundException("Категория не найдена"));
             validateType(category, req.type());
             t = new Transaction(userId, category.getId(), req.type(),

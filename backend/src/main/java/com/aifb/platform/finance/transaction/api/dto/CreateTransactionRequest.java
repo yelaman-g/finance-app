@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record CreateTransactionRequest(
-        @NotNull UUID categoryId,
+        UUID categoryId,
         @NotNull CategoryType type,
         @NotNull @DecimalMin(value = "0.01") @Digits(integer = 13, fraction = 2) BigDecimal amount,
         @Size(max = 255) String note,
