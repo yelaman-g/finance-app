@@ -52,4 +52,7 @@ dependencies {
     testImplementation 'org.testcontainers:postgresql'
 }
 
-tasks.named('test') { useJUnitPlatform() }
+tasks.named('test') {
+    useJUnitPlatform()
+    maxParallelForks = 1
+}
