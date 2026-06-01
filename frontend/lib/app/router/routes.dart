@@ -18,6 +18,8 @@ class AppRoutes {
   static const ai = _Route('ai', '/ai');
   static const moments = _Route('moments', '/moments');
   static const profile = _Route('profile', '/profile');
+  static const transactions = _Route('transactions', '/transactions');
+  static const goals = _Route('goals', '/goals');
 
   // Admin
   static const admin = _Route('admin', '/admin');

@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/admin/presentation/pages/admin_database_page.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/state/auth_state.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
-import '../../features/admin/presentation/pages/admin_database_page.dart';
+import '../../features/transactions/presentation/pages/transactions_page.dart';
 import 'router_refresh.dart';
 import 'routes.dart';
 import 'transitions.dart';
@@ -77,6 +78,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (ctx, state) => fadeThroughPage(
           key: state.pageKey,
           child: const DashboardPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.transactions.path,
+        name: AppRoutes.transactions.name,
+        pageBuilder: (ctx, state) => fadeThroughPage(
+          key: state.pageKey,
+          child: const TransactionsPage(),
         ),
       ),
       GoRoute(
