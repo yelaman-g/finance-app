@@ -18,7 +18,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @Query("""
             select t from Transaction t
-            where t.userId = :userId
+            where t.userId = :userId and t.householdId is null
               and (:from is null or t.occurredOn >= :from)
               and (:to is null or t.occurredOn <= :to)
               and (:type is null or t.type = :type)
@@ -30,6 +30,21 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                              @Param("type") CategoryType type,
                              @Param("categoryId") UUID categoryId,
                              Pageable pageable);
+
+    @Query("""
+            select t from Transaction t
+            where t.householdId = :householdId
+              and (:from is null or t.occurredOn >= :from)
+              and (:to is null or t.occurredOn <= :to)
+              and (:type is null or t.type = :type)
+              and (:categoryId is null or t.categoryId = :categoryId)
+            """)
+    Page<Transaction> searchFamily(@Param("householdId") UUID householdId,
+                                   @Param("from") LocalDate from,
+                                   @Param("to") LocalDate to,
+                                   @Param("type") CategoryType type,
+                                   @Param("categoryId") UUID categoryId,
+                                   Pageable pageable);
 
     Optional<Transaction> findByIdAndUserId(UUID id, UUID userId);
 

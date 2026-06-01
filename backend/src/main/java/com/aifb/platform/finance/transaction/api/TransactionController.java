@@ -4,6 +4,7 @@ import com.aifb.platform.common.api.ApiResponse;
 import com.aifb.platform.common.api.PageResponse;
 import com.aifb.platform.common.security.AuthPrincipal;
 import com.aifb.platform.common.security.CurrentUser;
+import com.aifb.platform.common.domain.Scope;
 import com.aifb.platform.finance.category.domain.CategoryType;
 import com.aifb.platform.finance.transaction.api.dto.CreateTransactionRequest;
 import com.aifb.platform.finance.transaction.api.dto.TransactionResponse;
@@ -41,9 +42,10 @@ public class TransactionController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) CategoryType type,
             @RequestParam(required = false) UUID categoryId,
+            @RequestParam(defaultValue = "PERSONAL") Scope scope,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return ApiResponse.ok(service.list(principal.userId(), from, to, type, categoryId, page, size));
+        return ApiResponse.ok(service.list(principal.userId(), from, to, type, categoryId, scope, page, size));
     }
 
     @GetMapping("/{id}")

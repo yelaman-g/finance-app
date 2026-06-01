@@ -9,28 +9,17 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record TransactionResponse(
-        UUID id,
-        UUID categoryId,
-        String categoryName,
-        String categoryColor,
-        String categoryIcon,
-        String type,
-        BigDecimal amount,
-        String note,
-        LocalDate occurredOn,
-        Instant createdAt) {
+        UUID id, UUID categoryId, String categoryName, String categoryColor,
+        String categoryIcon, String type, BigDecimal amount, String note,
+        LocalDate occurredOn, Instant createdAt, boolean shared, UUID authorId) {
 
     public static TransactionResponse from(Transaction t, Category category) {
         return new TransactionResponse(
-                t.getId(),
-                t.getCategoryId(),
+                t.getId(), t.getCategoryId(),
                 category == null ? null : category.getName(),
                 category == null ? null : category.getColor(),
                 category == null ? null : category.getIcon(),
-                t.getType().name(),
-                t.getAmount(),
-                t.getNote(),
-                t.getOccurredOn(),
-                t.getCreatedAt());
+                t.getType().name(), t.getAmount(), t.getNote(),
+                t.getOccurredOn(), t.getCreatedAt(), t.isShared(), t.getUserId());
     }
 }

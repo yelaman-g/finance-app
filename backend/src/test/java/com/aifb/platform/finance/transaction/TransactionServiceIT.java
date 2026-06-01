@@ -40,7 +40,7 @@ class TransactionServiceIT extends AbstractIntegrationTest {
 
         TransactionResponse created = service.create(userId, new CreateTransactionRequest(
                 categoryId, CategoryType.EXPENSE, new BigDecimal("1500.00"),
-                "Обед", LocalDate.now()));
+                "Обед", LocalDate.now(), false));
 
         assertThat(created.id()).isNotNull();
         assertThat(created.amount()).isEqualByComparingTo("1500.00");
@@ -52,7 +52,7 @@ class TransactionServiceIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID expenseId = expenseCategory(userId);
         assertThatThrownBy(() -> service.create(userId, new CreateTransactionRequest(
-                expenseId, CategoryType.INCOME, new BigDecimal("100.00"), null, LocalDate.now())))
+                expenseId, CategoryType.INCOME, new BigDecimal("100.00"), null, LocalDate.now(), false)))
                 .isInstanceOf(DomainException.class);
     }
 
@@ -63,7 +63,7 @@ class TransactionServiceIT extends AbstractIntegrationTest {
         CategoryResponse ownCat = categoryService.create(owner,
                 new CreateCategoryRequest("Личное", CategoryType.EXPENSE, null, null, false));
         assertThatThrownBy(() -> service.create(other, new CreateTransactionRequest(
-                ownCat.id(), CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now())))
+                ownCat.id(), CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now(), false)))
                 .isInstanceOf(NotFoundException.class);
     }
 
@@ -75,17 +75,17 @@ class TransactionServiceIT extends AbstractIntegrationTest {
         UUID incomeId = categoryService.list(userId, CategoryType.INCOME, Scope.PERSONAL).get(0).id();
 
         service.create(userId, new CreateTransactionRequest(
-                expenseId, CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now()));
+                expenseId, CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now(), false));
         service.create(userId, new CreateTransactionRequest(
-                incomeId, CategoryType.INCOME, new BigDecimal("500.00"), null, LocalDate.now()));
+                incomeId, CategoryType.INCOME, new BigDecimal("500.00"), null, LocalDate.now(), false));
 
         PageResponse<TransactionResponse> expenses =
-                service.list(userId, null, null, CategoryType.EXPENSE, null, 0, 20);
+                service.list(userId, null, null, CategoryType.EXPENSE, null, Scope.PERSONAL, 0, 20);
         assertThat(expenses.items()).hasSize(1);
         assertThat(expenses.items().get(0).type()).isEqualTo("EXPENSE");
 
         PageResponse<TransactionResponse> otherUser =
-                service.list(other, null, null, null, null, 0, 20);
+                service.list(other, null, null, null, null, Scope.PERSONAL, 0, 20);
         assertThat(otherUser.items()).isEmpty();
     }
 
@@ -94,7 +94,7 @@ class TransactionServiceIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID expenseId = expenseCategory(userId);
         TransactionResponse created = service.create(userId, new CreateTransactionRequest(
-                expenseId, CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now()));
+                expenseId, CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now(), false));
 
         TransactionResponse updated = service.update(userId, created.id(),
                 new com.aifb.platform.finance.transaction.api.dto.UpdateTransactionRequest(
@@ -109,9 +109,9 @@ class TransactionServiceIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID expenseId = expenseCategory(userId);
         TransactionResponse created = service.create(userId, new CreateTransactionRequest(
-                expenseId, CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now()));
+                expenseId, CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now(), false));
         service.delete(userId, created.id());
-        assertThat(service.list(userId, null, null, null, null, 0, 20).items()).isEmpty();
+        assertThat(service.list(userId, null, null, null, null, Scope.PERSONAL, 0, 20).items()).isEmpty();
     }
 
     @Test
@@ -120,7 +120,7 @@ class TransactionServiceIT extends AbstractIntegrationTest {
         UUID other = testAuth.createUser().id();
         UUID expenseId = expenseCategory(owner);
         TransactionResponse created = service.create(owner, new CreateTransactionRequest(
-                expenseId, CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now()));
+                expenseId, CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now(), false));
         assertThatThrownBy(() -> service.get(other, created.id()))
                 .isInstanceOf(NotFoundException.class);
     }
