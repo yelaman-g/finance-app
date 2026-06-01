@@ -6,6 +6,8 @@ import com.aifb.platform.common.exception.DomainException;
 import com.aifb.platform.common.exception.ErrorCode;
 import com.aifb.platform.common.exception.ForbiddenException;
 import com.aifb.platform.common.exception.NotFoundException;
+import com.aifb.platform.finance.budget.api.dto.BudgetWarning;
+import com.aifb.platform.finance.budget.service.BudgetService;
 import com.aifb.platform.finance.category.domain.Category;
 import com.aifb.platform.finance.category.domain.CategoryType;
 import com.aifb.platform.finance.category.repository.CategoryRepository;
@@ -36,13 +38,16 @@ public class TransactionService {
     private final TransactionRepository repository;
     private final CategoryRepository categoryRepository;
     private final HouseholdContextService householdContext;
+    private final BudgetService budgetService;
 
     public TransactionService(TransactionRepository repository,
                               CategoryRepository categoryRepository,
-                              HouseholdContextService householdContext) {
+                              HouseholdContextService householdContext,
+                              BudgetService budgetService) {
         this.repository = repository;
         this.categoryRepository = categoryRepository;
         this.householdContext = householdContext;
+        this.budgetService = budgetService;
     }
 
     @Transactional(readOnly = true)
@@ -75,22 +80,29 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse create(UUID userId, CreateTransactionRequest req) {
+        Category category;
+        Transaction t;
         if (req.shared()) {
             HouseholdContext ctx = householdContext.requireMembership(userId);
-            Category category = categoryRepository.findVisibleByIdFamily(req.categoryId(), ctx.householdId())
+            category = categoryRepository.findVisibleByIdFamily(req.categoryId(), ctx.householdId())
                     .orElseThrow(() -> new NotFoundException("Категория не найдена"));
             validateType(category, req.type());
-            Transaction t = new Transaction(userId, category.getId(), req.type(),
+            t = new Transaction(userId, category.getId(), req.type(),
                     req.amount(), req.note(), req.occurredOn());
             t.assignHousehold(ctx.householdId());
-            return TransactionResponse.from(repository.save(t), category);
+        } else {
+            category = categoryRepository.findVisibleByIdPersonal(req.categoryId(), userId)
+                    .orElseThrow(() -> new NotFoundException("Категория не найдена"));
+            validateType(category, req.type());
+            t = new Transaction(userId, category.getId(), req.type(),
+                    req.amount(), req.note(), req.occurredOn());
         }
-        Category category = categoryRepository.findVisibleByIdPersonal(req.categoryId(), userId)
-                .orElseThrow(() -> new NotFoundException("Категория не найдена"));
-        validateType(category, req.type());
-        Transaction t = new Transaction(userId, category.getId(), req.type(),
-                req.amount(), req.note(), req.occurredOn());
-        return TransactionResponse.from(repository.save(t), category);
+        Transaction saved = repository.save(t);
+        List<BudgetWarning> warnings = req.type() == CategoryType.EXPENSE
+                ? budgetService.warningsForExpense(userId, saved.getHouseholdId(),
+                        saved.getCategoryId(), category.getGroupId())
+                : List.of();
+        return TransactionResponse.from(saved, category, warnings);
     }
 
     @Transactional
