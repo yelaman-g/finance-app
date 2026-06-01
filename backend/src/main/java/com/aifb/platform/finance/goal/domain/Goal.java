@@ -37,6 +37,9 @@ public class Goal extends BaseEntity {
     @Column(length = 9)
     private String color;
 
+    @Column(name = "household_id")
+    private UUID householdId;
+
     protected Goal() {
     }
 
@@ -59,6 +62,9 @@ public class Goal extends BaseEntity {
     public GoalStatus getStatus() { return status; }
     public String getIcon() { return icon; }
     public String getColor() { return color; }
+    public UUID getHouseholdId() { return householdId; }
+    public boolean isShared() { return householdId != null; }
+    public void assignHousehold(UUID householdId) { this.householdId = householdId; }
 
     public void setName(String name) { this.name = name; }
     public void setTargetAmount(BigDecimal targetAmount) { this.targetAmount = targetAmount; }

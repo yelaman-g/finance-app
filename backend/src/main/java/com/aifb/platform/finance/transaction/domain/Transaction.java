@@ -35,6 +35,9 @@ public class Transaction extends BaseEntity {
     @Column(name = "occurred_on", nullable = false)
     private LocalDate occurredOn;
 
+    @Column(name = "household_id")
+    private UUID householdId;
+
     protected Transaction() {
     }
 
@@ -55,6 +58,9 @@ public class Transaction extends BaseEntity {
     public BigDecimal getAmount() { return amount; }
     public String getNote() { return note; }
     public LocalDate getOccurredOn() { return occurredOn; }
+    public UUID getHouseholdId() { return householdId; }
+    public boolean isShared() { return householdId != null; }
+    public void assignHousehold(UUID householdId) { this.householdId = householdId; }
 
     public void setCategoryId(UUID categoryId) { this.categoryId = categoryId; }
     public void setType(CategoryType type) { this.type = type; }

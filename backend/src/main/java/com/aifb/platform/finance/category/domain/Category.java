@@ -36,6 +36,9 @@ public class Category extends BaseEntity {
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
+    @Column(name = "household_id")
+    private UUID householdId;
+
     protected Category() {
     }
 
@@ -57,6 +60,9 @@ public class Category extends BaseEntity {
     public boolean isSystem() { return system; }
     public Instant getDeletedAt() { return deletedAt; }
     public boolean isDeleted() { return deletedAt != null; }
+    public UUID getHouseholdId() { return householdId; }
+    public boolean isShared() { return householdId != null; }
+    public void assignHousehold(UUID householdId) { this.householdId = householdId; }
 
     public void setName(String name) { this.name = name; }
     public void setIcon(String icon) { this.icon = icon; }
