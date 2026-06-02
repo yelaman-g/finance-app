@@ -35,21 +35,30 @@ class AuthRemoteDataSource {
     await _dio.post<void>(ApiEndpoints.logout);
   }
 
-  Future<void> forgotPassword(String email) async {
-    await _dio.post<void>(
+  /// Возвращает devCode (dev-режим: код приходит в ответе, SMTP не настроен)
+  /// либо null, если email не зарегистрирован.
+  Future<String?> forgotPassword(String email) async {
+    final res = await _dio.post<Map<String, dynamic>>(
       ApiEndpoints.forgotPassword,
       data: {'email': email},
       options: Options(extra: {'skipAuth': true}),
     );
+    final data = res.data?['data'];
+    if (data is Map<String, dynamic>) {
+      final code = data['devCode'];
+      return code is String ? code : null;
+    }
+    return null;
   }
 
   Future<void> resetPassword({
+    required String email,
     required String code,
     required String newPassword,
   }) async {
     await _dio.post<void>(
       ApiEndpoints.resetPassword,
-      data: {'code': code, 'newPassword': newPassword},
+      data: {'email': email, 'code': code, 'newPassword': newPassword},
       options: Options(extra: {'skipAuth': true}),
     );
   }
