@@ -1,5 +1,8 @@
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/features/groups/presentation/providers/groups_providers.dart';
+import 'package:aifb/shared/widgets/hig_button.dart';
+import 'package:aifb/shared/widgets/inset_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,9 +11,10 @@ class GroupsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final hig = HigColors.of(context);
     final async = ref.watch(groupsProvider(Scope.personal));
     return Scaffold(
-      appBar: AppBar(title: const Text('Группы')),
+      backgroundColor: hig.pageBackground,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _create(context, ref),
         icon: const Icon(Icons.add),
@@ -18,39 +22,52 @@ class GroupsPage extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(groupsProvider(Scope.personal).future),
-        child: async.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => ListView(
-            children: [const SizedBox(height: 80), Center(child: Text('Ошибка: $e'))],
-          ),
-          data: (groups) {
-            if (groups.isEmpty) {
-              return ListView(
-                children: const [
-                  SizedBox(height: 120),
-                  Center(child: Text('Групп пока нет')),
-                ],
-              );
-            }
-            return ListView.separated(
-              itemCount: groups.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (_, i) {
-                final g = groups[i];
-                return ListTile(
-                  title: Text(g.name),
-                  subtitle: Text(g.type),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () async {
-                      await ref.read(groupsRepositoryProvider).delete(g.id);
-                      ref.invalidate(groupsProvider(Scope.personal));
-                    },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverAppBar.large(
+              title: const Text('Группы'),
+              backgroundColor: hig.pageBackground,
+              surfaceTintColor: Colors.transparent,
+            ),
+            async.when(
+              loading: () => const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (e, _) => SliverFillRemaining(
+                child: Center(child: Text('Ошибка: $e')),
+              ),
+              data: (groups) {
+                if (groups.isEmpty) {
+                  return const SliverFillRemaining(
+                    child: Center(child: Text('Групп пока нет')),
+                  );
+                }
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                  sliver: SliverToBoxAdapter(
+                    child: InsetSection(
+                      children: groups.map((g) {
+                        return InsetTile(
+                          title: g.name,
+                          subtitle: g.type,
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () async {
+                              await ref
+                                  .read(groupsRepositoryProvider)
+                                  .delete(g.id);
+                              ref.invalidate(groupsProvider(Scope.personal));
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 );
               },
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
@@ -83,8 +100,12 @@ class GroupsPage extends ConsumerWidget {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Отмена')),
-            FilledButton(
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Отмена'),
+            ),
+            HigButton(
+              label: 'Создать',
               onPressed: () async {
                 if (name.text.trim().isEmpty) return;
                 await ref
@@ -92,7 +113,6 @@ class GroupsPage extends ConsumerWidget {
                     .create(name: name.text.trim(), type: type);
                 if (ctx.mounted) Navigator.pop(ctx, true);
               },
-              child: const Text('Создать'),
             ),
           ],
         ),

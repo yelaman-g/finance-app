@@ -1,5 +1,8 @@
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/features/categorization/presentation/providers/categorization_providers.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
+import 'package:aifb/shared/widgets/hig_button.dart';
+import 'package:aifb/shared/widgets/inset_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,9 +11,10 @@ class RulesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final hig = HigColors.of(context);
     final async = ref.watch(rulesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Правила категоризации')),
+      backgroundColor: hig.pageBackground,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _create(context, ref),
         icon: const Icon(Icons.add),
@@ -18,43 +22,51 @@ class RulesPage extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(rulesProvider.future),
-        child: async.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => ListView(
-            children: [
-              const SizedBox(height: 80),
-              Center(child: Text('Ошибка: $e')),
-            ],
-          ),
-          data: (rules) {
-            if (rules.isEmpty) {
-              return ListView(
-                children: const [
-                  SizedBox(height: 120),
-                  Center(child: Text('Правил пока нет')),
-                ],
-              );
-            }
-            return ListView.separated(
-              itemCount: rules.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (_, i) {
-                final r = rules[i];
-                return ListTile(
-                  title: Text('«${r.keyword}» → ${r.categoryName}'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () async {
-                      await ref
-                          .read(categorizationRepositoryProvider)
-                          .delete(r.id);
-                      ref.invalidate(rulesProvider);
-                    },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverAppBar.large(
+              title: const Text('Правила'),
+              backgroundColor: hig.pageBackground,
+              surfaceTintColor: Colors.transparent,
+            ),
+            async.when(
+              loading: () => const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (e, _) => SliverFillRemaining(
+                child: Center(child: Text('Ошибка: $e')),
+              ),
+              data: (rules) {
+                if (rules.isEmpty) {
+                  return const SliverFillRemaining(
+                    child: Center(child: Text('Правил пока нет')),
+                  );
+                }
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                  sliver: SliverToBoxAdapter(
+                    child: InsetSection(
+                      children: rules.map((r) {
+                        return InsetTile(
+                          title: '«${r.keyword}» → ${r.categoryName}',
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () async {
+                              await ref
+                                  .read(categorizationRepositoryProvider)
+                                  .delete(r.id);
+                              ref.invalidate(rulesProvider);
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 );
               },
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
@@ -63,8 +75,7 @@ class RulesPage extends ConsumerWidget {
   Future<void> _create(BuildContext context, WidgetRef ref) async {
     final keyword = TextEditingController();
     String? categoryId;
-    final catsAsync =
-        await ref.read(categoriesProvider('EXPENSE').future);
+    final catsAsync = await ref.read(categoriesProvider('EXPENSE').future);
     if (!context.mounted) return;
     final created = await showDialog<bool>(
       context: context,
@@ -99,7 +110,8 @@ class RulesPage extends ConsumerWidget {
               onPressed: () => Navigator.pop(ctx),
               child: const Text('Отмена'),
             ),
-            FilledButton(
+            HigButton(
+              label: 'Создать',
               onPressed: () async {
                 if (keyword.text.trim().isEmpty || categoryId == null) return;
                 await ref
@@ -110,7 +122,6 @@ class RulesPage extends ConsumerWidget {
                     );
                 if (ctx.mounted) Navigator.pop(ctx, true);
               },
-              child: const Text('Создать'),
             ),
           ],
         ),

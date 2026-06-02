@@ -1,7 +1,11 @@
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/features/household/data/models/household_model.dart';
 import 'package:aifb/features/household/presentation/providers/household_providers.dart';
 import 'package:aifb/features/statistics/presentation/providers/statistics_providers.dart';
+import 'package:aifb/shared/widgets/hig_button.dart';
+import 'package:aifb/shared/widgets/hig_text_field.dart';
+import 'package:aifb/shared/widgets/inset_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -11,22 +15,56 @@ class FamilyPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final hig = HigColors.of(context);
     final async = ref.watch(myHouseholdProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Семья')),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Ошибка: $e')),
-        data: (h) => h == null
-            ? _NoHousehold(onChanged: () => ref.invalidate(myHouseholdProvider))
-            : _HouseholdView(
-                household: h,
-                onChanged: () {
-                  ref
-                    ..invalidate(myHouseholdProvider)
-                    ..invalidate(memberBreakdownProvider);
-                },
+      backgroundColor: hig.pageBackground,
+      body: RefreshIndicator(
+        onRefresh: () => ref.refresh(myHouseholdProvider.future),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverAppBar.large(
+              title: const Text('Семья'),
+              backgroundColor: hig.pageBackground,
+              surfaceTintColor: Colors.transparent,
+            ),
+            async.when(
+              loading: () => const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
               ),
+              error: (e, _) => SliverFillRemaining(
+                child: Center(child: Text('Ошибка: $e')),
+              ),
+              data: (h) => h == null
+                  ? SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          _NoHousehold(
+                            onChanged: () => ref.invalidate(myHouseholdProvider),
+                          ),
+                        ]),
+                      ),
+                    )
+                  : SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          _HouseholdView(
+                            household: h,
+                            onChanged: () {
+                              ref
+                                ..invalidate(myHouseholdProvider)
+                                ..invalidate(memberBreakdownProvider);
+                            },
+                          ),
+                        ]),
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -52,6 +90,7 @@ class _NoHouseholdState extends ConsumerState<_NoHousehold> {
   }
 
   Future<void> _run(Future<Result<HouseholdModel>> Function() op) async {
+    setState(() => _error = null);
     final result = await op();
     if (!mounted) return;
     if (result is Err<HouseholdModel>) {
@@ -63,43 +102,64 @@ class _NoHouseholdState extends ConsumerState<_NoHousehold> {
 
   @override
   Widget build(BuildContext context) {
+    final hig = HigColors.of(context);
     final repo = ref.read(householdRepositoryProvider);
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Создать семью', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _name,
-          decoration: const InputDecoration(
-            labelText: 'Название семьи',
-            border: OutlineInputBorder(),
-          ),
+        InsetSection(
+          header: 'Создать семью',
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  HigTextField(
+                    controller: _name,
+                    label: 'Название семьи',
+                  ),
+                  const SizedBox(height: 12),
+                  HigButton(
+                    label: 'Создать',
+                    onPressed: () => _run(() => repo.create(_name.text.trim())),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
-        FilledButton(
-          onPressed: () => _run(() => repo.create(_name.text.trim())),
-          child: const Text('Создать'),
-        ),
-        const Divider(height: 32),
-        Text('Вступить по коду', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _code,
-          textCapitalization: TextCapitalization.characters,
-          decoration: const InputDecoration(
-            labelText: 'Код приглашения',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton(
-          onPressed: () => _run(() => repo.join(_code.text.trim())),
-          child: const Text('Вступить'),
+        const SizedBox(height: 16),
+        InsetSection(
+          header: 'Вступить по коду',
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  HigTextField(
+                    controller: _code,
+                    label: 'Код приглашения',
+                  ),
+                  const SizedBox(height: 12),
+                  HigButton(
+                    label: 'Вступить',
+                    style: HigButtonStyle.tinted,
+                    onPressed: () => _run(() => repo.join(_code.text.trim())),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         if (_error != null) ...[
           const SizedBox(height: 12),
-          Text(_error!, style: const TextStyle(color: Colors.red)),
+          Text(
+            _error!,
+            style: TextStyle(color: hig.danger, fontSize: 14),
+            textAlign: TextAlign.center,
+          ),
         ],
       ],
     );
@@ -113,40 +173,39 @@ class _HouseholdView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final hig = HigColors.of(context);
     final repo = ref.read(householdRepositoryProvider);
     final breakdown = ref.watch(memberBreakdownProvider);
     final fmt = NumberFormat.decimalPattern();
-    return ListView(
-      padding: const EdgeInsets.all(16),
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(household.name, style: Theme.of(context).textTheme.headlineSmall),
         if (household.inviteCode != null) ...[
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              title: const Text('Код приглашения'),
-              subtitle: Text(
-                household.inviteCode!,
-                style: const TextStyle(fontSize: 22, letterSpacing: 2),
+          InsetSection(
+            header: 'Код приглашения',
+            children: [
+              InsetTile(
+                title: household.inviteCode!,
+                trailing: IconButton(
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Обновить код',
+                  onPressed: () async {
+                    await repo.rotateCode();
+                    onChanged();
+                  },
+                ),
               ),
-              trailing: IconButton(
-                icon: const Icon(Icons.refresh),
-                tooltip: 'Обновить код',
-                onPressed: () async {
-                  await repo.rotateCode();
-                  onChanged();
-                },
-              ),
-            ),
+            ],
           ),
+          const SizedBox(height: 16),
         ],
-        const SizedBox(height: 16),
-        Text('Участники', style: Theme.of(context).textTheme.titleLarge),
-        ...household.members.map(
-          (m) => Card(
-            child: ListTile(
-              title: Text(m.fullName),
-              subtitle: Text(m.role),
+        InsetSection(
+          header: 'Участники',
+          children: household.members.map((m) {
+            return InsetTile(
+              title: m.fullName,
+              subtitle: m.role,
               trailing: household.isOwner && m.role != 'OWNER'
                   ? PopupMenuButton<String>(
                       onSelected: (action) async {
@@ -158,52 +217,78 @@ class _HouseholdView extends ConsumerWidget {
                         onChanged();
                       },
                       itemBuilder: (_) => const [
-                        PopupMenuItem(value: 'ADULT', child: Text('Сделать ADULT')),
-                        PopupMenuItem(value: 'CHILD', child: Text('Сделать CHILD')),
-                        PopupMenuItem(value: 'remove', child: Text('Удалить')),
+                        PopupMenuItem(
+                          value: 'ADULT',
+                          child: Text('Сделать ADULT'),
+                        ),
+                        PopupMenuItem(
+                          value: 'CHILD',
+                          child: Text('Сделать CHILD'),
+                        ),
+                        PopupMenuItem(
+                          value: 'remove',
+                          child: Text('Удалить'),
+                        ),
                       ],
                     )
                   : null,
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 16),
+        InsetSection(
+          header: 'Кто сколько потратил',
+          children: [
+            breakdown.when(
+              loading: () => const Padding(
+                padding: EdgeInsets.all(16),
+                child: LinearProgressIndicator(),
+              ),
+              error: (e, _) => Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text('Ошибка: $e', style: TextStyle(color: hig.danger)),
+              ),
+              data: (rows) => rows.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'Данных пока нет',
+                        style: TextStyle(color: hig.secondaryLabel),
+                      ),
+                    )
+                  : Column(
+                      children: rows
+                          .map(
+                            (r) => InsetTile(
+                              title: r.fullName,
+                              trailing: Text(
+                                '-${fmt.format(r.expense)}',
+                                style: TextStyle(
+                                  color: hig.secondaryLabel,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: 16),
-        Text(
-          'Кто сколько потратил',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        breakdown.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.all(8),
-            child: LinearProgressIndicator(),
-          ),
-          error: (e, _) => Text('Ошибка: $e'),
-          data: (rows) => Column(
-            children: rows
-                .map(
-                  (r) => ListTile(
-                    title: Text(r.fullName),
-                    trailing: Text('-${fmt.format(r.expense)}'),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         if (household.isOwner)
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-            icon: const Icon(Icons.delete_forever),
-            label: const Text('Распустить семью'),
+          HigButton(
+            label: 'Распустить семью',
+            style: HigButtonStyle.plain,
             onPressed: () async {
               await repo.disband();
               onChanged();
             },
           )
         else
-          OutlinedButton.icon(
-            icon: const Icon(Icons.logout),
-            label: const Text('Выйти из семьи'),
+          HigButton(
+            label: 'Выйти из семьи',
+            style: HigButtonStyle.plain,
             onPressed: () async {
               await repo.leave();
               onChanged();
