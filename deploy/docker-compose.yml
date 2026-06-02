@@ -1,0 +1,24 @@
+# Postgres для AIFB. Воспроизводит контейнер aifb-db (postgres:16, бд/польз./пароль = aifb).
+# Запуск:  docker compose -f deploy/docker-compose.yml up -d
+# Бэкенд и фронтенд запускаются локально (см. docs/DEPLOYMENT.md) — схему БД
+# создаёт Flyway при старте бэкенда, демо-данные грузит deploy/seed_demo.py.
+services:
+  db:
+    image: postgres:16
+    container_name: aifb-db
+    environment:
+      POSTGRES_DB: aifb
+      POSTGRES_USER: aifb
+      POSTGRES_PASSWORD: aifb
+    ports:
+      - "5432:5432"
+    volumes:
+      - aifb-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aifb -d aifb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  aifb-pgdata:
