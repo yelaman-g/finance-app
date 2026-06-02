@@ -1,91 +1,64 @@
+import 'package:aifb/app/theme/app_typography.dart';
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:flutter/material.dart';
-
-import 'app_colors.dart';
-import 'app_spacing.dart';
-import 'app_typography.dart';
 
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get light => _build(
-        brightness: Brightness.light,
-        scaffold: AppColors.gray50,
-        surface: AppColors.white,
-        onSurface: AppColors.graphite900,
-        onSurfaceMuted: AppColors.graphite500,
-        outline: AppColors.gray100,
-        inputFill: AppColors.white,
-      );
+  static ThemeData get light => _build(Brightness.light, HigColors.light);
+  static ThemeData get dark => _build(Brightness.dark, HigColors.dark);
 
-  static ThemeData get dark => _build(
-        brightness: Brightness.dark,
-        scaffold: AppColors.graphite900,
-        surface: AppColors.graphite800,
-        onSurface: AppColors.white,
-        onSurfaceMuted: AppColors.graphite300,
-        outline: AppColors.graphite700,
-        inputFill: AppColors.graphite800,
-      );
-
-  static ThemeData _build({
-    required Brightness brightness,
-    required Color scaffold,
-    required Color surface,
-    required Color onSurface,
-    required Color onSurfaceMuted,
-    required Color outline,
-    required Color inputFill,
-  }) {
+  static ThemeData _build(Brightness brightness, HigColors hig) {
     final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.brand500,
+      seedColor: hig.accent,
       brightness: brightness,
-      primary: AppColors.brand500,
-      surface: surface,
-      onSurface: onSurface,
-      error: AppColors.danger,
+      primary: hig.accent,
+      surface: hig.card,
+      error: hig.danger,
     );
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
-      scaffoldBackgroundColor: scaffold,
+      scaffoldBackgroundColor: hig.pageBackground,
+      fontFamily: 'Inter',
+      extensions: [hig],
       splashFactory: NoSplash.splashFactory,
       highlightColor: Colors.transparent,
       textTheme: TextTheme(
-        displayLarge: AppTypography.display.copyWith(color: onSurface),
-        headlineLarge: AppTypography.h1.copyWith(color: onSurface),
-        headlineMedium: AppTypography.h2.copyWith(color: onSurface),
-        titleMedium: AppTypography.title.copyWith(color: onSurface),
-        bodyMedium: AppTypography.body.copyWith(color: onSurfaceMuted),
-        bodySmall: AppTypography.caption.copyWith(color: onSurfaceMuted),
-        labelLarge: AppTypography.button,
+        displayLarge: AppTypography.display.copyWith(color: hig.label),
+        headlineLarge: AppTypography.h1.copyWith(color: hig.label),
+        headlineMedium: AppTypography.h2.copyWith(color: hig.label),
+        titleMedium: AppTypography.headline.copyWith(color: hig.label),
+        bodyLarge: AppTypography.body.copyWith(color: hig.label),
+        bodyMedium: AppTypography.subhead.copyWith(color: hig.secondaryLabel),
+        bodySmall: AppTypography.footnote.copyWith(color: hig.secondaryLabel),
+        labelLarge: AppTypography.button.copyWith(color: hig.accent),
       ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: inputFill,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.lg,
+      appBarTheme: AppBarTheme(
+        backgroundColor: hig.pageBackground,
+        foregroundColor: hig.label,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: hig.card,
+        indicatorColor: hig.accent.withValues(alpha: 0.16),
+        elevation: 0,
+        labelTextStyle: WidgetStatePropertyAll(
+          AppTypography.caption.copyWith(color: hig.secondaryLabel),
         ),
-        hintStyle: AppTypography.body.copyWith(color: onSurfaceMuted),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide(color: outline),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide(color: outline),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.brand500, width: 1.4),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.danger),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? hig.accent
+                : hig.secondaryLabel,
+          ),
         ),
       ),
-      dividerTheme: DividerThemeData(color: outline, thickness: 1, space: 1),
+      dividerTheme:
+          DividerThemeData(color: hig.separator, thickness: 0.5, space: 0.5),
     );
   }
 }
