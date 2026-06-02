@@ -28,6 +28,9 @@ class AppRoutes {
   // Categorization
   static const rules = _Route('rules', '/rules');
 
+  // Categories management
+  static const categoriesManage = _Route('categories-manage', '/categories-manage');
+
   // Admin
   static const admin = _Route('admin', '/admin');
 }

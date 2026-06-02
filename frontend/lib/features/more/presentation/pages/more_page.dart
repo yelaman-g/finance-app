@@ -38,6 +38,11 @@ class MorePage extends ConsumerWidget {
               leading: const Icon(Icons.auto_awesome_rounded),
               onTap: () => context.push(AppRoutes.rules.path),
             ),
+            InsetTile(
+              title: 'Категории',
+              leading: const Icon(Icons.category_rounded),
+              onTap: () => context.push(AppRoutes.categoriesManage.path),
+            ),
           ],
         ),
         const SizedBox(height: 24),

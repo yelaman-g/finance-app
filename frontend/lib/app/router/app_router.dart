@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/admin/presentation/pages/admin_database_page.dart';
 import '../../features/budgets/presentation/pages/budgets_page.dart';
+import '../../features/categories/presentation/pages/categories_page.dart';
 import '../../features/categorization/presentation/pages/rules_page.dart';
 import '../../features/goals/presentation/pages/goal_detail_page.dart';
 import '../../features/goals/presentation/pages/goals_page.dart';
@@ -93,6 +94,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.rules.name,
         pageBuilder: (ctx, state) =>
             fadeThroughPage(key: state.pageKey, child: const RulesPage()),
+      ),
+      GoRoute(
+        path: AppRoutes.categoriesManage.path,
+        name: AppRoutes.categoriesManage.name,
+        pageBuilder: (ctx, state) => fadeThroughPage(
+          key: state.pageKey,
+          child: const CategoriesPage(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.admin.path,
