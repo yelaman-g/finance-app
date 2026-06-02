@@ -45,7 +45,11 @@ Dio _baseDio() {
       sendTimeout: const Duration(seconds: 15),
       contentType: 'application/json',
       responseType: ResponseType.json,
-      validateStatus: (s) => s != null && s < 500,
+      // Только 2xx/3xx считаем успехом. 4xx (вкл. 401) должны бросать
+      // DioException: иначе AuthInterceptor.onError не обновит токен на 401,
+      // а доменные ошибки (400/403/404/409) не дойдут до mapDioError и
+      // превратятся в «Malformed envelope».
+      validateStatus: (s) => s != null && s < 400,
     ),
   );
 }
