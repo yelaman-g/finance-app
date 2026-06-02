@@ -105,6 +105,10 @@ public class User extends BaseEntity {
         this.tokenVersion++;
     }
 
+    public void changePassword(String newPasswordHash) {
+        this.passwordHash = newPasswordHash;
+    }
+
     public void disable() {
         this.enabled = false;
     }
