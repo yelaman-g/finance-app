@@ -19,8 +19,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query("""
             select t from Transaction t
             where t.userId = :userId and t.householdId is null
-              and (:from is null or t.occurredOn >= :from)
-              and (:to is null or t.occurredOn <= :to)
+              and (cast(:from as LocalDate) is null or t.occurredOn >= :from)
+              and (cast(:to as LocalDate) is null or t.occurredOn <= :to)
               and (:type is null or t.type = :type)
               and (:categoryId is null or t.categoryId = :categoryId)
             """)
@@ -34,8 +34,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query("""
             select t from Transaction t
             where t.householdId = :householdId
-              and (:from is null or t.occurredOn >= :from)
-              and (:to is null or t.occurredOn <= :to)
+              and (cast(:from as LocalDate) is null or t.occurredOn >= :from)
+              and (cast(:to as LocalDate) is null or t.occurredOn <= :to)
               and (:type is null or t.type = :type)
               and (:categoryId is null or t.categoryId = :categoryId)
             """)
@@ -71,8 +71,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             from Transaction t
             where t.userId = :userId
               and t.householdId is null
-              and (:from is null or t.occurredOn >= :from)
-              and (:to is null or t.occurredOn <= :to)
+              and (cast(:from as LocalDate) is null or t.occurredOn >= :from)
+              and (cast(:to as LocalDate) is null or t.occurredOn <= :to)
             group by t.type
             """)
     List<TypeTotal> sumByType(@Param("userId") UUID userId,
@@ -85,8 +85,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             where t.userId = :userId
               and t.householdId is null
               and t.type = :type
-              and (:from is null or t.occurredOn >= :from)
-              and (:to is null or t.occurredOn <= :to)
+              and (cast(:from as LocalDate) is null or t.occurredOn >= :from)
+              and (cast(:to as LocalDate) is null or t.occurredOn <= :to)
             group by t.categoryId
             order by total desc
             """)
@@ -115,8 +115,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             select t.type as type, coalesce(sum(t.amount), 0) as total
             from Transaction t
             where t.householdId = :householdId
-              and (:from is null or t.occurredOn >= :from)
-              and (:to is null or t.occurredOn <= :to)
+              and (cast(:from as LocalDate) is null or t.occurredOn >= :from)
+              and (cast(:to as LocalDate) is null or t.occurredOn <= :to)
             group by t.type
             """)
     List<TypeTotal> sumByTypeFamily(@Param("householdId") UUID householdId,
@@ -126,8 +126,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             select t.categoryId as categoryId, coalesce(sum(t.amount), 0) as total
             from Transaction t
             where t.householdId = :householdId and t.type = :type
-              and (:from is null or t.occurredOn >= :from)
-              and (:to is null or t.occurredOn <= :to)
+              and (cast(:from as LocalDate) is null or t.occurredOn >= :from)
+              and (cast(:to as LocalDate) is null or t.occurredOn <= :to)
             group by t.categoryId order by total desc
             """)
     List<CategoryTotal> sumByCategoryFamily(@Param("householdId") UUID householdId,

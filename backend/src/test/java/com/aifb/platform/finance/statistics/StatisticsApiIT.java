@@ -55,6 +55,37 @@ class StatisticsApiIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void summaryWithDateRangeReturnsTotals() throws Exception {
+        TestAuth.AuthedUser user = testAuth.createUser();
+        UUID incomeId = categoryService.list(user.id(), CategoryType.INCOME, Scope.PERSONAL).get(0).id();
+        transactionService.create(user.id(), new CreateTransactionRequest(
+                incomeId, CategoryType.INCOME, new BigDecimal("900.00"), null, LocalDate.now(), false));
+
+        mockMvc.perform(get("/api/v1/statistics/summary")
+                        .param("from", LocalDate.now().minusMonths(1).toString())
+                        .param("to", LocalDate.now().toString())
+                        .header(HttpHeaders.AUTHORIZATION, user.bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.income").value(900.00));
+    }
+
+    @Test
+    void byCategoryWithDateRangeReturnsArray() throws Exception {
+        TestAuth.AuthedUser user = testAuth.createUser();
+        UUID expenseId = categoryService.list(user.id(), CategoryType.EXPENSE, Scope.PERSONAL).get(0).id();
+        transactionService.create(user.id(), new CreateTransactionRequest(
+                expenseId, CategoryType.EXPENSE, new BigDecimal("123.00"), null, LocalDate.now(), false));
+
+        mockMvc.perform(get("/api/v1/statistics/by-category")
+                        .param("type", "EXPENSE")
+                        .param("from", LocalDate.now().minusMonths(1).toString())
+                        .param("to", LocalDate.now().toString())
+                        .header(HttpHeaders.AUTHORIZATION, user.bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].total").value(123.00));
+    }
+
+    @Test
     void statisticsRequireAuth() throws Exception {
         mockMvc.perform(get("/api/v1/statistics/summary"))
                 .andExpect(status().isUnauthorized());
