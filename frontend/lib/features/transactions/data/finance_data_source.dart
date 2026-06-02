@@ -65,6 +65,26 @@ class FinanceDataSource {
     await _dio.delete<void>('${ApiEndpoints.transactions}/$id');
   }
 
+  Future<CategoryModel> createCategory(Map<String, dynamic> body) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      ApiEndpoints.categories,
+      data: body,
+    );
+    return CategoryModel.fromJson(unwrapObject(res.data));
+  }
+
+  Future<CategoryModel> updateCategory(String id, Map<String, dynamic> body) async {
+    final res = await _dio.put<Map<String, dynamic>>(
+      '${ApiEndpoints.categories}/$id',
+      data: body,
+    );
+    return CategoryModel.fromJson(unwrapObject(res.data));
+  }
+
+  Future<void> deleteCategory(String id) async {
+    await _dio.delete<void>('${ApiEndpoints.categories}/$id');
+  }
+
   static String _date(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-'
       '${d.month.toString().padLeft(2, '0')}-'

@@ -33,6 +33,14 @@ class GoalsDataSource {
     await _dio.delete<void>('${ApiEndpoints.goals}/$id');
   }
 
+  Future<GoalModel> update(String id, Map<String, dynamic> body) async {
+    final res = await _dio.put<Map<String, dynamic>>(
+      '${ApiEndpoints.goals}/$id',
+      data: body,
+    );
+    return GoalModel.fromJson(unwrapObject(res.data));
+  }
+
   Future<List<ContributionModel>> contributions(String goalId) async {
     final res = await _dio.get<Map<String, dynamic>>(
       '${ApiEndpoints.goals}/$goalId/contributions',

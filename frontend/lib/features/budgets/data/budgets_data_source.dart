@@ -28,4 +28,12 @@ class BudgetsDataSource {
   Future<void> delete(String id) async {
     await _dio.delete<void>('${ApiEndpoints.budgets}/$id');
   }
+
+  Future<BudgetModel> update(String id, Map<String, dynamic> body) async {
+    final res = await _dio.put<Map<String, dynamic>>(
+      '${ApiEndpoints.budgets}/$id',
+      data: body,
+    );
+    return BudgetModel.fromJson(unwrapObject(res.data));
+  }
 }

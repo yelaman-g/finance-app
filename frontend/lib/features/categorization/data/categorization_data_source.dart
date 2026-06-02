@@ -27,6 +27,14 @@ class CategorizationDataSource {
     await _dio.delete<void>('${ApiEndpoints.categorizationRules}/$id');
   }
 
+  Future<RuleModel> update(String id, Map<String, dynamic> body) async {
+    final res = await _dio.put<Map<String, dynamic>>(
+      '${ApiEndpoints.categorizationRules}/$id',
+      data: body,
+    );
+    return RuleModel.fromJson(unwrapObject(res.data));
+  }
+
   Future<String?> suggest(String note, String type) async {
     final res = await _dio.post<Map<String, dynamic>>(
       ApiEndpoints.categorizationSuggest,

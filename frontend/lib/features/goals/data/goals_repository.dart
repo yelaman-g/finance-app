@@ -32,6 +32,22 @@ class GoalsRepository {
 
   Future<Result<void>> delete(String id) => _guard(() => _ds.delete(id));
 
+  Future<Result<GoalModel>> update({
+    required String id,
+    required String name,
+    required double targetAmount,
+    DateTime? deadline,
+    String? icon,
+    String? color,
+  }) =>
+      _guard(() => _ds.update(id, {
+            'name': name,
+            'targetAmount': targetAmount,
+            if (deadline != null) 'deadline': _date(deadline),
+            if (icon != null) 'icon': icon,
+            if (color != null) 'color': color,
+          },),);
+
   Future<Result<List<ContributionModel>>> contributions(String goalId) =>
       _guard(() => _ds.contributions(goalId));
 

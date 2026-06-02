@@ -19,6 +19,13 @@ class CategorizationRepository {
 
   Future<Result<void>> delete(String id) => _guard(() => _ds.delete(id));
 
+  Future<Result<RuleModel>> update({
+    required String id,
+    required String keyword,
+    required String categoryId,
+  }) =>
+      _guard(() => _ds.update(id, {'keyword': keyword, 'categoryId': categoryId}));
+
   Future<Result<String?>> suggest({
     required String note,
     required String type,

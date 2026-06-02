@@ -18,19 +18,21 @@ void main() {
   });
 
   test('list returns Ok with budgets', () async {
-    when(() => ds.list(scope: 'PERSONAL')).thenAnswer((_) async => const [
-          BudgetModel(
-            id: 'b1',
-            targetType: 'CATEGORY',
-            targetId: 'c1',
-            targetName: 'Еда',
-            amount: 1000,
-            spent: 850,
-            percentage: 85,
-            status: 'WARNING',
-            shared: false,
-          ),
-        ]);
+    when(() => ds.list(scope: any(named: 'scope'))).thenAnswer(
+      (_) async => const [
+        BudgetModel(
+          id: 'b1',
+          targetType: 'CATEGORY',
+          targetId: 'c1',
+          targetName: 'Еда',
+          amount: 1000,
+          spent: 850,
+          percentage: 85,
+          status: 'WARNING',
+          shared: false,
+        ),
+      ],
+    );
     final result = await repo.list();
     expect(result, isA<Ok<List<BudgetModel>>>());
     expect((result as Ok<List<BudgetModel>>).value.single.status, 'WARNING');
@@ -42,5 +44,16 @@ void main() {
     );
     final result = await repo.list();
     expect(result, isA<Err<List<BudgetModel>>>());
+  });
+
+  test('update returns Ok with budget', () async {
+    when(() => ds.update('b1', {'amount': 500.0})).thenAnswer((_) async =>
+        const BudgetModel(
+          id: 'b1', targetType: 'CATEGORY', targetId: 'c1', targetName: 'Еда',
+          amount: 500, spent: 0, percentage: 0, status: 'OK', shared: false,
+        ),);
+    final result = await repo.update(id: 'b1', amount: 500);
+    expect(result, isA<Ok<BudgetModel>>());
+    expect((result as Ok<BudgetModel>).value.amount, 500);
   });
 }

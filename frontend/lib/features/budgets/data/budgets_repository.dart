@@ -28,6 +28,12 @@ class BudgetsRepository {
 
   Future<Result<void>> delete(String id) => _guard(() => _ds.delete(id));
 
+  Future<Result<BudgetModel>> update({
+    required String id,
+    required double amount,
+  }) =>
+      _guard(() => _ds.update(id, {'amount': amount}));
+
   Future<Result<T>> _guard<T>(Future<T> Function() task) async {
     try {
       return Result.ok(await task());

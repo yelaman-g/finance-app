@@ -58,6 +58,40 @@ class FinanceRepository {
 
   Future<Result<void>> delete(String id) => _guard(() => _ds.delete(id));
 
+  Future<Result<CategoryModel>> createCategory({
+    required String name,
+    required String type,
+    String? icon,
+    String? color,
+    String? groupId,
+    bool shared = false,
+  }) =>
+      _guard(() => _ds.createCategory({
+            'name': name,
+            'type': type,
+            'shared': shared,
+            if (icon != null) 'icon': icon,
+            if (color != null) 'color': color,
+            if (groupId != null) 'groupId': groupId,
+          }),);
+
+  Future<Result<CategoryModel>> updateCategory({
+    required String id,
+    required String name,
+    String? icon,
+    String? color,
+    String? groupId,
+  }) =>
+      _guard(() => _ds.updateCategory(id, {
+            'name': name,
+            if (icon != null) 'icon': icon,
+            if (color != null) 'color': color,
+            if (groupId != null) 'groupId': groupId,
+          }),);
+
+  Future<Result<void>> deleteCategory(String id) =>
+      _guard(() => _ds.deleteCategory(id));
+
   Future<Result<T>> _guard<T>(Future<T> Function() task) async {
     try {
       return Result.ok(await task());
