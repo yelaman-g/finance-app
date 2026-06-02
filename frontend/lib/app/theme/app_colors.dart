@@ -1,38 +1,37 @@
 import 'package:flutter/material.dart';
 
-/// Premium fintech palette: white, soft blue, graphite, light gray.
-/// No purple. No aggressive saturation.
+/// HIG системная палитра (значения — для светлой темы; brightness-aware
+/// семантика — в HigColors ThemeExtension). Имена сохранены для совместимости.
 class AppColors {
   AppColors._();
 
-  // Brand
-  static const Color brand500 = Color(0xFF2F6BFF); // soft blue, primary action
-  static const Color brand600 = Color(0xFF1F55E6);
-  static const Color brand400 = Color(0xFF6A93FF);
-  static const Color brand100 = Color(0xFFE6EEFF);
+  static const Color brand500 = Color(0xFF007AFF);
+  static const Color brand600 = Color(0xFF0062CC);
+  static const Color brand400 = Color(0xFF409CFF);
+  static const Color brand100 = Color(0xFFD9ECFF);
+  static const Color accent = brand500;
 
-  // Neutrals
-  static const Color graphite900 = Color(0xFF0B1020);
-  static const Color graphite800 = Color(0xFF161B2B);
-  static const Color graphite700 = Color(0xFF2A3147);
-  static const Color graphite500 = Color(0xFF5A6378);
-  static const Color graphite400 = Color(0xFF8A93A7);
-  static const Color graphite300 = Color(0xFFB7BECC);
+  static const Color graphite900 = Color(0xFF000000);
+  static const Color graphite800 = Color(0xFF1C1C1E);
+  static const Color graphite700 = Color(0xFF3C3C43);
+  static const Color graphite500 = Color(0x993C3C43);
+  static const Color graphite400 = Color(0x4D3C3C43);
+  static const Color graphite300 = Color(0xFFC6C6C8);
 
-  static const Color gray100 = Color(0xFFF4F6FB);
-  static const Color gray50 = Color(0xFFF9FAFD);
+  static const Color label = Color(0xFF000000);
+  static const Color secondaryLabel = Color(0x993C3C43);
+  static const Color separator = Color(0xFFC6C6C8);
+
+  static const Color gray100 = Color(0xFFF2F2F7);
+  static const Color gray50 = Color(0xFFF2F2F7);
   static const Color white = Color(0xFFFFFFFF);
+  static const Color systemBackground = Color(0xFFF2F2F7);
+  static const Color card = Color(0xFFFFFFFF);
 
-  // Semantic
-  static const Color success = Color(0xFF12B886);
-  static const Color warning = Color(0xFFF59F00);
-  static const Color danger = Color(0xFFE03131);
+  static const Color success = Color(0xFF34C759);
+  static const Color warning = Color(0xFFFF9F0A);
+  static const Color danger = Color(0xFFFF3B30);
 
-  // Glass
-  static const Color glassWhite = Color(0x99FFFFFF);
-  static const Color glassBorder = Color(0x33FFFFFF);
-
-  // Shadows
-  static const Color shadowSoft = Color(0x14101828);
-  static const Color shadowStrong = Color(0x29101828);
+  static const Color shadowSoft = Color(0x0F000000);
+  static const Color shadowStrong = Color(0x1F000000);
 }
