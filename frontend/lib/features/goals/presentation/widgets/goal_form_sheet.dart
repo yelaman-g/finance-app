@@ -1,5 +1,8 @@
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/features/goals/presentation/providers/goals_providers.dart';
+import 'package:aifb/shared/widgets/hig_button.dart';
+import 'package:aifb/shared/widgets/hig_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -63,34 +66,42 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
 
   @override
   Widget build(BuildContext context) {
+    final hig = HigColors.of(context);
     final bottom = MediaQuery.of(context).viewInsets.bottom;
-    return Padding(
+
+    return Container(
+      decoration: BoxDecoration(
+        color: hig.card,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Новая цель', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _name,
-            decoration: const InputDecoration(
-              labelText: 'Название',
-              border: OutlineInputBorder(),
+          Text(
+            'Новая цель',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: hig.label,
             ),
           ),
+          const SizedBox(height: 16),
+          HigTextField(
+            controller: _name,
+            label: 'Название',
+          ),
           const SizedBox(height: 12),
-          TextField(
+          HigTextField(
             controller: _target,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Целевая сумма',
-              border: OutlineInputBorder(),
-            ),
+            label: 'Целевая сумма',
+            keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
           ),
           const SizedBox(height: 4),
           SwitchListTile(
-            title: const Text('Семейная цель'),
+            title: Text('Семейная цель', style: TextStyle(color: hig.label)),
             value: _shared,
             onChanged: (v) => setState(() => _shared = v),
             contentPadding: EdgeInsets.zero,
@@ -103,13 +114,15 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
                   _deadline == null
                       ? 'Срок: не задан'
                       : 'Срок: ${_deadline!.toIso8601String().split('T').first}',
+                  style: TextStyle(color: hig.secondaryLabel),
                 ),
               ),
               TextButton(
                 onPressed: () async {
                   final picked = await showDatePicker(
                     context: context,
-                    initialDate: DateTime.now().add(const Duration(days: 90)),
+                    initialDate:
+                        DateTime.now().add(const Duration(days: 90)),
                     firstDate: DateTime.now(),
                     lastDate: DateTime(2100),
                   );
@@ -121,18 +134,16 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
           ),
           if (_error != null) ...[
             const SizedBox(height: 8),
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+            Text(
+              _error!,
+              style: TextStyle(color: hig.danger, fontSize: 13),
+            ),
           ],
           const SizedBox(height: 16),
-          FilledButton(
+          HigButton(
+            label: 'Создать',
             onPressed: _saving ? null : _submit,
-            child: _saving
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Создать'),
+            loading: _saving,
           ),
         ],
       ),

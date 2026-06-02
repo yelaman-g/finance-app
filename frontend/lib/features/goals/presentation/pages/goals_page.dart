@@ -1,7 +1,9 @@
 import 'package:aifb/app/router/routes.dart';
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/features/goals/presentation/providers/goals_providers.dart';
 import 'package:aifb/features/goals/presentation/widgets/goal_form_sheet.dart';
+import 'package:aifb/shared/widgets/inset_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,10 +14,12 @@ class GoalsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final hig = HigColors.of(context);
     final async = ref.watch(goalsProvider(Scope.personal));
     final fmt = NumberFormat.decimalPattern();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Цели')),
+      backgroundColor: hig.pageBackground,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final created = await showGoalForm(context);
@@ -26,53 +30,91 @@ class GoalsPage extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(goalsProvider(Scope.personal).future),
-        child: async.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => ListView(
-            children: [
-              const SizedBox(height: 80),
-              Center(child: Text('Ошибка: $e')),
-            ],
-          ),
-          data: (goals) {
-            if (goals.isEmpty) {
-              return ListView(
-                children: const [
-                  SizedBox(height: 120),
-                  Center(child: Text('Целей пока нет')),
-                ],
-              );
-            }
-            return ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: goals.length,
-              itemBuilder: (_, i) {
-                final g = goals[i];
-                return Card(
-                  child: ListTile(
-                    title: Text(g.name),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 6),
-                        LinearProgressIndicator(
-                          value: (g.percentage / 100).clamp(0, 1).toDouble(),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '${fmt.format(g.savedAmount)} / '
-                          '${fmt.format(g.targetAmount)} · ${g.status}',
-                        ),
-                      ],
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverAppBar.large(
+              title: const Text('Цели'),
+              backgroundColor: hig.pageBackground,
+              surfaceTintColor: Colors.transparent,
+            ),
+            async.when(
+              loading: () => const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (e, _) => SliverFillRemaining(
+                child: Center(child: Text('Ошибка: $e')),
+              ),
+              data: (goals) {
+                if (goals.isEmpty) {
+                  return const SliverFillRemaining(
+                    child: Center(child: Text('Целей пока нет')),
+                  );
+                }
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                  sliver: SliverToBoxAdapter(
+                    child: InsetSection(
+                      children: goals.map((g) {
+                        return InkWell(
+                          onTap: () => context
+                              .push('${AppRoutes.goals.path}/${g.id}'),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        g.name,
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          color: hig.label,
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.chevron_right,
+                                      color: hig.secondaryLabel,
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                LinearProgressIndicator(
+                                  value: (g.percentage / 100)
+                                      .clamp(0, 1)
+                                      .toDouble(),
+                                  color: hig.accent,
+                                  backgroundColor: hig.separator,
+                                  borderRadius: BorderRadius.circular(4),
+                                  minHeight: 6,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  '${fmt.format(g.savedAmount)} / '
+                                  '${fmt.format(g.targetAmount)}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: hig.secondaryLabel,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () =>
-                        context.push('${AppRoutes.goals.path}/${g.id}'),
                   ),
                 );
               },
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
