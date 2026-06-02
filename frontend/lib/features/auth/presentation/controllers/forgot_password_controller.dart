@@ -62,8 +62,13 @@ class ForgotPasswordController extends StateNotifier<ForgotPasswordState> {
     }
   }
 
-  void backToRequest() => state =
-      state.copyWith(step: ForgotStep.request, devCode: null, failure: null);
+  void backToRequest() => state = state.copyWith(
+        step: ForgotStep.request,
+        devCode: null,
+        failure: null,
+        codeError: null,
+        newPasswordError: null,
+      );
 }
 
 final forgotPasswordControllerProvider = StateNotifierProvider.autoDispose<
