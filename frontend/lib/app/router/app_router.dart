@@ -14,7 +14,9 @@ import '../../features/auth/presentation/state/auth_state.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/groups/presentation/pages/groups_page.dart';
 import '../../features/household/presentation/pages/family_page.dart';
+import '../../features/more/presentation/pages/more_page.dart';
 import '../../features/transactions/presentation/pages/transactions_page.dart';
+import '../shell/app_shell.dart';
 import 'router_refresh.dart';
 import 'routes.dart';
 import 'transitions.dart';
@@ -47,52 +49,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(
-        path: AppRoutes.splash.path,
-        name: AppRoutes.splash.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const _Placeholder(title: 'Splash'),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.onboarding.path,
-        name: AppRoutes.onboarding.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const _Placeholder(title: 'Onboarding'),
-        ),
-      ),
-      GoRoute(
         path: AppRoutes.login.path,
         name: AppRoutes.login.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const LoginPage(),
-        ),
+        pageBuilder: (ctx, state) =>
+            fadeThroughPage(key: state.pageKey, child: const LoginPage()),
       ),
       GoRoute(
         path: AppRoutes.register.path,
         name: AppRoutes.register.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const RegisterPage(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.dashboard.path,
-        name: AppRoutes.dashboard.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const DashboardPage(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.transactions.path,
-        name: AppRoutes.transactions.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const TransactionsPage(),
-        ),
+        pageBuilder: (ctx, state) =>
+            fadeThroughPage(key: state.pageKey, child: const RegisterPage()),
       ),
       GoRoute(
         path: AppRoutes.forgotPassword.path,
@@ -111,93 +77,76 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
-        path: AppRoutes.analytics.path,
-        name: AppRoutes.analytics.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const _Placeholder(title: 'Analytics'),
-        ),
+        path: AppRoutes.family.path,
+        name: AppRoutes.family.name,
+        pageBuilder: (ctx, state) =>
+            fadeThroughPage(key: state.pageKey, child: const FamilyPage()),
       ),
       GoRoute(
-        path: AppRoutes.ai.path,
-        name: AppRoutes.ai.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const _Placeholder(title: 'AI Assistant'),
-        ),
+        path: AppRoutes.groups.path,
+        name: AppRoutes.groups.name,
+        pageBuilder: (ctx, state) =>
+            fadeThroughPage(key: state.pageKey, child: const GroupsPage()),
       ),
       GoRoute(
-        path: AppRoutes.moments.path,
-        name: AppRoutes.moments.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const _Placeholder(title: 'Moments'),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.profile.path,
-        name: AppRoutes.profile.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const _Placeholder(title: 'Profile'),
-        ),
+        path: AppRoutes.rules.path,
+        name: AppRoutes.rules.name,
+        pageBuilder: (ctx, state) =>
+            fadeThroughPage(key: state.pageKey, child: const RulesPage()),
       ),
       GoRoute(
         path: AppRoutes.admin.path,
         name: AppRoutes.admin.name,
         pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const AdminDatabasePage(),
-        ),
+            key: state.pageKey, child: const AdminDatabasePage()),
       ),
-      GoRoute(
-        path: AppRoutes.goals.path,
-        name: AppRoutes.goals.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const GoalsPage(),
-        ),
-        routes: [
-          GoRoute(
-            path: ':id',
-            pageBuilder: (ctx, state) => fadeThroughPage(
-              key: state.pageKey,
-              child: GoalDetailPage(goalId: state.pathParameters['id']!),
+      StatefulShellRoute.indexedStack(
+        builder: (ctx, state, navigationShell) =>
+            AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: AppRoutes.dashboard.path,
+              name: AppRoutes.dashboard.name,
+              builder: (ctx, state) => const DashboardPage(),
             ),
-          ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: AppRoutes.transactions.path,
+              name: AppRoutes.transactions.name,
+              builder: (ctx, state) => const TransactionsPage(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: AppRoutes.budgets.path,
+              name: AppRoutes.budgets.name,
+              builder: (ctx, state) => const BudgetsPage(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: AppRoutes.goals.path,
+              name: AppRoutes.goals.name,
+              builder: (ctx, state) => const GoalsPage(),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  builder: (ctx, state) =>
+                      GoalDetailPage(goalId: state.pathParameters['id']!),
+                ),
+              ],
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: AppRoutes.more.path,
+              name: AppRoutes.more.name,
+              builder: (ctx, state) => const MorePage(),
+            ),
+          ]),
         ],
-      ),
-      GoRoute(
-        path: AppRoutes.family.path,
-        name: AppRoutes.family.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const FamilyPage(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.groups.path,
-        name: AppRoutes.groups.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const GroupsPage(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.budgets.path,
-        name: AppRoutes.budgets.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const BudgetsPage(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.rules.path,
-        name: AppRoutes.rules.name,
-        pageBuilder: (ctx, state) => fadeThroughPage(
-          key: state.pageKey,
-          child: const RulesPage(),
-        ),
       ),
     ],
     errorBuilder: (ctx, state) => Scaffold(

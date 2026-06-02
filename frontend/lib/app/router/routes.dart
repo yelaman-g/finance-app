@@ -23,6 +23,7 @@ class AppRoutes {
   static const family = _Route('family', '/family');
   static const groups = _Route('groups', '/groups');
   static const budgets = _Route('budgets', '/budgets');
+  static const more = _Route('more', '/more');
 
   // Categorization
   static const rules = _Route('rules', '/rules');
