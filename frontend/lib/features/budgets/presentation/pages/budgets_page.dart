@@ -1,6 +1,7 @@
 import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/features/budgets/presentation/providers/budgets_providers.dart';
+import 'package:aifb/features/budgets/presentation/widgets/budget_form_sheet.dart';
 import 'package:aifb/shared/widgets/inset_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,6 +24,16 @@ class BudgetsPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: hig.pageBackground,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final created = await showBudgetForm(context);
+          if (created ?? false) {
+            ref.invalidate(budgetsProvider(Scope.personal));
+          }
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Лимит'),
+      ),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(budgetsProvider(Scope.personal).future),
         child: CustomScrollView(
