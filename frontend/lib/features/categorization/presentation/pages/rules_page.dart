@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/features/categorization/data/models/rule_model.dart';
 import 'package:aifb/features/categorization/presentation/providers/categorization_providers.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
 import 'package:aifb/shared/widgets/hig_button.dart';
@@ -50,6 +51,7 @@ class RulesPage extends ConsumerWidget {
                       children: rules.map((r) {
                         return InsetTile(
                           title: '«${r.keyword}» → ${r.categoryName}',
+                          onTap: () => _edit(context, ref, r),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete_outline),
                             onPressed: () async {
@@ -128,5 +130,64 @@ class RulesPage extends ConsumerWidget {
       ),
     );
     if (created ?? false) ref.invalidate(rulesProvider);
+  }
+
+  Future<void> _edit(BuildContext context, WidgetRef ref, RuleModel rule) async {
+    final keyword = TextEditingController(text: rule.keyword);
+    String? categoryId = rule.categoryId;
+    final catsAsync = await ref.read(categoriesProvider('EXPENSE').future);
+    if (!context.mounted) return;
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          title: const Text('Изменить правило'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: keyword,
+                decoration: const InputDecoration(
+                  labelText: 'Ключевое слово',
+                ),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: categoryId,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: 'Категория'),
+                items: catsAsync
+                    .map(
+                      (c) => DropdownMenuItem(value: c.id, child: Text(c.name)),
+                    )
+                    .toList(),
+                onChanged: (v) => setState(() => categoryId = v),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Отмена'),
+            ),
+            HigButton(
+              label: 'Сохранить',
+              onPressed: () async {
+                if (keyword.text.trim().isEmpty || categoryId == null) return;
+                await ref
+                    .read(categorizationRepositoryProvider)
+                    .update(
+                      id: rule.id,
+                      keyword: keyword.text.trim(),
+                      categoryId: categoryId!,
+                    );
+                if (ctx.mounted) Navigator.pop(ctx, true);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+    if (saved ?? false) ref.invalidate(rulesProvider);
   }
 }
