@@ -9,6 +9,7 @@ import '../../features/categorization/presentation/pages/rules_page.dart';
 import '../../features/goals/presentation/pages/goal_detail_page.dart';
 import '../../features/goals/presentation/pages/goals_page.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/state/auth_state.dart';
@@ -66,7 +67,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.forgotPassword.name,
         pageBuilder: (ctx, state) => fadeThroughPage(
           key: state.pageKey,
-          child: const _Placeholder(title: 'Forgot Password'),
+          child: const ForgotPasswordPage(),
         ),
       ),
       GoRoute(
