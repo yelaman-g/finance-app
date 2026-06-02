@@ -1,18 +1,13 @@
+import 'package:aifb/app/router/routes.dart';
+import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/failure.dart';
+import 'package:aifb/features/auth/presentation/controllers/register_controller.dart';
+import 'package:aifb/features/auth/presentation/state/register_state.dart';
+import 'package:aifb/shared/widgets/hig_button.dart';
+import 'package:aifb/shared/widgets/hig_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../app/router/routes.dart';
-import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/theme/app_typography.dart';
-import '../../../../core/errors/failure.dart';
-import '../../../../shared/widgets/gradient_background.dart';
-import '../../../../shared/widgets/premium_text_field.dart';
-import '../../../../shared/widgets/primary_button.dart';
-import '../controllers/register_controller.dart';
-import '../state/register_state.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
@@ -69,6 +64,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(registerControllerProvider);
+    final hig = HigColors.of(context);
 
     ref.listen<RegisterState>(registerControllerProvider, (prev, next) {
       final f = next.failure;
@@ -80,152 +76,78 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     });
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: GradientBackground(
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 440),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: AppSpacing.xxl),
-                    const _BackToLogin(),
-                    const SizedBox(height: AppSpacing.lg),
-                    Text('Create your account', style: AppTypography.h1),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      'Join AIFB and bring your family budget into one place.',
-                      style: AppTypography.body,
-                    ),
-                    const SizedBox(height: AppSpacing.xxl),
-                    PremiumTextField(
-                      label: 'Full name',
-                      hint: 'Aibek Sultanov',
-                      controller: _nameCtrl,
-                      keyboardType: TextInputType.name,
-                      textInputAction: TextInputAction.next,
-                      prefixIcon: Icons.person_outline_rounded,
-                      autofillHints: const [AutofillHints.name],
-                      errorText: state.fullNameError,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    PremiumTextField(
-                      label: 'Email',
-                      hint: 'you@example.com',
-                      controller: _emailCtrl,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      prefixIcon: Icons.alternate_email_rounded,
-                      autofillHints: const [AutofillHints.email],
-                      errorText: state.emailError,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    PremiumTextField(
-                      label: 'Password',
-                      hint: 'At least 8 characters',
-                      controller: _passwordCtrl,
-                      obscure: true,
-                      textInputAction: TextInputAction.next,
-                      prefixIcon: Icons.lock_outline_rounded,
-                      autofillHints: const [AutofillHints.newPassword],
-                      errorText: state.passwordError,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    PremiumTextField(
-                      label: 'Confirm password',
-                      hint: 'Repeat your password',
-                      controller: _confirmCtrl,
-                      obscure: true,
-                      textInputAction: TextInputAction.go,
-                      prefixIcon: Icons.lock_reset_rounded,
-                      autofillHints: const [AutofillHints.newPassword],
-                      errorText: state.confirmPasswordError,
-                      onSubmitted: (_) => _submit(),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _TermsTile(
-                      value: state.acceptTerms,
-                      onChanged: _ctrl.toggleTerms,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    PrimaryButton(
-                      label: 'Create account',
-                      onPressed: state.submitting ? null : _submit,
-                      loading: state.submitting,
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Already have an account?',
-                          style: AppTypography.caption,
-                        ),
-                        TextButton(
-                          onPressed: () => context.go(AppRoutes.login.path),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.brand600,
-                          ),
-                          child: Text(
-                            'Sign in',
-                            style: AppTypography.title.copyWith(
-                              color: AppColors.brand600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                  ],
-                )
-                    .animate()
-                    .fadeIn(duration: 380.ms)
-                    .slideY(begin: 0.04, end: 0, curve: Curves.easeOutCubic),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BackToLogin extends StatelessWidget {
-  const _BackToLogin();
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-        onTap: () => context.go(AppRoutes.login.path),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm,
-            vertical: AppSpacing.xs,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.arrow_back_rounded,
-                size: 18,
-                color: AppColors.brand600,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                'Back to sign in',
-                style: AppTypography.caption.copyWith(
-                  color: AppColors.brand600,
-                  fontWeight: FontWeight.w600,
+      backgroundColor: hig.pageBackground,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'AIFB',
+                  style: Theme.of(context).textTheme.displayLarge,
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Text(
+                  'Регистрация',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                HigTextField(
+                  controller: _nameCtrl,
+                  label: 'Полное имя',
+                  keyboardType: TextInputType.name,
+                  errorText: state.fullNameError,
+                ),
+                const SizedBox(height: 12),
+                HigTextField(
+                  controller: _emailCtrl,
+                  label: 'Email',
+                  keyboardType: TextInputType.emailAddress,
+                  errorText: state.emailError,
+                ),
+                const SizedBox(height: 12),
+                HigTextField(
+                  controller: _passwordCtrl,
+                  label: 'Пароль',
+                  obscureText: true,
+                  errorText: state.passwordError,
+                ),
+                const SizedBox(height: 12),
+                HigTextField(
+                  controller: _confirmCtrl,
+                  label: 'Подтвердите пароль',
+                  obscureText: true,
+                  errorText: state.confirmPasswordError,
+                ),
+                const SizedBox(height: 16),
+                _TermsTile(
+                  value: state.acceptTerms,
+                  onChanged: _ctrl.toggleTerms,
+                ),
+                const SizedBox(height: 20),
+                HigButton(
+                  label: 'Создать аккаунт',
+                  loading: state.submitting,
+                  onPressed: state.submitting ? null : _submit,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Уже есть аккаунт?'),
+                    TextButton(
+                      onPressed: () => context.go(AppRoutes.login.path),
+                      child: const Text('Войти'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -241,10 +163,10 @@ class _TermsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderRadius: BorderRadius.circular(10),
       onTap: () => onChanged(!value),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+        padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -259,16 +181,12 @@ class _TermsTile extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
                 ),
-                activeColor: AppColors.brand600,
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
+            const SizedBox(width: 12),
+            const Expanded(
               child: Text(
-                'I agree to the Terms of Service and Privacy Policy.',
-                style: AppTypography.caption.copyWith(
-                  color: AppColors.graphite700,
-                ),
+                'Я принимаю Условия использования и Политику конфиденциальности.',
               ),
             ),
           ],
