@@ -34,4 +34,8 @@ class AppColors {
 
   static const Color shadowSoft = Color(0x0F000000);
   static const Color shadowStrong = Color(0x1F000000);
+
+  // Deprecated: используются только legacy glass_card.dart (удаляется в Плане 2).
+  static const Color glassWhite = Color(0x99FFFFFF);
+  static const Color glassBorder = Color(0x33FFFFFF);
 }
