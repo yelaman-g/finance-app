@@ -1,6 +1,9 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/core/network/api_result.dart';
+import 'package:aifb/features/goals/data/models/goal_model.dart';
 import 'package:aifb/features/goals/presentation/providers/goals_providers.dart';
+import 'package:aifb/features/goals/presentation/widgets/goal_form_sheet.dart';
 import 'package:aifb/shared/widgets/inset_section.dart';
 import 'package:aifb/shared/widgets/large_title_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +22,22 @@ class GoalDetailPage extends ConsumerWidget {
 
     return LargeTitleScaffold(
       title: 'Цель',
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.edit_outlined),
+          onPressed: () async {
+            final res = await ref.read(goalsRepositoryProvider).get(goalId);
+            if (res is Ok<GoalModel> && context.mounted) {
+              final changed = await showGoalForm(context, existing: res.value);
+              if (changed ?? false) {
+                ref
+                  ..invalidate(goalContributionsProvider(goalId))
+                  ..invalidate(goalsProvider(Scope.personal));
+              }
+            }
+          },
+        ),
+      ],
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addContribution(context, ref),
         icon: const Icon(Icons.add),
@@ -95,7 +114,7 @@ class GoalDetailPage extends ConsumerWidget {
     if (result is Ok) {
       ref
         ..invalidate(goalContributionsProvider(goalId))
-        ..invalidate(goalsProvider);
+        ..invalidate(goalsProvider(Scope.personal));
     }
   }
 }

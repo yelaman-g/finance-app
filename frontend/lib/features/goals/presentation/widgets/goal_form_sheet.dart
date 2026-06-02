@@ -1,21 +1,24 @@
 import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/network/api_result.dart';
+import 'package:aifb/features/goals/data/models/goal_model.dart';
 import 'package:aifb/features/goals/presentation/providers/goals_providers.dart';
 import 'package:aifb/shared/widgets/hig_button.dart';
 import 'package:aifb/shared/widgets/hig_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-Future<bool?> showGoalForm(BuildContext context) {
+Future<bool?> showGoalForm(BuildContext context, {GoalModel? existing}) {
   return showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
-    builder: (_) => const _GoalForm(),
+    builder: (_) => _GoalForm(existing: existing),
   );
 }
 
 class _GoalForm extends ConsumerStatefulWidget {
-  const _GoalForm();
+  const _GoalForm({this.existing});
+
+  final GoalModel? existing;
 
   @override
   ConsumerState<_GoalForm> createState() => _GoalFormState();
@@ -28,6 +31,16 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
   bool _saving = false;
   String? _error;
   bool _shared = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.existing != null) {
+      _name.text = widget.existing!.name;
+      _target.text = widget.existing!.targetAmount.toStringAsFixed(0);
+      _deadline = widget.existing!.deadline;
+    }
+  }
 
   @override
   void dispose() {
@@ -46,12 +59,24 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
       _saving = true;
       _error = null;
     });
-    final result = await ref.read(goalsRepositoryProvider).create(
-          name: _name.text.trim(),
-          targetAmount: target,
-          deadline: _deadline,
-          shared: _shared,
-        );
+    final Result<GoalModel> result;
+    if (widget.existing != null) {
+      result = await ref.read(goalsRepositoryProvider).update(
+            id: widget.existing!.id,
+            name: _name.text.trim(),
+            targetAmount: target,
+            deadline: _deadline,
+            icon: widget.existing!.icon,
+            color: widget.existing!.color,
+          );
+    } else {
+      result = await ref.read(goalsRepositoryProvider).create(
+            name: _name.text.trim(),
+            targetAmount: target,
+            deadline: _deadline,
+            shared: _shared,
+          );
+    }
     if (!mounted) return;
     switch (result) {
       case Ok<dynamic>():
@@ -80,7 +105,7 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Новая цель',
+            widget.existing == null ? 'Новая цель' : 'Изменить цель',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -99,13 +124,16 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
             keyboardType:
                 const TextInputType.numberWithOptions(decimal: true),
           ),
-          const SizedBox(height: 4),
-          SwitchListTile(
-            title: Text('Семейная цель', style: TextStyle(color: hig.label)),
-            value: _shared,
-            onChanged: (v) => setState(() => _shared = v),
-            contentPadding: EdgeInsets.zero,
-          ),
+          if (widget.existing == null) ...[
+            const SizedBox(height: 4),
+            SwitchListTile(
+              title:
+                  Text('Семейная цель', style: TextStyle(color: hig.label)),
+              value: _shared,
+              onChanged: (v) => setState(() => _shared = v),
+              contentPadding: EdgeInsets.zero,
+            ),
+          ],
           const SizedBox(height: 4),
           Row(
             children: [
@@ -141,7 +169,7 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
           ],
           const SizedBox(height: 16),
           HigButton(
-            label: 'Создать',
+            label: widget.existing == null ? 'Создать' : 'Сохранить',
             onPressed: _saving ? null : _submit,
             loading: _saving,
           ),
