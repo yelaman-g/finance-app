@@ -16,10 +16,17 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$ForgotPasswordState {
+  ForgotStep get step => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
   String? get emailError => throw _privateConstructorUsedError;
   bool get submitting => throw _privateConstructorUsedError;
-  bool get sent => throw _privateConstructorUsedError;
+  String? get devCode => throw _privateConstructorUsedError;
+  String get code => throw _privateConstructorUsedError;
+  String? get codeError => throw _privateConstructorUsedError;
+  String get newPassword => throw _privateConstructorUsedError;
+  String? get newPasswordError => throw _privateConstructorUsedError;
+  bool get resetSubmitting => throw _privateConstructorUsedError;
+  bool get resetDone => throw _privateConstructorUsedError;
   Failure? get failure => throw _privateConstructorUsedError;
 
   /// Create a copy of ForgotPasswordState
@@ -36,10 +43,17 @@ abstract class $ForgotPasswordStateCopyWith<$Res> {
       _$ForgotPasswordStateCopyWithImpl<$Res, ForgotPasswordState>;
   @useResult
   $Res call(
-      {String email,
+      {ForgotStep step,
+      String email,
       String? emailError,
       bool submitting,
-      bool sent,
+      String? devCode,
+      String code,
+      String? codeError,
+      String newPassword,
+      String? newPasswordError,
+      bool resetSubmitting,
+      bool resetDone,
       Failure? failure});
 
   $FailureCopyWith<$Res>? get failure;
@@ -60,13 +74,24 @@ class _$ForgotPasswordStateCopyWithImpl<$Res, $Val extends ForgotPasswordState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? step = null,
     Object? email = null,
     Object? emailError = freezed,
     Object? submitting = null,
-    Object? sent = null,
+    Object? devCode = freezed,
+    Object? code = null,
+    Object? codeError = freezed,
+    Object? newPassword = null,
+    Object? newPasswordError = freezed,
+    Object? resetSubmitting = null,
+    Object? resetDone = null,
     Object? failure = freezed,
   }) {
     return _then(_value.copyWith(
+      step: null == step
+          ? _value.step
+          : step // ignore: cast_nullable_to_non_nullable
+              as ForgotStep,
       email: null == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
@@ -79,9 +104,33 @@ class _$ForgotPasswordStateCopyWithImpl<$Res, $Val extends ForgotPasswordState>
           ? _value.submitting
           : submitting // ignore: cast_nullable_to_non_nullable
               as bool,
-      sent: null == sent
-          ? _value.sent
-          : sent // ignore: cast_nullable_to_non_nullable
+      devCode: freezed == devCode
+          ? _value.devCode
+          : devCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+      code: null == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String,
+      codeError: freezed == codeError
+          ? _value.codeError
+          : codeError // ignore: cast_nullable_to_non_nullable
+              as String?,
+      newPassword: null == newPassword
+          ? _value.newPassword
+          : newPassword // ignore: cast_nullable_to_non_nullable
+              as String,
+      newPasswordError: freezed == newPasswordError
+          ? _value.newPasswordError
+          : newPasswordError // ignore: cast_nullable_to_non_nullable
+              as String?,
+      resetSubmitting: null == resetSubmitting
+          ? _value.resetSubmitting
+          : resetSubmitting // ignore: cast_nullable_to_non_nullable
+              as bool,
+      resetDone: null == resetDone
+          ? _value.resetDone
+          : resetDone // ignore: cast_nullable_to_non_nullable
               as bool,
       failure: freezed == failure
           ? _value.failure
@@ -114,10 +163,17 @@ abstract class _$$ForgotPasswordStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String email,
+      {ForgotStep step,
+      String email,
       String? emailError,
       bool submitting,
-      bool sent,
+      String? devCode,
+      String code,
+      String? codeError,
+      String newPassword,
+      String? newPasswordError,
+      bool resetSubmitting,
+      bool resetDone,
       Failure? failure});
 
   @override
@@ -137,13 +193,24 @@ class __$$ForgotPasswordStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? step = null,
     Object? email = null,
     Object? emailError = freezed,
     Object? submitting = null,
-    Object? sent = null,
+    Object? devCode = freezed,
+    Object? code = null,
+    Object? codeError = freezed,
+    Object? newPassword = null,
+    Object? newPasswordError = freezed,
+    Object? resetSubmitting = null,
+    Object? resetDone = null,
     Object? failure = freezed,
   }) {
     return _then(_$ForgotPasswordStateImpl(
+      step: null == step
+          ? _value.step
+          : step // ignore: cast_nullable_to_non_nullable
+              as ForgotStep,
       email: null == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
@@ -156,9 +223,33 @@ class __$$ForgotPasswordStateImplCopyWithImpl<$Res>
           ? _value.submitting
           : submitting // ignore: cast_nullable_to_non_nullable
               as bool,
-      sent: null == sent
-          ? _value.sent
-          : sent // ignore: cast_nullable_to_non_nullable
+      devCode: freezed == devCode
+          ? _value.devCode
+          : devCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+      code: null == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String,
+      codeError: freezed == codeError
+          ? _value.codeError
+          : codeError // ignore: cast_nullable_to_non_nullable
+              as String?,
+      newPassword: null == newPassword
+          ? _value.newPassword
+          : newPassword // ignore: cast_nullable_to_non_nullable
+              as String,
+      newPasswordError: freezed == newPasswordError
+          ? _value.newPasswordError
+          : newPasswordError // ignore: cast_nullable_to_non_nullable
+              as String?,
+      resetSubmitting: null == resetSubmitting
+          ? _value.resetSubmitting
+          : resetSubmitting // ignore: cast_nullable_to_non_nullable
+              as bool,
+      resetDone: null == resetDone
+          ? _value.resetDone
+          : resetDone // ignore: cast_nullable_to_non_nullable
               as bool,
       failure: freezed == failure
           ? _value.failure
@@ -172,12 +263,22 @@ class __$$ForgotPasswordStateImplCopyWithImpl<$Res>
 
 class _$ForgotPasswordStateImpl implements _ForgotPasswordState {
   const _$ForgotPasswordStateImpl(
-      {this.email = '',
+      {this.step = ForgotStep.request,
+      this.email = '',
       this.emailError,
       this.submitting = false,
-      this.sent = false,
+      this.devCode,
+      this.code = '',
+      this.codeError,
+      this.newPassword = '',
+      this.newPasswordError,
+      this.resetSubmitting = false,
+      this.resetDone = false,
       this.failure});
 
+  @override
+  @JsonKey()
+  final ForgotStep step;
   @override
   @JsonKey()
   final String email;
@@ -187,14 +288,29 @@ class _$ForgotPasswordStateImpl implements _ForgotPasswordState {
   @JsonKey()
   final bool submitting;
   @override
+  final String? devCode;
+  @override
   @JsonKey()
-  final bool sent;
+  final String code;
+  @override
+  final String? codeError;
+  @override
+  @JsonKey()
+  final String newPassword;
+  @override
+  final String? newPasswordError;
+  @override
+  @JsonKey()
+  final bool resetSubmitting;
+  @override
+  @JsonKey()
+  final bool resetDone;
   @override
   final Failure? failure;
 
   @override
   String toString() {
-    return 'ForgotPasswordState(email: $email, emailError: $emailError, submitting: $submitting, sent: $sent, failure: $failure)';
+    return 'ForgotPasswordState(step: $step, email: $email, emailError: $emailError, submitting: $submitting, devCode: $devCode, code: $code, codeError: $codeError, newPassword: $newPassword, newPasswordError: $newPasswordError, resetSubmitting: $resetSubmitting, resetDone: $resetDone, failure: $failure)';
   }
 
   @override
@@ -202,18 +318,42 @@ class _$ForgotPasswordStateImpl implements _ForgotPasswordState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ForgotPasswordStateImpl &&
+            (identical(other.step, step) || other.step == step) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.emailError, emailError) ||
                 other.emailError == emailError) &&
             (identical(other.submitting, submitting) ||
                 other.submitting == submitting) &&
-            (identical(other.sent, sent) || other.sent == sent) &&
+            (identical(other.devCode, devCode) || other.devCode == devCode) &&
+            (identical(other.code, code) || other.code == code) &&
+            (identical(other.codeError, codeError) ||
+                other.codeError == codeError) &&
+            (identical(other.newPassword, newPassword) ||
+                other.newPassword == newPassword) &&
+            (identical(other.newPasswordError, newPasswordError) ||
+                other.newPasswordError == newPasswordError) &&
+            (identical(other.resetSubmitting, resetSubmitting) ||
+                other.resetSubmitting == resetSubmitting) &&
+            (identical(other.resetDone, resetDone) ||
+                other.resetDone == resetDone) &&
             (identical(other.failure, failure) || other.failure == failure));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, email, emailError, submitting, sent, failure);
+  int get hashCode => Object.hash(
+      runtimeType,
+      step,
+      email,
+      emailError,
+      submitting,
+      devCode,
+      code,
+      codeError,
+      newPassword,
+      newPasswordError,
+      resetSubmitting,
+      resetDone,
+      failure);
 
   /// Create a copy of ForgotPasswordState
   /// with the given fields replaced by the non-null parameter values.
@@ -227,12 +367,21 @@ class _$ForgotPasswordStateImpl implements _ForgotPasswordState {
 
 abstract class _ForgotPasswordState implements ForgotPasswordState {
   const factory _ForgotPasswordState(
-      {final String email,
+      {final ForgotStep step,
+      final String email,
       final String? emailError,
       final bool submitting,
-      final bool sent,
+      final String? devCode,
+      final String code,
+      final String? codeError,
+      final String newPassword,
+      final String? newPasswordError,
+      final bool resetSubmitting,
+      final bool resetDone,
       final Failure? failure}) = _$ForgotPasswordStateImpl;
 
+  @override
+  ForgotStep get step;
   @override
   String get email;
   @override
@@ -240,7 +389,19 @@ abstract class _ForgotPasswordState implements ForgotPasswordState {
   @override
   bool get submitting;
   @override
-  bool get sent;
+  String? get devCode;
+  @override
+  String get code;
+  @override
+  String? get codeError;
+  @override
+  String get newPassword;
+  @override
+  String? get newPasswordError;
+  @override
+  bool get resetSubmitting;
+  @override
+  bool get resetDone;
   @override
   Failure? get failure;
 
