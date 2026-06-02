@@ -1,8 +1,11 @@
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/features/categorization/presentation/providers/categorization_providers.dart';
 import 'package:aifb/features/transactions/data/models/category_model.dart';
 import 'package:aifb/features/transactions/data/models/transaction_model.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
+import 'package:aifb/shared/widgets/hig_button.dart';
+import 'package:aifb/shared/widgets/hig_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +14,7 @@ Future<bool?> showTransactionForm(BuildContext context) {
   return showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
+    backgroundColor: Colors.transparent,
     builder: (_) => const _TransactionForm(),
   );
 }
@@ -79,21 +83,44 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
 
   @override
   Widget build(BuildContext context) {
+    final hig = HigColors.of(context);
     final categoriesAsync = _shared
         ? ref.watch(familyCategoriesProvider(_type))
         : ref.watch(categoriesProvider(_type));
     final bottom = MediaQuery.of(context).viewInsets.bottom;
-    return Padding(
+
+    return Container(
+      decoration: BoxDecoration(
+        color: hig.card,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Handle bar
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: hig.separator,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
           Text(
             'Новая операция',
-            style: Theme.of(context).textTheme.titleLarge,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: hig.label,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+          // Type segment
           SegmentedButton<String>(
             segments: const [
               ButtonSegment(value: 'EXPENSE', label: Text('Расход')),
@@ -106,8 +133,9 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
             }),
           ),
           const SizedBox(height: 4),
+          // Shared switch
           SwitchListTile(
-            title: const Text('Семейная операция'),
+            title: Text('Семейная операция', style: TextStyle(color: hig.label)),
             value: _shared,
             onChanged: (v) => setState(() {
               _shared = v;
@@ -115,25 +143,41 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
             }),
             contentPadding: EdgeInsets.zero,
           ),
-          const SizedBox(height: 4),
-          TextField(
+          const SizedBox(height: 8),
+          // Amount
+          HigTextField(
             controller: _amount,
+            label: 'Сумма',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Сумма',
-              border: OutlineInputBorder(),
-            ),
           ),
           const SizedBox(height: 12),
+          // Category dropdown
           categoriesAsync.when(
             loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('Ошибка категорий: $e'),
+            error: (e, _) => Text(
+              'Ошибка категорий: $e',
+              style: TextStyle(color: hig.danger),
+            ),
             data: (cats) => DropdownButtonFormField<String>(
               initialValue: _categoryId,
               isExpanded: true,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Категория',
-                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: hig.card,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: hig.separator),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: hig.accent, width: 1.5),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               items: cats
                   .map(
@@ -145,11 +189,13 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
             ),
           ),
           const SizedBox(height: 12),
+          // Date row
           Row(
             children: [
               Expanded(
                 child: Text(
                   'Дата: ${_date.toIso8601String().split('T').first}',
+                  style: TextStyle(fontSize: 15, color: hig.label),
                 ),
               ),
               TextButton(
@@ -167,40 +213,49 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
             ],
           ),
           const SizedBox(height: 12),
-          TextField(
-            controller: _note,
-            decoration: InputDecoration(
-              labelText: 'Заметка (необязательно)',
-              border: const OutlineInputBorder(),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.auto_awesome),
-                tooltip: 'Подобрать категорию',
-                onPressed: () async {
-                  final result = await ref
-                      .read(categorizationRepositoryProvider)
-                      .suggest(note: _note.text, type: _type);
-                  if (result is Ok<String?> && result.value != null) {
-                    setState(() => _categoryId = result.value);
-                  }
-                },
+          // Note + suggest button
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: HigTextField(
+                  controller: _note,
+                  label: 'Заметка (необязательно)',
+                ),
               ),
-            ),
+              const SizedBox(width: 8),
+              Tooltip(
+                message: 'Подобрать категорию',
+                child: IconButton(
+                  icon: const Icon(Icons.auto_awesome),
+                  onPressed: () async {
+                    final result = await ref
+                        .read(categorizationRepositoryProvider)
+                        .suggest(note: _note.text, type: _type);
+                    if (result is Ok<String?> && result.value != null) {
+                      setState(() => _categoryId = result.value);
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
+          // Error text
           if (_error != null) ...[
             const SizedBox(height: 8),
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+            Text(
+              _error!,
+              style: TextStyle(color: hig.danger, fontSize: 14),
+            ),
           ],
           const SizedBox(height: 16),
-          FilledButton(
+          // Submit button
+          HigButton(
+            label: 'Сохранить',
+            loading: _saving,
             onPressed: _saving ? null : _submit,
-            child: _saving
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Сохранить'),
           ),
+          const SizedBox(height: 8),
         ],
       ),
     );
