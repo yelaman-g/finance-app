@@ -42,7 +42,14 @@ class FamilyPage extends ConsumerWidget {
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
                           _NoHousehold(
-                            onChanged: () => ref.invalidate(myHouseholdProvider),
+                            onChanged: () {
+                              // После создания/вступления обновляем и семью,
+                              // и разбивку по участникам (она могла закэшировать
+                              // 409 «не в семье» на дашборде до вступления).
+                              ref
+                                ..invalidate(myHouseholdProvider)
+                                ..invalidate(memberBreakdownProvider);
+                            },
                           ),
                         ]),
                       ),

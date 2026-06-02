@@ -123,7 +123,10 @@ public class StatisticsService {
 
     @Transactional(readOnly = true)
     public List<MemberBreakdownResponse> byMember(UUID userId) {
-        HouseholdContext ctx = householdContext.requireMembership(userId);
+        HouseholdContext ctx = householdContext.membershipOrNull(userId);
+        if (ctx == null) {
+            return List.of();
+        }
         Map<UUID, String> names = userRepository.findByHouseholdId(ctx.householdId())
                 .stream().collect(Collectors.toMap(u -> u.getId(), u -> u.getFullName()));
         return transactionRepository.sumByMember(ctx.householdId()).stream()
