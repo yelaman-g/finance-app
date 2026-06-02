@@ -16,6 +16,38 @@ class BudgetsPage extends ConsumerWidget {
         _ => hig.success,
       };
 
+  Future<void> _editAmount(
+      BuildContext context, WidgetRef ref, String id, double current,) async {
+    final controller = TextEditingController(text: current.toStringAsFixed(0));
+    final amount = await showDialog<double>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Изменить лимит'),
+        content: TextField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(labelText: 'Сумма'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Отмена'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(
+              ctx,
+              double.tryParse(controller.text.replaceAll(',', '.')),
+            ),
+            child: const Text('Сохранить'),
+          ),
+        ],
+      ),
+    );
+    if (amount == null || amount <= 0) return;
+    await ref.read(budgetsRepositoryProvider).update(id: id, amount: amount);
+    ref.invalidate(budgetsProvider(Scope.personal));
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hig = HigColors.of(context);
@@ -63,65 +95,69 @@ class BudgetsPage extends ConsumerWidget {
                     child: InsetSection(
                       children: budgets.map((b) {
                         final color = _statusColor(b.status, hig);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      b.targetName,
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        color: hig.label,
+                        return InkWell(
+                          onTap: () =>
+                              _editAmount(context, ref, b.id, b.amount),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        b.targetName,
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          color: hig.label,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Text(
-                                    '${fmt.format(b.spent)} / ${fmt.format(b.amount)}',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: hig.secondaryLabel,
+                                    Text(
+                                      '${fmt.format(b.spent)} / ${fmt.format(b.amount)}',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: hig.secondaryLabel,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.delete_outline,
-                                      color: hig.danger,
+                                    const SizedBox(width: 4),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.delete_outline,
+                                        color: hig.danger,
+                                      ),
+                                      onPressed: () async {
+                                        await ref
+                                            .read(budgetsRepositoryProvider)
+                                            .delete(b.id);
+                                        ref.invalidate(
+                                          budgetsProvider(Scope.personal),
+                                        );
+                                      },
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(
+                                        minWidth: 32,
+                                        minHeight: 32,
+                                      ),
+                                      visualDensity: VisualDensity.compact,
                                     ),
-                                    onPressed: () async {
-                                      await ref
-                                          .read(budgetsRepositoryProvider)
-                                          .delete(b.id);
-                                      ref.invalidate(
-                                        budgetsProvider(Scope.personal),
-                                      );
-                                    },
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(
-                                      minWidth: 32,
-                                      minHeight: 32,
-                                    ),
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              LinearProgressIndicator(
-                                value:
-                                    (b.percentage / 100).clamp(0, 1).toDouble(),
-                                color: color,
-                                backgroundColor: hig.separator,
-                                borderRadius: BorderRadius.circular(4),
-                                minHeight: 6,
-                              ),
-                            ],
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                LinearProgressIndicator(
+                                  value:
+                                      (b.percentage / 100).clamp(0, 1).toDouble(),
+                                  color: color,
+                                  backgroundColor: hig.separator,
+                                  borderRadius: BorderRadius.circular(4),
+                                  minHeight: 6,
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       }).toList(),
