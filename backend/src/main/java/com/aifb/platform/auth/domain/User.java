@@ -27,7 +27,7 @@ public class User extends BaseEntity {
     @Column(name = "full_name", nullable = false, length = 160)
     private String fullName;
 
-    @Column(name = "password_hash", nullable = false, length = 100)
+    @Column(name = "password_hash", length = 100)
     private String passwordHash;
 
     @Column(name = "email_verified", nullable = false)
@@ -38,6 +38,9 @@ public class User extends BaseEntity {
 
     @Column(name = "enabled", nullable = false)
     private boolean enabled = true;
+
+    @Column(name = "google_subject", unique = true, length = 255)
+    private String googleSubject;
 
     @Column(name = "token_version", nullable = false)
     private int tokenVersion;
@@ -69,12 +72,26 @@ public class User extends BaseEntity {
         this.roles = new HashSet<>(roles);
     }
 
+    public static User googleUser(String email, String fullName, String googleSubject, String avatarUrl) {
+        User user = new User();
+        user.id = UUID.randomUUID();
+        user.email = email;
+        user.fullName = fullName;
+        user.passwordHash = null;
+        user.googleSubject = googleSubject;
+        user.emailVerified = true;
+        user.avatarUrl = avatarUrl;
+        user.roles = new HashSet<>(Set.of(Role.USER));
+        return user;
+    }
+
     public String getEmail() { return email; }
     public String getFullName() { return fullName; }
     public String getPasswordHash() { return passwordHash; }
     public boolean isEmailVerified() { return emailVerified; }
     public String getAvatarUrl() { return avatarUrl; }
     public boolean isEnabled() { return enabled; }
+    public String getGoogleSubject() { return googleSubject; }
     public int getTokenVersion() { return tokenVersion; }
     public Instant getLastLoginAt() { return lastLoginAt; }
     public Set<Role> getRoles() { return Set.copyOf(roles); }
@@ -107,6 +124,14 @@ public class User extends BaseEntity {
 
     public void changePassword(String newPasswordHash) {
         this.passwordHash = newPasswordHash;
+    }
+
+    public void linkGoogle(String googleSubject, String pictureUrl) {
+        this.googleSubject = googleSubject;
+        this.emailVerified = true;
+        if (this.avatarUrl == null || this.avatarUrl.isBlank()) {
+            this.avatarUrl = pictureUrl;
+        }
     }
 
     public void disable() {
