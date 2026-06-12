@@ -7,6 +7,7 @@ import 'package:aifb/shared/widgets/hig_button.dart';
 import 'package:aifb/shared/widgets/hig_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -19,6 +20,7 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  bool _showEmailForm = false;
 
   @override
   void initState() {
@@ -48,6 +50,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     await ref.read(loginControllerProvider.notifier).submit();
+  }
+
+  Future<void> _googleSignIn() async {
+    FocusScope.of(context).unfocus();
+    // Навигация управляется AuthState (redirect роутера); возврат намеренно игнорируем.
+    await ref.read(loginControllerProvider.notifier).signInWithGoogle();
   }
 
   @override
@@ -85,35 +93,64 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
-                HigTextField(
-                  controller: _emailCtrl,
-                  label: 'Email',
-                  keyboardType: TextInputType.emailAddress,
-                  errorText: state.emailError,
-                ),
-                const SizedBox(height: 12),
-                HigTextField(
-                  controller: _passwordCtrl,
-                  label: 'Пароль',
-                  obscureText: true,
-                  errorText: state.passwordError,
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () =>
-                        context.push(AppRoutes.forgotPassword.path),
-                    child: const Text('Забыли пароль?'),
+                const SizedBox(height: 32),
+                SizedBox(
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    key: const Key('google_sign_in_button'),
+                    onPressed: state.submitting ? null : _googleSignIn,
+                    icon: SvgPicture.asset(
+                      'assets/google_logo.svg',
+                      height: 20,
+                      width: 20,
+                    ),
+                    label: const Text('Войти через Google'),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black87,
+                      side: BorderSide(color: hig.separator),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                HigButton(
-                  label: 'Войти',
-                  loading: state.submitting,
-                  onPressed: state.submitting ? null : _submit,
-                ),
+                const SizedBox(height: 16),
+                if (!_showEmailForm)
+                  TextButton(
+                    onPressed: () => setState(() => _showEmailForm = true),
+                    child: const Text('Войти с Email'),
+                  )
+                else ...[
+                  HigTextField(
+                    controller: _emailCtrl,
+                    label: 'Email',
+                    keyboardType: TextInputType.emailAddress,
+                    errorText: state.emailError,
+                  ),
+                  const SizedBox(height: 12),
+                  HigTextField(
+                    controller: _passwordCtrl,
+                    label: 'Пароль',
+                    obscureText: true,
+                    errorText: state.passwordError,
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () =>
+                          context.push(AppRoutes.forgotPassword.path),
+                      child: const Text('Забыли пароль?'),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  HigButton(
+                    label: 'Войти',
+                    loading: state.submitting,
+                    onPressed: state.submitting ? null : _submit,
+                  ),
+                ],
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
