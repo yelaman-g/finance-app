@@ -18,6 +18,10 @@ public class RealGoogleTokenVerifier implements GoogleTokenVerifier {
     private final GoogleIdTokenVerifier verifier;
 
     public RealGoogleTokenVerifier(String clientId) {
+        if (clientId == null || clientId.isBlank()) {
+            throw new IllegalArgumentException(
+                    "aifb.google.client-id must be set when aifb.google.dev-mode=false");
+        }
         try {
             this.verifier = new GoogleIdTokenVerifier.Builder(
                     GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance())

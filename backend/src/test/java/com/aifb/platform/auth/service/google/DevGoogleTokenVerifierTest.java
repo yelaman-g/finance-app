@@ -56,4 +56,10 @@ class DevGoogleTokenVerifierTest {
         assertThatThrownBy(() -> verifier.verify(token("{\"email\":\"c@gmail.com\"}")))
                 .isInstanceOf(UnauthorizedException.class);
     }
+
+    @Test
+    void rejectsNullToken() {
+        assertThatThrownBy(() -> verifier.verify(null))
+                .isInstanceOf(UnauthorizedException.class);
+    }
 }

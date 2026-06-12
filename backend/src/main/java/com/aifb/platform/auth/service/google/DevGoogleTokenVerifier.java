@@ -29,6 +29,7 @@ public class DevGoogleTokenVerifier implements GoogleTokenVerifier {
         }
         try {
             byte[] decoded = Base64.getUrlDecoder().decode(idToken.substring(PREFIX.length()));
+            // readTree → raw JsonNode (no POJO mapping), so FAIL_ON_UNKNOWN_PROPERTIES does not apply
             JsonNode node = objectMapper.readTree(new String(decoded, StandardCharsets.UTF_8));
             String sub = text(node, "sub");
             String email = text(node, "email");

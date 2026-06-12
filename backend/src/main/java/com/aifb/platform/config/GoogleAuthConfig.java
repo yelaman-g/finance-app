@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class GoogleAuthConfig {
 
     @Bean
-    @ConditionalOnProperty(prefix = "aifb.google", name = "dev-mode", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "aifb.google", name = "dev-mode", havingValue = "true")
     public GoogleTokenVerifier devGoogleTokenVerifier(ObjectMapper objectMapper) {
         return new DevGoogleTokenVerifier(objectMapper);
     }
