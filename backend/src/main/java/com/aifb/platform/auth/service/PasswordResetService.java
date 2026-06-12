@@ -47,6 +47,11 @@ public class PasswordResetService {
             return new ForgotPasswordResponse(null, null);
         }
         User user = userOpt.get();
+        if (user.getPasswordHash() == null) {
+            // Google-only аккаунт: локального пароля нет, сброс не применим —
+            // отвечаем как для неизвестного email (без выдачи кода).
+            return new ForgotPasswordResponse(null, null);
+        }
         Instant now = Instant.now();
         codeRepository.markAllActiveUsed(user.getId(), now);
         String code = String.format("%06d", random.nextInt(1_000_000));

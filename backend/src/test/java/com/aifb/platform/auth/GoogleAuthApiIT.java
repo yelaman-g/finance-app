@@ -112,4 +112,17 @@ class GoogleAuthApiIT extends AbstractIntegrationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error.code").value("AUTH_INVALID_CREDENTIALS"));
     }
+
+    @Test
+    void googleOnlyAccountCannotRequestPasswordReset() throws Exception {
+        String email = uniqueEmail();
+        google(devToken("sub-reset", email, "Reset Guard", true), 200);
+
+        // у Google-аккаунта нет локального пароля → forgot-password не выдаёт код
+        mockMvc.perform(post("/api/v1/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.devCode").doesNotExist());
+    }
 }

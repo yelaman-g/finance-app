@@ -88,6 +88,8 @@ public class AuthService {
         User user = userRepository.findByGoogleSubject(identity.subject())
                 .orElseGet(() -> userRepository.findByEmailIgnoreCase(email)
                         .map(existing -> {
+                            // привязываем Google к существующему аккаунту (мутация управляемой сущности
+                            // персистится dirty-checking-ом в рамках @Transactional)
                             existing.linkGoogle(identity.subject(), identity.pictureUrl());
                             return existing;
                         })

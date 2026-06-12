@@ -40,6 +40,9 @@ public class RealGoogleTokenVerifier implements GoogleTokenVerifier {
                 throw invalid();
             }
             GoogleIdToken.Payload p = token.getPayload();
+            if (p.getEmail() == null) {
+                throw invalid();
+            }
             return new GoogleIdentity(
                     p.getSubject(),
                     p.getEmail(),
