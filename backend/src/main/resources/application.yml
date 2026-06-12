@@ -44,6 +44,9 @@ aifb:
   verification:
     code-ttl: PT15M
     password-reset-ttl: PT30M
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    dev-mode: ${GOOGLE_DEV_MODE:true}
 
 management:
   endpoints:
