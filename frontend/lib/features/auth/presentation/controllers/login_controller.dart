@@ -38,6 +38,17 @@ class LoginController extends StateNotifier<LoginState> {
     );
     return ok;
   }
+  Future<bool> signInWithGoogle() async {
+    state = state.copyWith(submitting: true, failure: null);
+    final res =
+        await _ref.read(authControllerProvider.notifier).signInWithGoogle();
+    final ok = res is Ok<void>;
+    state = state.copyWith(
+      submitting: false,
+      failure: ok ? null : (res as Err<void>).failure,
+    );
+    return ok;
+  }
 }
 
 final loginControllerProvider =

@@ -14,6 +14,8 @@ abstract interface class AuthRepository {
     required String password,
   });
 
+  Future<Result<AuthSession>> signInWithGoogle({required String idToken});
+
   Future<Result<AuthUser>> me();
 
   Future<Result<void>> logout();

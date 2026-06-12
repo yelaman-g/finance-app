@@ -26,6 +26,15 @@ class AuthRemoteDataSource {
     return AuthSessionDto.fromJson(_unwrap(res.data));
   }
 
+  Future<AuthSessionDto> signInWithGoogle(String idToken) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      ApiEndpoints.googleSignIn,
+      data: {'idToken': idToken},
+      options: Options(extra: {'skipAuth': true}),
+    );
+    return AuthSessionDto.fromJson(_unwrap(res.data));
+  }
+
   Future<UserDto> me() async {
     final res = await _dio.get<Map<String, dynamic>>(ApiEndpoints.me);
     return UserDto.fromJson(_unwrap(res.data));

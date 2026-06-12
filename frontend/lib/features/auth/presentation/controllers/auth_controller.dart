@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/failure.dart';
 import '../../../../core/network/api_result.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/secure_storage.dart';
@@ -68,6 +69,29 @@ class AuthController extends StateNotifier<AuthState> {
       email: email,
       password: password,
     );
+    switch (res) {
+      case Ok(:final value):
+        state = AuthState.authenticated(value.user);
+        return const Result.ok(null);
+      case Err(:final failure):
+        state = AuthState.unauthenticated(lastFailure: failure);
+        return Result.err(failure);
+    }
+  }
+
+  Future<Result<void>> signInWithGoogle() async {
+    final String? idToken;
+    try {
+      idToken = await _ref.read(googleSignInServiceProvider).obtainIdToken();
+    } catch (_) {
+      const failure = Failure.unknown(message: 'Не удалось войти через Google');
+      state = const AuthState.unauthenticated(lastFailure: failure);
+      return const Result.err(failure);
+    }
+    if (idToken == null) {
+      return const Result.ok(null); // отмена — состояние не меняем
+    }
+    final res = await _repo.signInWithGoogle(idToken: idToken);
     switch (res) {
       case Ok(:final value):
         state = AuthState.authenticated(value.user);

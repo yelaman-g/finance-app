@@ -1,7 +1,9 @@
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/storage/secure_storage.dart';
 import 'package:aifb/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:aifb/features/auth/data/dto/auth_dtos.dart';
 import 'package:aifb/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:aifb/features/auth/domain/entities/auth_session.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -34,12 +36,34 @@ void main() {
     expect((result as Ok<String?>).value, isNull);
   });
 
+  test('signInWithGoogle сохраняет токены и возвращает Ok', () async {
+    const dto = AuthSessionDto(
+      user: UserDto(
+        id: 'u1',
+        email: 'g@gmail.com',
+        fullName: 'G User',
+        emailVerified: true,
+      ),
+      tokens: AuthTokensDto(accessToken: 'acc', refreshToken: 'ref'),
+    );
+    when(() => remote.signInWithGoogle('tok')).thenAnswer((_) async => dto);
+    when(() => storage.saveTokens(
+          access: any(named: 'access'),
+          refresh: any(named: 'refresh'),
+        ),).thenAnswer((_) async {});
+
+    final result = await repo.signInWithGoogle(idToken: 'tok');
+
+    expect(result, isA<Ok<AuthSession>>());
+    verify(() => storage.saveTokens(access: 'acc', refresh: 'ref')).called(1);
+  });
+
   test('resetPassword forwards all fields and returns Ok', () async {
     when(() => remote.resetPassword(
           email: any(named: 'email'),
           code: any(named: 'code'),
           newPassword: any(named: 'newPassword'),
-        )).thenAnswer((_) async {});
+        ),).thenAnswer((_) async {});
     final result = await repo.resetPassword(
       email: 'a@b.com',
       code: '123456',
@@ -50,6 +74,6 @@ void main() {
           email: 'a@b.com',
           code: '123456',
           newPassword: 'newpass123',
-        )).called(1);
+        ),).called(1);
   });
 }

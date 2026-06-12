@@ -58,6 +58,18 @@ class AuthRepositoryImpl implements AuthRepository {
       });
 
   @override
+  Future<Result<AuthSession>> signInWithGoogle({required String idToken}) =>
+      _guard(() async {
+        final dto = await _remote.signInWithGoogle(idToken);
+        final session = dto.toDomain();
+        await _storage.saveTokens(
+          access: session.tokens.accessToken,
+          refresh: session.tokens.refreshToken,
+        );
+        return session;
+      });
+
+  @override
   Future<Result<AuthUser>> me() =>
       _guard(() async => (await _remote.me()).toDomain());
 
