@@ -8,6 +8,8 @@ import com.aifb.platform.auth.api.dto.UserResponse;
 import com.aifb.platform.auth.domain.Role;
 import com.aifb.platform.auth.domain.User;
 import com.aifb.platform.auth.repository.UserRepository;
+import com.aifb.platform.auth.service.google.GoogleIdentity;
+import com.aifb.platform.auth.service.google.GoogleTokenVerifier;
 import com.aifb.platform.common.exception.ConflictException;
 import com.aifb.platform.common.exception.ErrorCode;
 import com.aifb.platform.common.exception.NotFoundException;
@@ -29,15 +31,18 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final GoogleTokenVerifier googleTokenVerifier;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
-                       RefreshTokenService refreshTokenService) {
+                       RefreshTokenService refreshTokenService,
+                       GoogleTokenVerifier googleTokenVerifier) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
+        this.googleTokenVerifier = googleTokenVerifier;
     }
 
     @Transactional
@@ -64,11 +69,47 @@ public class AuthService {
         if (!user.isEnabled()) {
             throw new UnauthorizedException(ErrorCode.AUTH_USER_BLOCKED, "User account is blocked");
         }
-        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+        if (user.getPasswordHash() == null
+                || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw invalidCredentials();
         }
         user.markLoggedIn();
         return issueSession(user);
+    }
+
+    @Transactional
+    public AuthResponse loginWithGoogle(String idToken) {
+        GoogleIdentity identity = googleTokenVerifier.verify(idToken);
+        if (!identity.emailVerified()) {
+            throw new UnauthorizedException(
+                    ErrorCode.AUTH_GOOGLE_TOKEN_INVALID, "Google email is not verified");
+        }
+        String email = normalizeEmail(identity.email());
+        User user = userRepository.findByGoogleSubject(identity.subject())
+                .orElseGet(() -> userRepository.findByEmailIgnoreCase(email)
+                        .map(existing -> {
+                            existing.linkGoogle(identity.subject(), identity.pictureUrl());
+                            return existing;
+                        })
+                        .orElseGet(() -> userRepository.save(User.googleUser(
+                                email,
+                                resolveName(identity, email),
+                                identity.subject(),
+                                identity.pictureUrl()))));
+        if (!user.isEnabled()) {
+            throw new UnauthorizedException(ErrorCode.AUTH_USER_BLOCKED, "User account is blocked");
+        }
+        user.markLoggedIn();
+        return issueSession(user);
+    }
+
+    private static String resolveName(GoogleIdentity identity, String email) {
+        String name = identity.fullName();
+        if (name != null && !name.isBlank()) {
+            return name.trim();
+        }
+        int at = email.indexOf('@');
+        return at > 0 ? email.substring(0, at) : email;
     }
 
     @Transactional

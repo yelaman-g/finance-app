@@ -2,6 +2,7 @@ package com.aifb.platform.auth.api;
 
 import com.aifb.platform.auth.api.dto.AuthResponse;
 import com.aifb.platform.auth.api.dto.ForgotPasswordRequest;
+import com.aifb.platform.auth.api.dto.GoogleAuthRequest;
 import com.aifb.platform.auth.api.dto.ForgotPasswordResponse;
 import com.aifb.platform.auth.api.dto.LoginRequest;
 import com.aifb.platform.auth.api.dto.LogoutRequest;
@@ -45,6 +46,11 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ApiResponse.ok(authService.login(request));
+    }
+
+    @PostMapping("/google")
+    public ApiResponse<AuthResponse> google(@Valid @RequestBody GoogleAuthRequest request) {
+        return ApiResponse.ok(authService.loginWithGoogle(request.idToken()));
     }
 
     @PostMapping("/refresh")
