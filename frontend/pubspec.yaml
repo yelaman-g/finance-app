@@ -36,6 +36,7 @@ dependencies:
   fl_chart: ^0.69.0
   cached_network_image: ^3.4.1
   flutter_svg: ^2.0.10+1
+  google_sign_in: ^6.2.1
   gap: ^3.0.1
 
   # Utils
@@ -55,6 +56,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - .env
+    - assets/google_logo.svg
 
   fonts:
     - family: Inter
