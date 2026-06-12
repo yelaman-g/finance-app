@@ -13,6 +13,6 @@ class GoogleAuthConfig {
   /// true, если явно не задано GOOGLE_DEV_MODE=false.
   static bool get devMode {
     final v = dotenv.isInitialized ? dotenv.env['GOOGLE_DEV_MODE'] : null;
-    return v == null ? true : v.toLowerCase() != 'false';
+    return v == null || v.toLowerCase() != 'false';
   }
 }
