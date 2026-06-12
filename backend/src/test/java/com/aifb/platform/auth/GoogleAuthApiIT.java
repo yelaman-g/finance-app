@@ -62,7 +62,7 @@ class GoogleAuthApiIT extends AbstractIntegrationTest {
     @Test
     void sameSubjectReturnsSameUser() throws Exception {
         String email = uniqueEmail();
-        String token = devToken("sub-stable", email, "Stable", true);
+        String token = devToken("sub-" + email, email, "Stable", true);
         String id1 = userId(google(token, 200));
         String id2 = userId(google(token, 200));
         assertThat(id2).isEqualTo(id1);
@@ -79,7 +79,7 @@ class GoogleAuthApiIT extends AbstractIntegrationTest {
                 .andReturn();
         String regId = userId(reg);
 
-        String googleId = userId(google(devToken("sub-link", email, "Local User", true), 200));
+        String googleId = userId(google(devToken("sub-" + email, email, "Local User", true), 200));
         assertThat(googleId).isEqualTo(regId);
     }
 
@@ -94,9 +94,10 @@ class GoogleAuthApiIT extends AbstractIntegrationTest {
 
     @Test
     void unverifiedEmailIsRejected() throws Exception {
+        String email = uniqueEmail();
         mockMvc.perform(post("/api/v1/auth/google")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"idToken\":\"" + devToken("sub-x", uniqueEmail(), "X", false) + "\"}"))
+                        .content("{\"idToken\":\"" + devToken("sub-" + email, email, "X", false) + "\"}"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error.code").value("AUTH_GOOGLE_TOKEN_INVALID"));
     }
@@ -104,7 +105,7 @@ class GoogleAuthApiIT extends AbstractIntegrationTest {
     @Test
     void passwordLoginRejectedForGoogleOnlyAccount() throws Exception {
         String email = uniqueEmail();
-        google(devToken("sub-nopass", email, "No Pass", true), 200);
+        google(devToken("sub-" + email, email, "No Pass", true), 200);
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -116,7 +117,7 @@ class GoogleAuthApiIT extends AbstractIntegrationTest {
     @Test
     void googleOnlyAccountCannotRequestPasswordReset() throws Exception {
         String email = uniqueEmail();
-        google(devToken("sub-reset", email, "Reset Guard", true), 200);
+        google(devToken("sub-" + email, email, "Reset Guard", true), 200);
 
         // у Google-аккаунта нет локального пароля → forgot-password не выдаёт код
         mockMvc.perform(post("/api/v1/auth/forgot-password")
