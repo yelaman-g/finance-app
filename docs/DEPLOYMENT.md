@@ -217,6 +217,10 @@ Frontend читает эти переменные из `frontend/.env` (объя
 Ежедневный планировщик (`@Scheduled`, cron из `NOTIFY_CRON`) сканирует оба источника,
 дедуплицирует через таблицу `sent_notifications` и шлёт через порт `PushSender`.
 Миграция V17 (`device_tokens`, `sent_notifications`, `events.notify_days_before`).
+Помимо этого, при создании нового **семейного расхода** (shared EXPENSE) мгновенный push
+получают все члены семьи, кроме автора операции; личные операции и доходы (INCOME) пуш не
+шлют. Реализовано через доменное событие `SharedExpenseCreatedEvent` +
+`@TransactionalEventListener(AFTER_COMMIT)` — пуш уходит после коммита операции, без дедупа.
 
 | Переменная | По умолчанию | Назначение |
 |---|---|---|
