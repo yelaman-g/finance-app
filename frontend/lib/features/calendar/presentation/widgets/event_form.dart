@@ -29,6 +29,7 @@ class _EventForm extends StatefulWidget {
 class _EventFormState extends State<_EventForm> {
   final _title = TextEditingController();
   final _budget = TextEditingController();
+  final _notifyController = TextEditingController(text: '1,0');
   late DateTime _date = widget.initialDate;
   String _type = 'OTHER';
   String _freq = 'NONE';
@@ -41,6 +42,7 @@ class _EventFormState extends State<_EventForm> {
   void dispose() {
     _title.dispose();
     _budget.dispose();
+    _notifyController.dispose();
     super.dispose();
   }
 
@@ -108,6 +110,14 @@ class _EventFormState extends State<_EventForm> {
               onChanged: (v) => setState(() => _shared = v),
               contentPadding: EdgeInsets.zero,
             ),
+            TextField(
+              controller: _notifyController,
+              keyboardType: TextInputType.text,
+              decoration: const InputDecoration(
+                labelText: 'Уведомлять за (дни, через запятую)',
+                hintText: '1,0',
+              ),
+            ),
             const SizedBox(height: 12),
             FilledButton(
               onPressed: _saving ? null : _submit,
@@ -122,6 +132,11 @@ class _EventFormState extends State<_EventForm> {
   Future<void> _submit() async {
     if (_title.text.trim().isEmpty) return;
     setState(() => _saving = true);
+    final notifyDays = _notifyController.text
+        .split(',')
+        .map((s) => int.tryParse(s.trim()))
+        .whereType<int>()
+        .toList();
     final body = <String, dynamic>{
       'title': _title.text.trim(),
       'startDate': _d(_date),
@@ -129,6 +144,7 @@ class _EventFormState extends State<_EventForm> {
       'type': _type,
       'recurFreq': _freq,
       'shared': _shared,
+      'notifyDaysBefore': notifyDays,
     };
     if (_freq == 'NONE') {
       final b = double.tryParse(_budget.text);

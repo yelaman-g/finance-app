@@ -2,6 +2,8 @@ import 'package:aifb/app/router/routes.dart';
 import 'package:aifb/app/theme/theme_mode_provider.dart';
 import 'package:aifb/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:aifb/features/auth/presentation/state/auth_state.dart';
+import 'package:aifb/features/notifications/application/push_service.dart';
+import 'package:aifb/features/notifications/presentation/providers/push_providers.dart';
 import 'package:aifb/shared/widgets/inset_section.dart';
 import 'package:aifb/shared/widgets/large_title_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +54,32 @@ class MorePage extends ConsumerWidget {
               title: 'Категории',
               leading: const Icon(Icons.category_rounded),
               onTap: () => context.push(AppRoutes.categoriesManage.path),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        InsetSection(
+          header: 'Уведомления',
+          children: [
+            Consumer(
+              builder: (context, ref, _) {
+                final enabled = ref.watch(notifEnabledProvider);
+                return SwitchListTile(
+                  title: const Text('Уведомления'),
+                  secondary: const Icon(Icons.notifications_rounded),
+                  value: enabled,
+                  onChanged: (v) async {
+                    await ref.read(notifEnabledProvider.notifier).set(v);
+                    final service =
+                        PushService(ref.read(pushRepositoryProvider));
+                    if (v) {
+                      await service.enable();
+                    } else {
+                      await service.disable();
+                    }
+                  },
+                );
+              },
             ),
           ],
         ),
