@@ -8,8 +8,14 @@ part 'ai_chat_provider.g.dart';
 class AiChatNotifier extends _$AiChatNotifier {
   @override
   FutureOr<List<AiMessage>> build() async {
-    final repo = ref.watch(aiAssistantRepositoryProvider);
-    return repo.getChatHistory();
+    return [
+      AiMessage(
+        id: 'welcome',
+        content: 'Здравствуйте! Я ваш ИИ-помощник по финансам. Спросите про бюджет, расходы или накопления.',
+        role: MessageRole.ai,
+        timestamp: DateTime.now(),
+      ),
+    ];
   }
 
   Future<void> sendMessage(String text) async {
@@ -38,7 +44,7 @@ class AiChatNotifier extends _$AiChatNotifier {
     state = AsyncData([...previousState, userMessage, typingMessage]);
 
     try {
-      final response = await repo.sendMessage(text);
+      final response = await repo.sendMessage(text, previousState);
       
       // Remove typing indicator and add real response
       final currentList = state.valueOrNull ?? [];
