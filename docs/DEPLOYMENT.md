@@ -30,7 +30,7 @@ docker run -d --name aifb-db -p 5432:5432 \
 
 ## 3. Бэкенд (Spring Boot)
 
-Схему создаёт **Flyway автоматически** при старте (миграции `V1…V16`), отдельных DDL-команд запускать не нужно.
+Схему создаёт **Flyway автоматически** при старте (миграции `V1…V17`), отдельных DDL-команд запускать не нужно.
 
 ```bash
 cd backend
@@ -208,3 +208,33 @@ Frontend читает эти переменные из `frontend/.env` (объя
   явно сказано «вся серия»). Эндпоинт правки `PUT /events/{id}` есть на бэкенде;
   форма правки в UI отложена (создание + удаление + просмотр — ядро версии).
 - Настройки/ключей не требует. Push о событиях — этап FCM (как и AI-напоминания).
+
+## 12. Push-уведомления (FCM)
+
+Проактивная доставка: AI-напоминания (за `notify_days_before` дней — дефолт
+`90,30,7,1`) и события календаря (за `notify_days_before` — дефолт `1,0` = за 1 день
+и в день; у событий со связанным AI-напоминанием push идёт от напоминания, не дублируется).
+Ежедневный планировщик (`@Scheduled`, cron из `NOTIFY_CRON`) сканирует оба источника,
+дедуплицирует через таблицу `sent_notifications` и шлёт через порт `PushSender`.
+Миграция V17 (`device_tokens`, `sent_notifications`, `events.notify_days_before`).
+
+| Переменная | По умолчанию | Назначение |
+|---|---|---|
+| `FCM_DEV_MODE` | `true` | Dev-режим: «отправка» только логируется (`[FCM-DEV]`), без сети и кредов. Flutter регистрирует синтетический токен. Реальный FCM отключён. |
+| `FCM_SERVICE_ACCOUNT_JSON` | (пусто) | Путь к service-account JSON Firebase. Нужен при `FCM_DEV_MODE=false`. |
+| `NOTIFY_CRON` | `0 0 9 * * *` | Расписание скана (ежедневно 09:00). |
+| `NOTIFY_ZONE` | `Asia/Almaty` | Зона времени cron. |
+
+**Демо / тесты (по умолчанию):** настраивать ничего не нужно — `FCM_DEV_MODE=true`,
+отправки логируются. Регистрация токена и эндпоинты `/api/v1/push/**` работают без Firebase.
+
+**Продакшн:** создать Firebase-проект, заменить placeholder `frontend/lib/firebase_options.dart`,
+`android/app/google-services.json`, `ios/Runner/GoogleService-Info.plist` реальными
+(`flutterfire configure`), задать `FCM_DEV_MODE=false` и `FCM_SERVICE_ACCOUNT_JSON`
+(service-account JSON). При пустом пути в этом режиме приложение падает на старте (fail-fast).
+**Реальная доставка push не проверяется в dev-среде** (нужны Firebase-проект и устройство) —
+это ограничение среды, не дефект.
+
+Эндпоинты под JWT: `POST /api/v1/push/tokens` {token, platform} (upsert),
+`DELETE /api/v1/push/tokens/{token}` (снятие), `POST /api/v1/push/test` (тест-push себе).
+Тоггл «Уведомления» в разделе «Ещё» включает/снимает регистрацию токена.
