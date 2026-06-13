@@ -45,4 +45,11 @@ class ApiEndpoints {
   // Categorization
   static const String categorizationRules = '/categorization/rules';
   static const String categorizationSuggest = '/categorization/suggest';
+
+  // AI assistant
+  static const String aiChat = '/ai/chat';
+  static const String aiInsights = '/ai/insights';
+  static const String aiAnalyzeBudget = '/ai/analyze-budget';
+  static const String aiSavingsPlan = '/ai/savings-plan';
+  static const String aiReminders = '/ai/reminders';
 }

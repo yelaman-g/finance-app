@@ -1,72 +1,112 @@
 import 'package:dio/dio.dart';
+
+import '../../../../core/network/api_endpoints.dart';
 import '../../domain/entities/ai_message.dart';
 import '../../domain/entities/insight_model.dart';
+import '../dto/ai_dtos.dart';
 
 abstract class AiRemoteDataSource {
-  Future<AiMessage> sendMessage(String message);
-  Future<List<AiMessage>> getChatHistory();
+  Future<AiMessage> sendMessage(String message, List<AiMessage> history);
   Future<List<InsightModel>> getFinancialInsights();
+  Future<BudgetAnalysis> analyzeBudget();
+  Future<SavingsPlan> savingsPlan(Map<String, dynamic> body);
+  Future<List<Reminder>> getReminders();
+  Future<Reminder> createReminder(Map<String, dynamic> body);
+  Future<void> deleteReminder(String id);
 }
 
 class AiRemoteDataSourceImpl implements AiRemoteDataSource {
-  // ignore: unused_field
+  AiRemoteDataSourceImpl(this._dio);
   final Dio _dio;
 
-  AiRemoteDataSourceImpl(this._dio);
+  String _role(MessageRole r) => r == MessageRole.user ? 'user' : 'ai';
 
   @override
-  Future<AiMessage> sendMessage(String message) async {
-    // Mocked delay for a real feeling
-    await Future<void>.delayed(const Duration(seconds: 2));
+  Future<AiMessage> sendMessage(String message, List<AiMessage> history) async {
+    final msgs = <Map<String, dynamic>>[
+      for (final m in history)
+        if (!m.isTyping) {'role': _role(m.role), 'content': m.content},
+      {'role': 'user', 'content': message},
+    ];
+    final res = await _dio.post<Map<String, dynamic>>(
+      ApiEndpoints.aiChat,
+      data: {'messages': msgs},
+    );
+    final d = _unwrap(res.data);
     return AiMessage(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      content: 'I analyzed your recent transactions. You spent 15% less on dining out this month! Keep it up.',
+      content: d['content'] as String? ?? '',
       role: MessageRole.ai,
       timestamp: DateTime.now(),
-      suggestedActions: ['View dining expenses', 'Set new budget limit'],
+      suggestedActions:
+          (d['suggestedActions'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
     );
   }
 
   @override
-  Future<List<AiMessage>> getChatHistory() async {
-    await Future<void>.delayed(const Duration(milliseconds: 800));
-    return [
-      AiMessage(
-        id: '1',
-        content: 'Hello! I am your AI Financial Assistant. How can I help you today?',
-        role: MessageRole.ai,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
-      ),
-    ];
+  Future<List<InsightModel>> getFinancialInsights() async {
+    final res = await _dio.get<Map<String, dynamic>>(ApiEndpoints.aiInsights);
+    return _unwrapList(res.data).map((j) => _insight(j as Map<String, dynamic>)).toList();
   }
 
   @override
-  Future<List<InsightModel>> getFinancialInsights() async {
-    await Future<void>.delayed(const Duration(seconds: 1));
-    return [
-      InsightModel(
-        id: '1',
-        title: 'Upcoming Subscription',
-        description: 'Your Netflix subscription (\$15.99) is due tomorrow.',
-        type: InsightType.warning,
-        createdAt: DateTime.now(),
-      ),
-      InsightModel(
-        id: '2',
-        title: 'Savings Potential',
-        description: 'You can save \$120 this month if you maintain your current grocery spending rate.',
-        type: InsightType.prediction,
-        impactValue: 120.0,
-        impactLabel: '+ \$120',
-        createdAt: DateTime.now(),
-      ),
-      InsightModel(
-        id: '3',
-        title: 'Budget Milestone',
-        description: 'You stayed under your entertainment budget for 3 consecutive months!',
-        type: InsightType.achievement,
-        createdAt: DateTime.now(),
-      ),
-    ];
+  Future<BudgetAnalysis> analyzeBudget() async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      ApiEndpoints.aiAnalyzeBudget,
+      data: <String, dynamic>{},
+    );
+    return BudgetAnalysis.fromJson(_unwrap(res.data));
+  }
+
+  @override
+  Future<SavingsPlan> savingsPlan(Map<String, dynamic> body) async {
+    final res = await _dio.post<Map<String, dynamic>>(ApiEndpoints.aiSavingsPlan, data: body);
+    return SavingsPlan.fromJson(_unwrap(res.data));
+  }
+
+  @override
+  Future<List<Reminder>> getReminders() async {
+    final res = await _dio.get<Map<String, dynamic>>(ApiEndpoints.aiReminders);
+    return _unwrapList(res.data).map((j) => Reminder.fromJson(j as Map<String, dynamic>)).toList();
+  }
+
+  @override
+  Future<Reminder> createReminder(Map<String, dynamic> body) async {
+    final res = await _dio.post<Map<String, dynamic>>(ApiEndpoints.aiReminders, data: body);
+    return Reminder.fromJson(_unwrap(res.data));
+  }
+
+  @override
+  Future<void> deleteReminder(String id) async {
+    await _dio.delete<void>('${ApiEndpoints.aiReminders}/$id');
+  }
+
+  InsightModel _insight(Map<String, dynamic> j) {
+    final typeStr = j['type'] as String? ?? 'recommendation';
+    final type = InsightType.values.firstWhere(
+      (t) => t.name == typeStr,
+      orElse: () => InsightType.recommendation,
+    );
+    return InsightModel(
+      id: j['id']?.toString() ?? '',
+      title: j['title'] as String? ?? '',
+      description: j['description'] as String? ?? '',
+      type: type,
+      impactValue: (j['impactValue'] as num?)?.toDouble(),
+      impactLabel: j['impactLabel'] as String?,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> _unwrap(Map<String, dynamic>? body) {
+    final data = body?['data'];
+    if (data is Map<String, dynamic>) return data;
+    throw DioException(requestOptions: RequestOptions(), message: 'Malformed envelope');
+  }
+
+  List<dynamic> _unwrapList(Map<String, dynamic>? body) {
+    final data = body?['data'];
+    if (data is List) return data;
+    throw DioException(requestOptions: RequestOptions(), message: 'Malformed envelope');
   }
 }
