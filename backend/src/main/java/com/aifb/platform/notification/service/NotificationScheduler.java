@@ -58,23 +58,24 @@ public class NotificationScheduler {
             }
         }
         for (Event e : events.findAll()) {
-            if (e.getAiReminderId() != null) continue;  // покрыто связанным напоминанием
+            if (e.getAiReminderId() != null) continue;  // покрыто связанным напоминанием (reminder-проход).
+                                                        // Если напоминание деактивировано — событие не уведомляет (приемлемо для MVP).
             List<Integer> thresholds = e.getNotifyDaysBefore();
             if (thresholds.isEmpty()) continue;
             int maxThreshold = Collections.max(thresholds);
             List<LocalDate> occ = expander.occurrences(e.getStartDate(), e.getRecurFreq(),
                     e.getRecurInterval(), e.getRecurUntil(), today, today.plusDays(maxThreshold));
-            if (occ.isEmpty()) continue;
-            LocalDate next = occ.get(0);
-            int daysUntil = (int) ChronoUnit.DAYS.between(today, next);
-            if (thresholds.contains(daysUntil)) {
-                String body = daysUntil == 0 ? "Сегодня" : "Через " + daysUntil + " дн.";
-                notifications.deliver(new NotificationCandidate(
-                        NotificationSource.EVENT, e.getId(), e.getUserId(), e.getHouseholdId(),
-                        next, daysUntil, e.getTitle(), body));
-                count++;
+            for (LocalDate next : occ) {
+                int daysUntil = (int) ChronoUnit.DAYS.between(today, next);
+                if (thresholds.contains(daysUntil)) {
+                    String body = daysUntil == 0 ? "Сегодня" : "Через " + daysUntil + " дн.";
+                    notifications.deliver(new NotificationCandidate(
+                            NotificationSource.EVENT, e.getId(), e.getUserId(), e.getHouseholdId(),
+                            next, daysUntil, e.getTitle(), body));
+                    count++;
+                }
             }
         }
-        log.info("[FCM] scanAndSend({}) — кандидатов отправлено: {}", today, count);
+        log.info("[FCM] scanAndSend({}) — кандидатов передано в доставку: {}", today, count);
     }
 }

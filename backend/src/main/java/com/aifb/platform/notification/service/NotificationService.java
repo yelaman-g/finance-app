@@ -71,6 +71,8 @@ public class NotificationService {
             }
         }
         try {
+            // Строка пишется даже если нуль отправок (нет токенов): ключ дедупа — (source, occurrence_date, threshold),
+            // поэтому будущие пороги сработают; прошедший порог повторно не отправляется — это намеренно.
             sent.save(new SentNotification(c.ownerUserId(), c.sourceType(),
                     c.sourceId(), c.occurrenceDate(), c.thresholdDay()));
         } catch (DataIntegrityViolationException race) {
@@ -82,6 +84,9 @@ public class NotificationService {
         if (c.householdId() == null) {
             return List.of(c.ownerUserId());
         }
-        return users.findByHouseholdId(c.householdId()).stream().map(User::getId).toList();
+        java.util.LinkedHashSet<UUID> ids = new java.util.LinkedHashSet<>();
+        ids.add(c.ownerUserId());
+        users.findByHouseholdId(c.householdId()).forEach(u -> ids.add(u.getId()));
+        return new java.util.ArrayList<>(ids);
     }
 }

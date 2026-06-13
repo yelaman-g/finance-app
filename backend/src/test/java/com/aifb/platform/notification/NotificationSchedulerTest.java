@@ -92,4 +92,21 @@ class NotificationSchedulerTest {
         assertThat(cap.getValue().sourceType()).isEqualTo(NotificationSource.EVENT);
         assertThat(cap.getValue().thresholdDay()).isEqualTo(1);
     }
+
+    @Test
+    void recurringEventFiresAllMatchingOccurrencesInWindow() {
+        LocalDate today = LocalDate.parse("2026-07-01");
+        when(reminders.findByActiveTrue()).thenReturn(List.of());
+        Event e = new Event(java.util.UUID.randomUUID(), "Тренировка", null, today,
+                null, true, EventType.OTHER, RecurFreq.WEEKLY, 1, null, List.of(7, 0));
+        when(events.findAll()).thenReturn(List.of(e));
+
+        scheduler.scanAndSend(today);
+
+        org.mockito.ArgumentCaptor<NotificationCandidate> cap =
+                org.mockito.ArgumentCaptor.forClass(NotificationCandidate.class);
+        verify(notifications, times(2)).deliver(cap.capture());
+        assertThat(cap.getAllValues()).extracting(NotificationCandidate::thresholdDay)
+                .containsExactlyInAnyOrder(0, 7);
+    }
 }
