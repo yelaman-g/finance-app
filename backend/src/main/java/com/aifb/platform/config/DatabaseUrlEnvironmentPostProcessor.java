@@ -14,14 +14,15 @@ import java.util.Map;
  * Поддержка Railway/Heroku-стиля переменной {@code DATABASE_URL}
  * ({@code postgres(ql)://user:pass@host:port/db?params}), которую Spring напрямую не понимает.
  *
- * <p>Если задан {@code DATABASE_URL} и НЕ задан явный {@code DB_URL}, разбирает URL и
- * выставляет {@code spring.datasource.url/username/password} с наивысшим приоритетом — тогда
- * на Railway достаточно одной переменной-ссылки {@code DATABASE_URL=${{Postgres.DATABASE_URL}}}
- * вместо ручного маппинга трёх ({@code DB_URL/DB_USER/DB_PASSWORD}).
+ * <p>Если задан {@code DATABASE_URL} и он успешно разбирается (есть host), выставляет
+ * {@code spring.datasource.url/username/password} с наивысшим приоритетом — тогда на Railway
+ * достаточно одной переменной-ссылки {@code DATABASE_URL=${{Postgres.DATABASE_URL}}}.
  *
- * <p>Явный {@code DB_URL} (путь из application.yml) всегда приоритетнее. Если URL не удаётся
- * разобрать (нет host) — процессор НЕ активируется (оставляет дефолты), чтобы не создавать
- * заведомо битый JDBC-URL.
+ * <p>Приоритет: валидный {@code DATABASE_URL} побеждает {@code DB_URL} (Railway сам управляет
+ * {@code DATABASE_URL}, он надёжнее ручного {@code DB_URL} со ссылками {@code ${{Postgres.PG*}}},
+ * которые легко задать неверно). Если {@code DATABASE_URL} отсутствует или не разбирается
+ * (нет host) — процессор НЕ активируется, и работает обычный путь {@code DB_URL/DB_USER/DB_PASSWORD}
+ * из application.yml.
  *
  * <p>Разбор ручной (а не {@link java.net.URI}), т.к. URI ломается, когда пароль содержит
  * {@code @}/{@code :}; здесь граница userinfo берётся по последнему {@code @}, а сам
@@ -33,11 +34,7 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String databaseUrl = environment.getProperty("DATABASE_URL");
         if (databaseUrl == null || databaseUrl.isBlank()) {
-            return;
-        }
-        String explicitDbUrl = environment.getProperty("DB_URL");
-        if (explicitDbUrl != null && !explicitDbUrl.isBlank()) {
-            return; // 3-переменный путь имеет приоритет
+            return; // нет DATABASE_URL → работает путь DB_URL/DB_USER/DB_PASSWORD
         }
         int schemeIdx = databaseUrl.indexOf("://");
         if (schemeIdx < 0) {

@@ -282,7 +282,8 @@ Frontend читает эти переменные из `frontend/.env` (объя
    | `DB_USER` | `${{Postgres.PGUSER}}` |
    | `DB_PASSWORD` | `${{Postgres.PGPASSWORD}}` |
 
-   (`DB_URL`, если задан, имеет приоритет над `DATABASE_URL`.) Плюс в обоих вариантах:
+   (Если заданы оба — **валидный `DATABASE_URL` имеет приоритет** над `DB_URL`; так что
+   лишние `DB_URL/DB_USER/DB_PASSWORD` удалять не обязательно.) Плюс в обоих вариантах:
 
    | Переменная | Значение |
    |---|---|
