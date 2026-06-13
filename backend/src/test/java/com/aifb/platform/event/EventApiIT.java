@@ -77,4 +77,19 @@ class EventApiIT extends AbstractIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_FAILED"));
     }
+
+    @Test
+    void personalEventNotVisibleToAnotherUser() throws Exception {
+        TestAuth.AuthedUser owner = testAuth.createUser();
+        TestAuth.AuthedUser other = testAuth.createUser();
+        mockMvc.perform(post("/api/v1/events")
+                        .header(HttpHeaders.AUTHORIZATION, owner.bearer())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Личное\",\"startDate\":\"2026-07-10\",\"allDay\":true}"))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/v1/events?from=2026-07-01&to=2026-07-31")
+                        .header(HttpHeaders.AUTHORIZATION, other.bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(0));
+    }
 }

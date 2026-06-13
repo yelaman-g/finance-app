@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 class _FakeRepo implements EventRepository {
   @override
-  Future<List<EventOccurrence>> getEvents(DateTime from, DateTime to) async => const [];
+  Future<List<EventOccurrence>> getEvents(DateTime from, DateTime to, String scope) async => const [];
   @override
   Future<EventDetail> createEvent(Map<String, dynamic> body) async =>
       const EventDetail(id: 'e1', title: 't');

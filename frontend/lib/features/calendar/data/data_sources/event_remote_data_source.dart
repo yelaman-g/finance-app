@@ -4,7 +4,7 @@ import '../../../../core/network/api_endpoints.dart';
 import '../dto/event_dtos.dart';
 
 abstract class EventRemoteDataSource {
-  Future<List<EventOccurrence>> getEvents(DateTime from, DateTime to);
+  Future<List<EventOccurrence>> getEvents(DateTime from, DateTime to, String scope);
   Future<EventDetail> createEvent(Map<String, dynamic> body);
   Future<void> deleteEvent(String id);
 }
@@ -16,10 +16,10 @@ class EventRemoteDataSourceImpl implements EventRemoteDataSource {
   String _d(DateTime d) => d.toIso8601String().split('T').first;
 
   @override
-  Future<List<EventOccurrence>> getEvents(DateTime from, DateTime to) async {
+  Future<List<EventOccurrence>> getEvents(DateTime from, DateTime to, String scope) async {
     final res = await _dio.get<Map<String, dynamic>>(
       ApiEndpoints.events,
-      queryParameters: {'from': _d(from), 'to': _d(to)},
+      queryParameters: {'from': _d(from), 'to': _d(to), 'scope': scope},
     );
     final data = res.data?['data'];
     if (data is! List) {

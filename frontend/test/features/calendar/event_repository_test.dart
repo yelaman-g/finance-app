@@ -20,8 +20,8 @@ void main() {
       eventId: 'e1', title: 'Тренировка', date: DateTime(2026, 6, 8),
       allDay: true, type: 'OTHER', recurring: true,
     );
-    when(() => remote.getEvents(any(), any())).thenAnswer((_) async => [occ]);
-    final res = await repo.getEvents(DateTime(2026, 6, 1), DateTime(2026, 6, 30));
+    when(() => remote.getEvents(any(), any(), any())).thenAnswer((_) async => [occ]);
+    final res = await repo.getEvents(DateTime(2026, 6, 1), DateTime(2026, 6, 30), 'PERSONAL');
     expect(res, hasLength(1));
     expect(res.first.title, 'Тренировка');
   });

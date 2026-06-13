@@ -15,9 +15,14 @@ final focusedMonthProvider = StateProvider<DateTime>((ref) {
   return DateTime(now.year, now.month, 1);
 });
 
-final monthEventsProvider = FutureProvider.autoDispose<List<EventOccurrence>>((ref) {
+final monthEventsProvider = FutureProvider.autoDispose<List<EventOccurrence>>((ref) async {
   final m = ref.watch(focusedMonthProvider);
   final from = DateTime(m.year, m.month, 1).subtract(const Duration(days: 7));
   final to = DateTime(m.year, m.month + 1, 0).add(const Duration(days: 7));
-  return ref.watch(eventRepositoryProvider).getEvents(from, to);
+  final repo = ref.watch(eventRepositoryProvider);
+  final results = await Future.wait([
+    repo.getEvents(from, to, 'PERSONAL'),
+    repo.getEvents(from, to, 'FAMILY'),
+  ]);
+  return [...results[0], ...results[1]];
 });

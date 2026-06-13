@@ -7,8 +7,8 @@ class EventRepositoryImpl implements EventRepository {
   final EventRemoteDataSource _remote;
 
   @override
-  Future<List<EventOccurrence>> getEvents(DateTime from, DateTime to) =>
-      _remote.getEvents(from, to);
+  Future<List<EventOccurrence>> getEvents(DateTime from, DateTime to, String scope) =>
+      _remote.getEvents(from, to, scope);
 
   @override
   Future<EventDetail> createEvent(Map<String, dynamic> body) => _remote.createEvent(body);

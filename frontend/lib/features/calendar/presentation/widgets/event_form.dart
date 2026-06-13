@@ -32,6 +32,7 @@ class _EventFormState extends State<_EventForm> {
   late DateTime _date = widget.initialDate;
   String _type = 'OTHER';
   String _freq = 'NONE';
+  bool _shared = false;
   bool _saving = false;
 
   String _d(DateTime d) => d.toIso8601String().split('T').first;
@@ -101,6 +102,12 @@ class _EventFormState extends State<_EventForm> {
                 decoration:
                     const InputDecoration(labelText: 'Бюджет (необязательно)'),
               ),
+            SwitchListTile(
+              title: const Text('Семейное событие'),
+              value: _shared,
+              onChanged: (v) => setState(() => _shared = v),
+              contentPadding: EdgeInsets.zero,
+            ),
             const SizedBox(height: 12),
             FilledButton(
               onPressed: _saving ? null : _submit,
@@ -121,6 +128,7 @@ class _EventFormState extends State<_EventForm> {
       'allDay': true,
       'type': _type,
       'recurFreq': _freq,
+      'shared': _shared,
     };
     if (_freq == 'NONE') {
       final b = double.tryParse(_budget.text);

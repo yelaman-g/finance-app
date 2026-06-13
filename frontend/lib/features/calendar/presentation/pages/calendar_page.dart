@@ -82,11 +82,30 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                         subtitle: Text(e.allDay ? 'Весь день' : (e.time ?? '')),
                         trailing:
                             e.recurring ? const Icon(Icons.repeat, size: 18) : null,
-                        onLongPress: () async {
-                          await ref
-                              .read(eventRepositoryProvider)
-                              .deleteEvent(e.eventId);
-                          ref.invalidate(monthEventsProvider);
+                        onTap: () async {
+                          final ok = await showDialog<bool>(
+                            context: context,
+                            builder: (dctx) => AlertDialog(
+                              title: const Text('Удалить событие?'),
+                              content: Text(e.recurring
+                                  ? 'Будет удалена вся серия «${e.title}».'
+                                  : 'Удалить «${e.title}»?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(dctx, false),
+                                  child: const Text('Отмена'),
+                                ),
+                                FilledButton(
+                                  onPressed: () => Navigator.pop(dctx, true),
+                                  child: const Text('Удалить'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (ok ?? false) {
+                            await ref.read(eventRepositoryProvider).deleteEvent(e.eventId);
+                            ref.invalidate(monthEventsProvider);
+                          }
                         },
                       );
                     },

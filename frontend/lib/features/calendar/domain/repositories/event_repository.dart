@@ -1,7 +1,7 @@
 import '../../data/dto/event_dtos.dart';
 
 abstract class EventRepository {
-  Future<List<EventOccurrence>> getEvents(DateTime from, DateTime to);
+  Future<List<EventOccurrence>> getEvents(DateTime from, DateTime to, String scope);
   Future<EventDetail> createEvent(Map<String, dynamic> body);
   Future<void> deleteEvent(String id);
 }
