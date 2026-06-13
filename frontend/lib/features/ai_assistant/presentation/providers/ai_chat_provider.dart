@@ -52,10 +52,7 @@ class AiChatNotifier extends _$AiChatNotifier {
           .toList();
       state = AsyncData([...currentList, response]);
     } catch (e, st) {
-      // Revert or show error
-      final currentList = (state.valueOrNull ?? <AiMessage>[])
-          .where((msg) => !msg.isTyping)
-          .toList();
+      // Show error (typing indicator is discarded with the previous state)
       state = AsyncError(e, st);
     }
   }
