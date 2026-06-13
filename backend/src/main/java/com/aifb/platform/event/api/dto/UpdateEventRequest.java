@@ -18,5 +18,6 @@ public record UpdateEventRequest(
         EventType type,
         RecurFreq recurFreq,
         Integer recurInterval,
-        LocalDate recurUntil) {
+        LocalDate recurUntil,
+        java.util.List<Integer> notifyDaysBefore) {
 }

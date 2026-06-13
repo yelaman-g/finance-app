@@ -9,11 +9,12 @@ import java.util.UUID;
 public record EventResponse(
         UUID id, String title, String description, LocalDate startDate, LocalTime startTime,
         boolean allDay, String type, String recurFreq, int recurInterval, LocalDate recurUntil,
-        boolean shared, UUID aiReminderId) {
+        boolean shared, UUID aiReminderId, java.util.List<Integer> notifyDaysBefore) {
 
     public static EventResponse from(Event e) {
         return new EventResponse(e.getId(), e.getTitle(), e.getDescription(), e.getStartDate(),
                 e.getStartTime(), e.isAllDay(), e.getType().name(), e.getRecurFreq().name(),
-                e.getRecurInterval(), e.getRecurUntil(), e.isShared(), e.getAiReminderId());
+                e.getRecurInterval(), e.getRecurUntil(), e.isShared(), e.getAiReminderId(),
+                e.getNotifyDaysBefore());
     }
 }

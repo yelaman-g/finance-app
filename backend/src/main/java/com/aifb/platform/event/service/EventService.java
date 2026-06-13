@@ -79,7 +79,8 @@ public class EventService {
         }
         Event event = new Event(userId, req.title(), req.description(), req.startDate(),
                 req.startTime(), req.allDay(), req.type() == null ? EventType.OTHER : req.type(),
-                freq, req.recurInterval() == null ? 1 : req.recurInterval(), req.recurUntil());
+                freq, req.recurInterval() == null ? 1 : req.recurInterval(), req.recurUntil(),
+                req.notifyDaysBefore());
         if (req.shared()) {
             HouseholdContext ctx = householdContext.requireManageSharedContent(userId);
             event.assignHousehold(ctx.householdId());
@@ -99,7 +100,8 @@ public class EventService {
         event.edit(req.title(), req.description(), req.startDate(), req.startTime(), req.allDay(),
                 req.type() == null ? EventType.OTHER : req.type(),
                 req.recurFreq() == null ? RecurFreq.NONE : req.recurFreq(),
-                req.recurInterval() == null ? 1 : req.recurInterval(), req.recurUntil());
+                req.recurInterval() == null ? 1 : req.recurInterval(), req.recurUntil(),
+                req.notifyDaysBefore());
         return EventResponse.from(repository.save(event));
     }
 

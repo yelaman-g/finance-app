@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -53,12 +54,16 @@ public class Event extends BaseEntity {
     @Column(name = "ai_reminder_id")
     private UUID aiReminderId;
 
+    @Column(name = "notify_days_before", nullable = false, length = 60)
+    private String notifyDaysBefore = "1,0";
+
     protected Event() {
     }
 
     public Event(UUID userId, String title, String description, LocalDate startDate,
                  LocalTime startTime, boolean allDay, EventType type,
-                 RecurFreq recurFreq, int recurInterval, LocalDate recurUntil) {
+                 RecurFreq recurFreq, int recurInterval, LocalDate recurUntil,
+                 List<Integer> notifyDaysBefore) {
         this.id = UUID.randomUUID();
         this.userId = userId;
         this.title = title;
@@ -70,6 +75,10 @@ public class Event extends BaseEntity {
         this.recurFreq = recurFreq == null ? RecurFreq.NONE : recurFreq;
         this.recurInterval = recurInterval < 1 ? 1 : recurInterval;
         this.recurUntil = recurUntil;
+        if (notifyDaysBefore != null && !notifyDaysBefore.isEmpty()) {
+            this.notifyDaysBefore = notifyDaysBefore.stream().map(String::valueOf)
+                    .collect(java.util.stream.Collectors.joining(","));
+        }
     }
 
     public UUID getUserId() { return userId; }
@@ -88,8 +97,18 @@ public class Event extends BaseEntity {
     public UUID getAiReminderId() { return aiReminderId; }
     public void setAiReminderId(UUID id) { this.aiReminderId = id; }
 
+    public List<Integer> getNotifyDaysBefore() {
+        if (notifyDaysBefore == null || notifyDaysBefore.isBlank()) {
+            return java.util.List.of();
+        }
+        return java.util.Arrays.stream(notifyDaysBefore.split(","))
+                .map(String::trim).filter(s -> !s.isEmpty())
+                .map(Integer::valueOf).toList();
+    }
+
     public void edit(String title, String description, LocalDate startDate, LocalTime startTime,
-                     boolean allDay, EventType type, RecurFreq recurFreq, int recurInterval, LocalDate recurUntil) {
+                     boolean allDay, EventType type, RecurFreq recurFreq, int recurInterval, LocalDate recurUntil,
+                     List<Integer> notifyDaysBefore) {
         this.title = title;
         this.description = description;
         this.startDate = startDate;
@@ -99,5 +118,8 @@ public class Event extends BaseEntity {
         this.recurFreq = recurFreq == null ? RecurFreq.NONE : recurFreq;
         this.recurInterval = recurInterval < 1 ? 1 : recurInterval;
         this.recurUntil = recurUntil;
+        this.notifyDaysBefore = (notifyDaysBefore == null || notifyDaysBefore.isEmpty())
+                ? "" : notifyDaysBefore.stream().map(String::valueOf)
+                        .collect(java.util.stream.Collectors.joining(","));
     }
 }
