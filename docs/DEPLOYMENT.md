@@ -263,20 +263,36 @@ Frontend читает эти переменные из `frontend/.env` (объя
 2. На railway.app: **New Project → Deploy from GitHub repo** → выбрать `finance-app`,
    ветка `final`. Root Directory оставить **пустым** (корень).
 3. Добавить **PostgreSQL**: *New → Database → Add PostgreSQL* (Railway создаёт переменные
-   `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`).
-4. В переменных окружения сервиса задать (Railway подставляет ссылки `${{Postgres.PG*}}`):
+   `DATABASE_URL`, `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`).
+4. **Подключить БД к бэкенду** (Railway НЕ делает это автоматически — переменные нужно
+   добавить как ссылки в сам сервис бэкенда → вкладка **Variables**). Два варианта:
+
+   **Вариант A — одна переменная (проще, рекомендую).** Приложение само разбирает
+   `DATABASE_URL` Railway (формат `postgresql://user:pass@host:port/db`) в JDBC:
+
+   | Переменная | Значение |
+   |---|---|
+   | `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` |
+
+   **Вариант B — три переменные** (если предпочитаете явный JDBC-URL):
 
    | Переменная | Значение |
    |---|---|
    | `DB_URL` | `jdbc:postgresql://${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}` |
    | `DB_USER` | `${{Postgres.PGUSER}}` |
    | `DB_PASSWORD` | `${{Postgres.PGPASSWORD}}` |
+
+   (`DB_URL`, если задан, имеет приоритет над `DATABASE_URL`.) Плюс в обоих вариантах:
+
+   | Переменная | Значение |
+   |---|---|
    | `APP_JWT_SECRET` | свой base64-секрет (НЕ дефолтный из репозитория) |
    | `APP_CORS_ORIGINS` | домен фронта (напр. `https://<app>.up.railway.app`) |
    | `ANTHROPIC_API_KEY` + `AI_DEV_MODE=false` | для реального Claude (иначе оставить dev) |
    | `GOOGLE_CLIENT_ID` + `GOOGLE_DEV_MODE=false` | для реального Google-входа (иначе dev) |
    | `FCM_SERVICE_ACCOUNT_JSON` + `FCM_DEV_MODE=false` | для реальной доставки push (иначе dev) |
 
+   Имя сервиса Postgres по умолчанию `Postgres` — если назвали иначе, поправьте `${{…}}`.
    `PORT` задаёт Railway сам — вручную не указывать. Flyway применит миграции `V1…V17`
    при старте (`ddl-auto: validate`).
 5. Railway соберёт по корневому `Dockerfile` и выдаст публичный URL
