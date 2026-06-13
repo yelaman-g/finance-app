@@ -241,21 +241,30 @@ Frontend читает эти переменные из `frontend/.env` (объя
 
 ## 13. Деплой бэкенда на Railway (этап 3 ТЗ)
 
-Бэкенд готов к деплою на [Railway](https://railway.app) из GitHub. Конфиг лежит в
-`backend/`: многоступенчатый `Dockerfile` (сборка `bootJar` на JDK 21 → запуск на JRE 21),
-`railway.json` (билдер Dockerfile + healthcheck `/actuator/health`), `.dockerignore`.
+Бэкенд готов к деплою на [Railway](https://railway.app) из GitHub. Деплой-конфиг лежит
+в **корне репозитория** (это важно: Railway по умолчанию анализирует корень, а проект —
+монорепо `backend/` + `frontend/`):
+- `Dockerfile` — многоступенчатый (сборка `bootJar` на JDK 21 → запуск на JRE 21),
+  контекст = корень, собирает из `backend/`;
+- `railway.json` — явный билдер `DOCKERFILE` (отключает автодетект Railpack/Nixpacks) +
+  healthcheck `/actuator/health`;
+- `.dockerignore` — исключает `frontend/`, `docs/`, `deploy/` и пр. из контекста.
+
 Порт читается из `PORT` (`server.port: ${PORT:${SERVER_PORT:9090}}`), который Railway
-выдаёт автоматически.
+выдаёт автоматически. **Root Directory менять НЕ нужно** — конфиг в корне Railway найдёт сам.
+
+> Если Railway пишет «Railpack could not determine how to build the app» — значит он не
+> увидел корневой `railway.json`/`Dockerfile` (ветка без них или сборка из другого
+> каталога). Убедитесь, что деплоится ветка `final` и Root Directory пуст (корень).
 
 **Шаги:**
 1. Запушить ветку с кодом на GitHub (репозиторий уже есть: `yelaman-g/finance-app`,
    ветка `final`).
-2. На railway.app: **New Project → Deploy from GitHub repo** → выбрать `finance-app`.
-3. В сервисе бэкенда: **Settings → Root Directory = `backend`** (важно — Dockerfile и
-   `railway.json` лежат в `backend/`, не в корне).
-4. Добавить **PostgreSQL**: *New → Database → Add PostgreSQL* (Railway создаёт переменные
+2. На railway.app: **New Project → Deploy from GitHub repo** → выбрать `finance-app`,
+   ветка `final`. Root Directory оставить **пустым** (корень).
+3. Добавить **PostgreSQL**: *New → Database → Add PostgreSQL* (Railway создаёт переменные
    `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`).
-5. В переменных окружения сервиса задать (Railway подставляет ссылки `${{Postgres.PG*}}`):
+4. В переменных окружения сервиса задать (Railway подставляет ссылки `${{Postgres.PG*}}`):
 
    | Переменная | Значение |
    |---|---|
@@ -270,12 +279,11 @@ Frontend читает эти переменные из `frontend/.env` (объя
 
    `PORT` задаёт Railway сам — вручную не указывать. Flyway применит миграции `V1…V17`
    при старте (`ddl-auto: validate`).
-6. Railway соберёт по `Dockerfile` и выдаст публичный URL `https://<app>.up.railway.app`.
-   Проверка: `GET /actuator/health` → `{"status":"UP"}`; `GET /api/v1/auth/me` → `401`.
-7. Во фронте: в `frontend/.env` заменить `API_BASE_URL` на `https://<app>.up.railway.app/api/v1`
+5. Railway соберёт по корневому `Dockerfile` и выдаст публичный URL
+   `https://<app>.up.railway.app`. Проверка: `GET /actuator/health` → `{"status":"UP"}`;
+   `GET /api/v1/auth/me` → `401`.
+6. Во фронте: в `frontend/.env` заменить `API_BASE_URL` на `https://<app>.up.railway.app/api/v1`
    и пересобрать (см. п. 5 о web-сборке).
 
 > **Минимум для старта без внешних ключей:** достаточно `DB_*` + `APP_JWT_SECRET`.
 > Google/ИИ/FCM остаются в dev-режиме (работают без ключей), их можно включить позже.
-> Альтернатива Dockerfile — Railway Nixpacks (автодетект Gradle), но Dockerfile
-> детерминированнее и фиксирует JDK 21.

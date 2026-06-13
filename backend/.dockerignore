@@ -1,9 +1,0 @@
-# Производные/локальные артефакты — не нужны в контексте сборки образа.
-build/
-.gradle/
-*.log
-.idea/
-*.iml
-.DS_Store
-# .git не входит в контекст backend/ при Root Directory = backend, но на всякий случай:
-.git/

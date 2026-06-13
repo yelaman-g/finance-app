@@ -1,0 +1,18 @@
+# Контекст сборки Railway = корень репо. Бэкенду нужен только backend/<src,gradle…>.
+# Исключаем всё тяжёлое/ненужное, чтобы контекст был маленьким и сборка быстрой.
+.git/
+.claude/
+.vscode/
+frontend/
+docs/
+deploy/
+*.docx
+README.md
+
+# Производные артефакты бэкенда (пересобираются в образе).
+backend/build/
+backend/.gradle/
+
+# Прочее.
+**/*.log
+**/.DS_Store
