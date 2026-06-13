@@ -45,27 +45,6 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Icon(Icons.auto_awesome, color: theme.colorScheme.primary)
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .shimmer(duration: 2.seconds),
-            const SizedBox(width: 8),
-            const Text('AI Financial Assistant', style: TextStyle(fontWeight: FontWeight.w600)),
-          ],
-        ),
-        elevation: 0,
-        backgroundColor: theme.colorScheme.surface,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.analytics_outlined),
-            onPressed: () {
-              // Show insights bottom sheet
-            },
-          ),
-        ],
-      ),
       body: Column(
         children: [
           // Insights Section

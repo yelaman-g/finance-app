@@ -47,13 +47,15 @@ class AiChatNotifier extends _$AiChatNotifier {
       final response = await repo.sendMessage(text, previousState);
       
       // Remove typing indicator and add real response
-      final currentList = state.valueOrNull ?? [];
-      currentList.removeWhere((msg) => msg.isTyping);
+      final currentList = (state.valueOrNull ?? <AiMessage>[])
+          .where((msg) => !msg.isTyping)
+          .toList();
       state = AsyncData([...currentList, response]);
     } catch (e, st) {
       // Revert or show error
-      final currentList = state.valueOrNull ?? [];
-      currentList.removeWhere((msg) => msg.isTyping);
+      final currentList = (state.valueOrNull ?? <AiMessage>[])
+          .where((msg) => !msg.isTyping)
+          .toList();
       state = AsyncError(e, st);
     }
   }
