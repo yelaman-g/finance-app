@@ -45,6 +45,7 @@ dependencies {
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
     implementation 'com.google.api-client:google-api-client:2.7.0'
+    implementation 'com.anthropic:anthropic-java:2.34.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
