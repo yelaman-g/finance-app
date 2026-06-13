@@ -7,6 +7,7 @@ import 'package:aifb/shared/widgets/hig_button.dart';
 import 'package:aifb/shared/widgets/hig_text_field.dart';
 import 'package:aifb/shared/widgets/inset_section.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -194,13 +195,34 @@ class _HouseholdView extends ConsumerWidget {
             children: [
               InsetTile(
                 title: household.inviteCode!,
-                trailing: IconButton(
-                  icon: const Icon(Icons.refresh),
-                  tooltip: 'Обновить код',
-                  onPressed: () async {
-                    await repo.rotateCode();
-                    onChanged();
-                  },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.copy_rounded),
+                      tooltip: 'Копировать код',
+                      onPressed: () async {
+                        await Clipboard.setData(
+                          ClipboardData(text: household.inviteCode!),
+                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Код приглашения скопирован'),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      tooltip: 'Обновить код',
+                      onPressed: () async {
+                        await repo.rotateCode();
+                        onChanged();
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],
