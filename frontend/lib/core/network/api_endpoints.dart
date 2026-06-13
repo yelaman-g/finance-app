@@ -49,6 +49,10 @@ class ApiEndpoints {
   // Calendar / events
   static const String events = '/events';
 
+  // Push
+  static const String pushTokens = '/push/tokens';
+  static const String pushTest = '/push/test';
+
   // AI assistant
   static const String aiChat = '/ai/chat';
   static const String aiInsights = '/ai/insights';
