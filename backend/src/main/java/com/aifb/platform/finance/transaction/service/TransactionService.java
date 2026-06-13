@@ -16,8 +16,10 @@ import com.aifb.platform.finance.transaction.api.dto.CreateTransactionRequest;
 import com.aifb.platform.finance.transaction.api.dto.TransactionResponse;
 import com.aifb.platform.finance.transaction.api.dto.UpdateTransactionRequest;
 import com.aifb.platform.finance.transaction.domain.Transaction;
+import com.aifb.platform.finance.transaction.event.SharedExpenseCreatedEvent;
 import com.aifb.platform.finance.transaction.repository.TransactionRepository;
 import com.aifb.platform.household.service.HouseholdContextService;
+import org.springframework.context.ApplicationEventPublisher;
 import com.aifb.platform.household.service.HouseholdContextService.HouseholdContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,17 +43,20 @@ public class TransactionService {
     private final HouseholdContextService householdContext;
     private final BudgetService budgetService;
     private final CategorizationService categorizationService;
+    private final ApplicationEventPublisher events;
 
     public TransactionService(TransactionRepository repository,
                               CategoryRepository categoryRepository,
                               HouseholdContextService householdContext,
                               BudgetService budgetService,
-                              CategorizationService categorizationService) {
+                              CategorizationService categorizationService,
+                              ApplicationEventPublisher events) {
         this.repository = repository;
         this.categoryRepository = categoryRepository;
         this.householdContext = householdContext;
         this.budgetService = budgetService;
         this.categorizationService = categorizationService;
+        this.events = events;
     }
 
     @Transactional(readOnly = true)
@@ -112,6 +117,10 @@ public class TransactionService {
                     req.amount(), req.note(), req.occurredOn());
         }
         Transaction saved = repository.save(t);
+        if (saved.getHouseholdId() != null && saved.getType() == CategoryType.EXPENSE) {
+            events.publishEvent(new SharedExpenseCreatedEvent(
+                    saved.getHouseholdId(), userId, saved.getId(), saved.getAmount(), saved.getNote()));
+        }
         List<BudgetWarning> warnings = req.type() == CategoryType.EXPENSE
                 ? budgetService.warningsForExpense(userId, saved.getHouseholdId(),
                         saved.getCategoryId(), category.getGroupId())

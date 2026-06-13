@@ -13,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -78,6 +79,46 @@ public class NotificationService {
         } catch (DataIntegrityViolationException race) {
             log.debug("sent_notifications гонка — уже отправлено: {}", c.sourceId());
         }
+    }
+
+    /** Немедленный push о новом семейном расходе всем членам семьи, КРОМЕ автора. Без дедупа.
+     *  Не @Transactional: FCM-отправка (I/O) не должна держать DB-соединение; невалидные токены
+     *  удаляются одним deleteAll после цикла (репозиторный метод сам транзакционен). */
+    public void notifyFamilyExpense(UUID householdId, UUID authorUserId, UUID transactionId,
+                                    BigDecimal amount, String note) {
+        if (householdId == null) {
+            return;
+        }
+        List<UUID> recipients = users.findByHouseholdId(householdId).stream()
+                .map(User::getId)
+                .filter(id -> !id.equals(authorUserId))
+                .toList();
+        if (recipients.isEmpty()) {
+            return;
+        }
+        List<DeviceToken> deviceTokens = tokens.findByUserIdIn(recipients);
+        String body = (note == null || note.isBlank())
+                ? money(amount) + " ₸"
+                : money(amount) + " ₸ — " + note;
+        Map<String, String> data = Map.of("type", "EXPENSE", "transactionId", transactionId.toString());
+        java.util.List<DeviceToken> invalid = new java.util.ArrayList<>();
+        for (DeviceToken dt : deviceTokens) {
+            PushResult r = pushSender.send(dt.getToken(), "Новый семейный расход", body, data);
+            if (r.tokenInvalid()) {
+                invalid.add(dt);
+            }
+        }
+        if (!invalid.isEmpty()) {
+            tokens.deleteAll(invalid);
+        }
+    }
+
+    private static String money(BigDecimal a) {
+        BigDecimal s = a.stripTrailingZeros();
+        if (s.scale() < 0) {
+            s = s.setScale(0);
+        }
+        return s.toPlainString();
     }
 
     private List<UUID> recipients(NotificationCandidate c) {
