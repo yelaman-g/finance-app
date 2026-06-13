@@ -24,6 +24,11 @@ class MorePage extends ConsumerWidget {
           header: 'Управление',
           children: [
             InsetTile(
+              title: 'ИИ-помощник',
+              leading: const Icon(Icons.auto_awesome_rounded),
+              onTap: () => context.push(AppRoutes.ai.path),
+            ),
+            InsetTile(
               title: 'Семья',
               leading: const Icon(Icons.group_rounded),
               onTap: () => context.push(AppRoutes.family.path),

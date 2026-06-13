@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/admin/presentation/pages/admin_database_page.dart';
+import '../../features/ai_assistant/presentation/screens/ai_home_screen.dart';
 import '../../features/budgets/presentation/pages/budgets_page.dart';
 import '../../features/categories/presentation/pages/categories_page.dart';
 import '../../features/categorization/presentation/pages/rules_page.dart';
@@ -109,6 +110,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.admin.name,
         pageBuilder: (ctx, state) => fadeThroughPage(
             key: state.pageKey, child: const AdminDatabasePage()),
+      ),
+      GoRoute(
+        path: AppRoutes.ai.path,
+        name: AppRoutes.ai.name,
+        pageBuilder: (ctx, state) =>
+            fadeThroughPage(key: state.pageKey, child: const AiHomeScreen()),
       ),
       StatefulShellRoute.indexedStack(
         builder: (ctx, state, navigationShell) =>
