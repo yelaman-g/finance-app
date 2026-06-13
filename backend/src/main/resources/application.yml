@@ -25,7 +25,8 @@ spring:
     default-property-inclusion: non_null
 
 server:
-  port: ${SERVER_PORT:9090}
+  # Railway (и др. PaaS) задают порт через PORT; локально — SERVER_PORT или 9090.
+  port: ${PORT:${SERVER_PORT:9090}}
   error:
     include-message: never
     include-stacktrace: never

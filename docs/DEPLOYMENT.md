@@ -238,3 +238,44 @@ Frontend читает эти переменные из `frontend/.env` (объя
 Эндпоинты под JWT: `POST /api/v1/push/tokens` {token, platform} (upsert),
 `DELETE /api/v1/push/tokens/{token}` (снятие), `POST /api/v1/push/test` (тест-push себе).
 Тоггл «Уведомления» в разделе «Ещё» включает/снимает регистрацию токена.
+
+## 13. Деплой бэкенда на Railway (этап 3 ТЗ)
+
+Бэкенд готов к деплою на [Railway](https://railway.app) из GitHub. Конфиг лежит в
+`backend/`: многоступенчатый `Dockerfile` (сборка `bootJar` на JDK 21 → запуск на JRE 21),
+`railway.json` (билдер Dockerfile + healthcheck `/actuator/health`), `.dockerignore`.
+Порт читается из `PORT` (`server.port: ${PORT:${SERVER_PORT:9090}}`), который Railway
+выдаёт автоматически.
+
+**Шаги:**
+1. Запушить ветку с кодом на GitHub (репозиторий уже есть: `yelaman-g/finance-app`,
+   ветка `final`).
+2. На railway.app: **New Project → Deploy from GitHub repo** → выбрать `finance-app`.
+3. В сервисе бэкенда: **Settings → Root Directory = `backend`** (важно — Dockerfile и
+   `railway.json` лежат в `backend/`, не в корне).
+4. Добавить **PostgreSQL**: *New → Database → Add PostgreSQL* (Railway создаёт переменные
+   `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`).
+5. В переменных окружения сервиса задать (Railway подставляет ссылки `${{Postgres.PG*}}`):
+
+   | Переменная | Значение |
+   |---|---|
+   | `DB_URL` | `jdbc:postgresql://${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}` |
+   | `DB_USER` | `${{Postgres.PGUSER}}` |
+   | `DB_PASSWORD` | `${{Postgres.PGPASSWORD}}` |
+   | `APP_JWT_SECRET` | свой base64-секрет (НЕ дефолтный из репозитория) |
+   | `APP_CORS_ORIGINS` | домен фронта (напр. `https://<app>.up.railway.app`) |
+   | `ANTHROPIC_API_KEY` + `AI_DEV_MODE=false` | для реального Claude (иначе оставить dev) |
+   | `GOOGLE_CLIENT_ID` + `GOOGLE_DEV_MODE=false` | для реального Google-входа (иначе dev) |
+   | `FCM_SERVICE_ACCOUNT_JSON` + `FCM_DEV_MODE=false` | для реальной доставки push (иначе dev) |
+
+   `PORT` задаёт Railway сам — вручную не указывать. Flyway применит миграции `V1…V17`
+   при старте (`ddl-auto: validate`).
+6. Railway соберёт по `Dockerfile` и выдаст публичный URL `https://<app>.up.railway.app`.
+   Проверка: `GET /actuator/health` → `{"status":"UP"}`; `GET /api/v1/auth/me` → `401`.
+7. Во фронте: в `frontend/.env` заменить `API_BASE_URL` на `https://<app>.up.railway.app/api/v1`
+   и пересобрать (см. п. 5 о web-сборке).
+
+> **Минимум для старта без внешних ключей:** достаточно `DB_*` + `APP_JWT_SECRET`.
+> Google/ИИ/FCM остаются в dev-режиме (работают без ключей), их можно включить позже.
+> Альтернатива Dockerfile — Railway Nixpacks (автодетект Gradle), но Dockerfile
+> детерминированнее и фиксирует JDK 21.
