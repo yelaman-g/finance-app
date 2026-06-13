@@ -46,6 +46,9 @@ class ApiEndpoints {
   static const String categorizationRules = '/categorization/rules';
   static const String categorizationSuggest = '/categorization/suggest';
 
+  // Calendar / events
+  static const String events = '/events';
+
   // AI assistant
   static const String aiChat = '/ai/chat';
   static const String aiInsights = '/ai/insights';
