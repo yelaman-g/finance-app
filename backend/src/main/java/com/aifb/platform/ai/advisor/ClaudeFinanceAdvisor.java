@@ -57,9 +57,34 @@ public class ClaudeFinanceAdvisor implements FinanceAdvisor {
 
     @Override
     public ChatReply chat(FinanceContext ctx, List<ChatTurn> conversation) {
-        String last = conversation.isEmpty() ? "" : conversation.get(conversation.size() - 1).content();
-        String prompt = serialize(ctx) + "\n\nВопрос пользователя: " + last;
-        return new ChatReply(complete(prompt), List.of());
+        try {
+            MessageCreateParams.Builder builder = MessageCreateParams.builder()
+                    .model(model)
+                    .maxTokens(maxTokens)
+                    .system(SYSTEM_PROMPT + "\n\n" + serialize(ctx));
+            boolean started = false;
+            for (ChatTurn turn : conversation) {
+                boolean isUser = "user".equals(turn.role());
+                if (!started && !isUser) {
+                    continue; // пропускаем ведущие сообщения ассистента (приветствие)
+                }
+                started = true;
+                if (isUser) {
+                    builder.addUserMessage(turn.content());
+                } else {
+                    builder.addAssistantMessage(turn.content());
+                }
+            }
+            if (!started) {
+                return new ChatReply("", List.of());
+            }
+            Message resp = client.messages().create(builder.build());
+            StringBuilder sb = new StringBuilder();
+            resp.content().stream().flatMap(b -> b.text().stream()).forEach(t -> sb.append(t.text()));
+            return new ChatReply(sb.toString(), List.of());
+        } catch (Exception e) {
+            throw new DomainException(ErrorCode.AI_UNAVAILABLE, "AI service unavailable");
+        }
     }
 
     @Override

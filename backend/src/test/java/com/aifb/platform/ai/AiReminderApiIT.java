@@ -50,4 +50,24 @@ class AiReminderApiIT extends AbstractIntegrationTest {
     void remindersRequireAuth() throws Exception {
         mockMvc.perform(get("/api/v1/ai/reminders")).andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void cannotDeleteAnotherUsersReminder() throws Exception {
+        TestAuth.AuthedUser owner = testAuth.createUser();
+        TestAuth.AuthedUser other = testAuth.createUser();
+
+        MvcResult created = mockMvc.perform(post("/api/v1/ai/reminders")
+                        .header(HttpHeaders.AUTHORIZATION, owner.bearer())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"eventName\":\"Личное\",\"eventDate\":\"%s\"}"
+                                .formatted(java.time.LocalDate.now().plusMonths(2))))
+                .andExpect(status().isOk())
+                .andReturn();
+        String id = objectMapper.readTree(created.getResponse().getContentAsString())
+                .path("data").path("id").asText();
+
+        mockMvc.perform(delete("/api/v1/ai/reminders/" + id)
+                        .header(HttpHeaders.AUTHORIZATION, other.bearer()))
+                .andExpect(status().isNotFound());
+    }
 }
