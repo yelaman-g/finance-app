@@ -81,9 +81,11 @@ public class NotificationService {
         }
     }
 
-    /** Немедленный push о новом семейном расходе всем членам семьи, КРОМЕ автора. Без дедупа. */
-    @Transactional
-    public void notifyFamilyExpense(UUID householdId, UUID authorUserId, BigDecimal amount, String note) {
+    /** Немедленный push о новом семейном расходе всем членам семьи, КРОМЕ автора. Без дедупа.
+     *  Не @Transactional: FCM-отправка (I/O) не должна держать DB-соединение; невалидные токены
+     *  удаляются одним deleteAll после цикла (репозиторный метод сам транзакционен). */
+    public void notifyFamilyExpense(UUID householdId, UUID authorUserId, UUID transactionId,
+                                    BigDecimal amount, String note) {
         if (householdId == null) {
             return;
         }
@@ -98,12 +100,16 @@ public class NotificationService {
         String body = (note == null || note.isBlank())
                 ? money(amount) + " ₸"
                 : money(amount) + " ₸ — " + note;
-        Map<String, String> data = Map.of("type", "EXPENSE");
+        Map<String, String> data = Map.of("type", "EXPENSE", "transactionId", transactionId.toString());
+        java.util.List<DeviceToken> invalid = new java.util.ArrayList<>();
         for (DeviceToken dt : deviceTokens) {
             PushResult r = pushSender.send(dt.getToken(), "Новый семейный расход", body, data);
             if (r.tokenInvalid()) {
-                tokens.delete(dt);
+                invalid.add(dt);
             }
+        }
+        if (!invalid.isEmpty()) {
+            tokens.deleteAll(invalid);
         }
     }
 

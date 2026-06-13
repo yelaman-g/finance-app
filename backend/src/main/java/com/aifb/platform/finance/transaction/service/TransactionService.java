@@ -119,7 +119,7 @@ public class TransactionService {
         Transaction saved = repository.save(t);
         if (saved.getHouseholdId() != null && saved.getType() == CategoryType.EXPENSE) {
             events.publishEvent(new SharedExpenseCreatedEvent(
-                    saved.getHouseholdId(), userId, saved.getAmount(), saved.getNote()));
+                    saved.getHouseholdId(), userId, saved.getId(), saved.getAmount(), saved.getNote()));
         }
         List<BudgetWarning> warnings = req.type() == CategoryType.EXPENSE
                 ? budgetService.warningsForExpense(userId, saved.getHouseholdId(),

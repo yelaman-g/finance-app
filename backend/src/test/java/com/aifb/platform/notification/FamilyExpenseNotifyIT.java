@@ -40,7 +40,7 @@ class FamilyExpenseNotifyIT extends AbstractIntegrationTest {
         notifications.registerToken(member.id(), memberTok, DevicePlatform.ANDROID);
 
         DevPushSender dev = (DevPushSender) pushSender;
-        notifications.notifyFamilyExpense(householdId, owner.id(), new BigDecimal("1500.00"), "Продукты");
+        notifications.notifyFamilyExpense(householdId, owner.id(), java.util.UUID.randomUUID(), new BigDecimal("1500.00"), "Продукты");
 
         assertThat(dev.sent()).anyMatch(s -> s.token().equals(memberTok));
         assertThat(dev.sent()).noneMatch(s -> s.token().equals(ownerTok));
@@ -56,7 +56,7 @@ class FamilyExpenseNotifyIT extends AbstractIntegrationTest {
 
         DevPushSender dev = (DevPushSender) pushSender;
         // автор — единственный член семьи → после исключения автора получателей нет
-        notifications.notifyFamilyExpense(householdId, solo.id(), new BigDecimal("100"), null);
+        notifications.notifyFamilyExpense(householdId, solo.id(), java.util.UUID.randomUUID(), new BigDecimal("100"), null);
 
         assertThat(dev.sent()).noneMatch(s -> s.token().equals(tok));
     }

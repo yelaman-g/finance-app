@@ -17,6 +17,7 @@ public class ExpenseNotificationListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onSharedExpense(SharedExpenseCreatedEvent e) {
-        notifications.notifyFamilyExpense(e.householdId(), e.authorUserId(), e.amount(), e.note());
+        notifications.notifyFamilyExpense(e.householdId(), e.authorUserId(),
+                e.transactionId(), e.amount(), e.note());
     }
 }
