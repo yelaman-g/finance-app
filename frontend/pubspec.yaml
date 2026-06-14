@@ -40,6 +40,9 @@ dependencies:
   google_sign_in: ^6.2.1
   gap: ^3.0.1
 
+  # WebSocket/STOMP
+  stomp_dart_client: ^2.0.0
+
   # Utils
   intl: ^0.19.0
   flutter_dotenv: ^5.1.0

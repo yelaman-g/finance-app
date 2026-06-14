@@ -19,6 +19,7 @@ import '../../features/calendar/presentation/pages/calendar_page.dart';
 import '../../features/shopping/presentation/pages/shopping_page.dart';
 import '../../features/wishlist/presentation/pages/wishlist_page.dart';
 import '../../features/capsules/presentation/pages/capsules_page.dart';
+import '../../features/chat/presentation/pages/chat_page.dart';
 import '../../features/feed/presentation/pages/feed_page.dart';
 import '../../features/polls/presentation/pages/polls_page.dart';
 import '../../features/groups/presentation/pages/groups_page.dart';
@@ -158,6 +159,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.feed.name,
         pageBuilder: (ctx, state) =>
             fadeThroughPage(key: state.pageKey, child: const FeedPage()),
+      ),
+      GoRoute(
+        path: AppRoutes.chat.path,
+        name: AppRoutes.chat.name,
+        pageBuilder: (ctx, state) =>
+            fadeThroughPage(key: state.pageKey, child: const ChatPage()),
       ),
       StatefulShellRoute.indexedStack(
         builder: (ctx, state, navigationShell) =>

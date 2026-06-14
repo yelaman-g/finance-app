@@ -67,6 +67,9 @@ class ApiEndpoints {
   // Feed
   static const String feed = '/feed';
 
+  // Chat
+  static const String chat = '/chat';
+
   // Push
   static const String pushTokens = '/push/tokens';
   static const String pushTest = '/push/test';

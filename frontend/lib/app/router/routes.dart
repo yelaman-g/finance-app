@@ -39,6 +39,7 @@ class AppRoutes {
   static const polls = _Route('polls', '/polls');
   static const capsules = _Route('capsules', '/capsules');
   static const feed = _Route('feed', '/feed');
+  static const chat = _Route('chat', '/chat');
 }
 
 class _Route {
