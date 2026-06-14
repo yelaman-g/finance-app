@@ -7,13 +7,13 @@ public enum BudgetStatus {
     WARNING,
     EXCEEDED;
 
-    /** spent/limit: <80% OK, 80–100% WARNING, >100% EXCEEDED. limit>0 гарантирован. */
-    public static BudgetStatus of(BigDecimal spent, BigDecimal limit) {
+    /** spent/limit: <thresholdPercent% OK, ≥thresholdPercent% WARNING, >100% EXCEEDED. limit>0 гарантирован. */
+    public static BudgetStatus of(BigDecimal spent, BigDecimal limit, int thresholdPercent) {
         double ratio = spent.doubleValue() / limit.doubleValue();
         if (ratio > 1.0) {
             return EXCEEDED;
         }
-        if (ratio >= 0.8) {
+        if (ratio * 100 >= thresholdPercent) {
             return WARNING;
         }
         return OK;

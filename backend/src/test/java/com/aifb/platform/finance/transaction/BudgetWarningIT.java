@@ -32,7 +32,7 @@ class BudgetWarningIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID cat = categoryService.list(userId, CategoryType.EXPENSE, Scope.PERSONAL).get(0).id();
         budgetService.create(userId, new CreateBudgetRequest(
-                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("100.00"), false));
+                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("100.00"), false, null));
 
         TransactionResponse tx = transactionService.create(userId, new CreateTransactionRequest(
                 cat, CategoryType.EXPENSE, new BigDecimal("150.00"), null, LocalDate.now(), false));
@@ -45,7 +45,7 @@ class BudgetWarningIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID cat = categoryService.list(userId, CategoryType.EXPENSE, Scope.PERSONAL).get(0).id();
         budgetService.create(userId, new CreateBudgetRequest(
-                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("1000.00"), false));
+                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("1000.00"), false, null));
         TransactionResponse tx = transactionService.create(userId, new CreateTransactionRequest(
                 cat, CategoryType.EXPENSE, new BigDecimal("10.00"), null, LocalDate.now(), false));
         assertThat(tx.budgetWarnings()).isNull();

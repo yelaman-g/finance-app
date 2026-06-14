@@ -93,6 +93,8 @@ public class BudgetService {
             }
             limit = new BudgetLimit(userId, null, group.getId(), req.amount());
         }
+        limit.setNotifyThresholdPercent(
+                req.notifyThresholdPercent() != null ? req.notifyThresholdPercent() : BudgetLimit.DEFAULT_NOTIFY_THRESHOLD);
         if (householdId != null) {
             limit.assignHousehold(householdId);
         }
@@ -115,6 +117,9 @@ public class BudgetService {
     public BudgetResponse update(UUID userId, UUID id, UpdateBudgetRequest req) {
         BudgetLimit limit = manageableLimit(userId, id);
         limit.setAmount(req.amount());
+        if (req.notifyThresholdPercent() != null) {
+            limit.setNotifyThresholdPercent(req.notifyThresholdPercent());
+        }
         return toResponse(repository.save(limit));
     }
 
@@ -150,7 +155,7 @@ public class BudgetService {
 
     private void addIfNotOk(List<BudgetWarning> warnings, BudgetLimit limit) {
         BigDecimal spent = spent(limit);
-        BudgetStatus status = BudgetStatus.of(spent, limit.getAmount());
+        BudgetStatus status = BudgetStatus.of(spent, limit.getAmount(), limit.getNotifyThresholdPercent());
         if (status != BudgetStatus.OK) {
             warnings.add(new BudgetWarning(limit.getTargetType().name(), targetName(limit),
                     limit.getAmount(), spent, percentage(spent, limit.getAmount()), status.name()));
@@ -190,6 +195,12 @@ public class BudgetService {
         return limit;
     }
 
+    /** Текущие расходы за месяц по лимиту (для проверки подхода к порогу). */
+    @Transactional(readOnly = true)
+    public BigDecimal currentSpending(BudgetLimit limit) {
+        return spent(limit);
+    }
+
     private BigDecimal spent(BudgetLimit limit) {
         LocalDate today = LocalDate.now();
         LocalDate from = today.withDayOfMonth(1);
@@ -222,6 +233,7 @@ public class BudgetService {
         return new BudgetResponse(
                 limit.getId(), limit.getTargetType().name(), targetId, targetName(limit),
                 limit.getAmount(), spent, percentage(spent, limit.getAmount()),
-                BudgetStatus.of(spent, limit.getAmount()).name(), limit.isShared());
+                BudgetStatus.of(spent, limit.getAmount(), limit.getNotifyThresholdPercent()).name(), limit.isShared(),
+                limit.getNotifyThresholdPercent());
     }
 }

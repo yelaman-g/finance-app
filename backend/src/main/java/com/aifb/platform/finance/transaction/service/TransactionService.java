@@ -16,6 +16,7 @@ import com.aifb.platform.finance.transaction.api.dto.CreateTransactionRequest;
 import com.aifb.platform.finance.transaction.api.dto.TransactionResponse;
 import com.aifb.platform.finance.transaction.api.dto.UpdateTransactionRequest;
 import com.aifb.platform.finance.transaction.domain.Transaction;
+import com.aifb.platform.finance.transaction.event.ExpenseRecordedEvent;
 import com.aifb.platform.finance.transaction.event.SharedExpenseCreatedEvent;
 import com.aifb.platform.finance.transaction.repository.TransactionRepository;
 import com.aifb.platform.household.service.HouseholdContextService;
@@ -120,6 +121,10 @@ public class TransactionService {
         if (saved.getHouseholdId() != null && saved.getType() == CategoryType.EXPENSE) {
             events.publishEvent(new SharedExpenseCreatedEvent(
                     saved.getHouseholdId(), userId, saved.getId(), saved.getAmount(), saved.getNote()));
+        }
+        if (saved.getType() == CategoryType.EXPENSE) {
+            events.publishEvent(new ExpenseRecordedEvent(
+                    saved.getId(), userId, saved.getHouseholdId(), saved.getCategoryId()));
         }
         List<BudgetWarning> warnings = req.type() == CategoryType.EXPENSE
                 ? budgetService.warningsForExpense(userId, saved.getHouseholdId(),

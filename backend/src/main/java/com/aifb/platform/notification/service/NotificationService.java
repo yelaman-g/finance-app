@@ -113,6 +113,32 @@ public class NotificationService {
         }
     }
 
+    /**
+     * Push notification to a list of users.
+     * Collects device tokens for all given user IDs, sends the push to each,
+     * and removes tokens that the sender reports as invalid.
+     * Not @Transactional: FCM I/O should not hold a DB connection.
+     */
+    public void pushToUsers(List<UUID> userIds, String title, String body, Map<String, String> data) {
+        if (userIds == null || userIds.isEmpty()) {
+            return;
+        }
+        List<DeviceToken> deviceTokens = tokens.findByUserIdIn(userIds);
+        if (deviceTokens.isEmpty()) {
+            return;
+        }
+        List<DeviceToken> invalid = new java.util.ArrayList<>();
+        for (DeviceToken dt : deviceTokens) {
+            PushResult r = pushSender.send(dt.getToken(), title, body, data);
+            if (r.tokenInvalid()) {
+                invalid.add(dt);
+            }
+        }
+        if (!invalid.isEmpty()) {
+            tokens.deleteAll(invalid);
+        }
+    }
+
     private static String money(BigDecimal a) {
         BigDecimal s = a.stripTrailingZeros();
         if (s.scale() < 0) {

@@ -12,6 +12,8 @@ import java.util.UUID;
 @Table(name = "budget_limits")
 public class BudgetLimit extends BaseEntity {
 
+    public static final int DEFAULT_NOTIFY_THRESHOLD = 80;
+
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
@@ -26,6 +28,9 @@ public class BudgetLimit extends BaseEntity {
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
+
+    @Column(name = "notify_threshold_percent", nullable = false)
+    private int notifyThresholdPercent = DEFAULT_NOTIFY_THRESHOLD;
 
     protected BudgetLimit() {
     }
@@ -50,4 +55,6 @@ public class BudgetLimit extends BaseEntity {
 
     public void assignHousehold(UUID householdId) { this.householdId = householdId; }
     public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public int getNotifyThresholdPercent() { return notifyThresholdPercent; }
+    public void setNotifyThresholdPercent(int notifyThresholdPercent) { this.notifyThresholdPercent = notifyThresholdPercent; }
 }

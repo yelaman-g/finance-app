@@ -39,7 +39,7 @@ class BudgetServiceIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID cat = expenseCat(userId);
         BudgetResponse b = service.create(userId, new CreateBudgetRequest(
-                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("1000.00"), false));
+                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("1000.00"), false, null));
         assertThat(b.spent()).isEqualByComparingTo("0");
         assertThat(b.status()).isEqualTo("OK");
 
@@ -57,7 +57,7 @@ class BudgetServiceIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID cat = expenseCat(userId);
         BudgetResponse b = service.create(userId, new CreateBudgetRequest(
-                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("100.00"), false));
+                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("100.00"), false, null));
         transactionService.create(userId, new CreateTransactionRequest(
                 cat, CategoryType.EXPENSE, new BigDecimal("150.00"), null, LocalDate.now(), false));
         BudgetResponse after = service.list(userId, Scope.PERSONAL).stream()
@@ -70,9 +70,9 @@ class BudgetServiceIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID cat = expenseCat(userId);
         service.create(userId, new CreateBudgetRequest(
-                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("100.00"), false));
+                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("100.00"), false, null));
         assertThatThrownBy(() -> service.create(userId, new CreateBudgetRequest(
-                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("200.00"), false)))
+                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("200.00"), false, null)))
                 .isInstanceOf(ConflictException.class);
     }
 
@@ -81,7 +81,7 @@ class BudgetServiceIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID incomeCat = categoryService.list(userId, CategoryType.INCOME, Scope.PERSONAL).get(0).id();
         assertThatThrownBy(() -> service.create(userId, new CreateBudgetRequest(
-                BudgetTargetType.CATEGORY, incomeCat, null, new BigDecimal("100.00"), false)))
+                BudgetTargetType.CATEGORY, incomeCat, null, new BigDecimal("100.00"), false, null)))
                 .isInstanceOf(DomainException.class);
     }
 
@@ -90,7 +90,7 @@ class BudgetServiceIT extends AbstractIntegrationTest {
         UUID userId = testAuth.createUser().id();
         UUID cat = expenseCat(userId);
         BudgetResponse b = service.create(userId, new CreateBudgetRequest(
-                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("100.00"), false));
+                BudgetTargetType.CATEGORY, cat, null, new BigDecimal("100.00"), false, null));
         service.delete(userId, b.id());
         assertThat(service.list(userId, Scope.PERSONAL)).noneMatch(x -> x.id().equals(b.id()));
     }
