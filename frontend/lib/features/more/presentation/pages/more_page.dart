@@ -36,6 +36,11 @@ class MorePage extends ConsumerWidget {
               onTap: () => context.push(AppRoutes.calendar.path),
             ),
             InsetTile(
+              title: 'Список покупок',
+              leading: const Icon(Icons.shopping_cart_rounded),
+              onTap: () => context.push(AppRoutes.shopping.path),
+            ),
+            InsetTile(
               title: 'Семья',
               leading: const Icon(Icons.group_rounded),
               onTap: () => context.push(AppRoutes.family.path),
