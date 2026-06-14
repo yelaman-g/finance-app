@@ -2,9 +2,15 @@ import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/features/groups/presentation/providers/groups_providers.dart';
 import 'package:aifb/shared/widgets/hig_button.dart';
+import 'package:aifb/shared/widgets/hig_text_field.dart';
 import 'package:aifb/shared/widgets/inset_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+const _groupTypeLabels = {
+  'EXPENSE': 'Расходы',
+  'INCOME': 'Доходы',
+};
 
 class GroupsPage extends ConsumerWidget {
   const GroupsPage({super.key});
@@ -50,7 +56,7 @@ class GroupsPage extends ConsumerWidget {
                       children: groups.map((g) {
                         return InsetTile(
                           title: g.name,
-                          subtitle: g.type,
+                          subtitle: _groupTypeLabels[g.type] ?? g.type,
                           trailing: IconButton(
                             icon: const Icon(Icons.delete_outline),
                             onPressed: () async {
@@ -84,9 +90,11 @@ class GroupsPage extends ConsumerWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              HigTextField(
                 controller: name,
-                decoration: const InputDecoration(labelText: 'Название'),
+                label: 'Название',
+                hint: 'например, Кафе и рестораны',
+                textCapitalization: TextCapitalization.sentences,
               ),
               const SizedBox(height: 12),
               SegmentedButton<String>(

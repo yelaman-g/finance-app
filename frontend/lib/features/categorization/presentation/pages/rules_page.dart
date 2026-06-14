@@ -3,6 +3,7 @@ import 'package:aifb/features/categorization/data/models/rule_model.dart';
 import 'package:aifb/features/categorization/presentation/providers/categorization_providers.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
 import 'package:aifb/shared/widgets/hig_button.dart';
+import 'package:aifb/shared/widgets/hig_text_field.dart';
 import 'package:aifb/shared/widgets/inset_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -87,11 +88,10 @@ class RulesPage extends ConsumerWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              HigTextField(
                 controller: keyword,
-                decoration: const InputDecoration(
-                  labelText: 'Ключевое слово',
-                ),
+                label: 'Ключевое слово',
+                hint: 'например, Магнит',
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
@@ -145,11 +145,10 @@ class RulesPage extends ConsumerWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              HigTextField(
                 controller: keyword,
-                decoration: const InputDecoration(
-                  labelText: 'Ключевое слово',
-                ),
+                label: 'Ключевое слово',
+                hint: 'например, Магнит',
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
