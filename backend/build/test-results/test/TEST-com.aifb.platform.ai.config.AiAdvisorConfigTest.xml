@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.ai.config.AiAdvisorConfigTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-06-14T10:59:56" hostname="MacBook-Pro-2.local" time="0.095">
+  <properties/>
+  <testcase name="blankKeyFallsBackToDevAdvisor()" classname="com.aifb.platform.ai.config.AiAdvisorConfigTest" time="0.001"/>
+  <testcase name="presentKeyUsesClaude()" classname="com.aifb.platform.ai.config.AiAdvisorConfigTest" time="0.094"/>
+  <system-out><![CDATA[2026-06-14T16:59:56.466+06:00 ERROR 44583 --- [aifb-platform] [    Test worker] c.a.platform.ai.config.AiAdvisorConfig   : aifb.ai.dev-mode=false, но ANTHROPIC_API_KEY пуст — откат к dev-режиму ИИ-помощника (детерминированные ответы). Задайте ANTHROPIC_API_KEY для реального Claude.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

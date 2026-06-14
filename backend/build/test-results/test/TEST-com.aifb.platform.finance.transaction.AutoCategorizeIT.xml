@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.finance.transaction.AutoCategorizeIT" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:06" hostname="MacBook-Pro-2.local" time="0.055">
+  <properties/>
+  <testcase name="explicitCategoryNotOverriddenByRule()" classname="com.aifb.platform.finance.transaction.AutoCategorizeIT" time="0.026"/>
+  <testcase name="noRuleMatchWithoutCategoryRejected()" classname="com.aifb.platform.finance.transaction.AutoCategorizeIT" time="0.008"/>
+  <testcase name="personalTransactionWithoutCategoryResolvedByRule()" classname="com.aifb.platform.finance.transaction.AutoCategorizeIT" time="0.014"/>
+  <testcase name="sharedTransactionWithoutCategoryRejected()" classname="com.aifb.platform.finance.transaction.AutoCategorizeIT" time="0.006"/>
+  <system-out><![CDATA[2026-06-14T17:00:06.781+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.finance.transaction.AutoCategorizeIT]: AutoCategorizeIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T17:00:06.790+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.finance.transaction.AutoCategorizeIT
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

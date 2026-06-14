@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.finance.transaction.TransactionApiIT" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:06" hostname="MacBook-Pro-2.local" time="0.03">
+  <properties/>
+  <testcase name="createRejectsTypeMismatch()" classname="com.aifb.platform.finance.transaction.TransactionApiIT" time="0.01"/>
+  <testcase name="createAndListTransaction()" classname="com.aifb.platform.finance.transaction.TransactionApiIT" time="0.017"/>
+  <testcase name="listRequiresAuth()" classname="com.aifb.platform.finance.transaction.TransactionApiIT" time="0.002"/>
+  <system-out><![CDATA[2026-06-14T17:00:06.901+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.finance.transaction.TransactionApiIT]: TransactionApiIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T17:00:06.903+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.finance.transaction.TransactionApiIT
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

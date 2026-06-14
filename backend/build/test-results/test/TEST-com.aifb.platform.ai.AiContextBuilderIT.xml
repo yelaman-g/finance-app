@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.ai.AiContextBuilderIT" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-06-14T10:59:56" hostname="MacBook-Pro-2.local" time="0.022">
+  <properties/>
+  <testcase name="buildsContextForNewUserWithoutHousehold()" classname="com.aifb.platform.ai.AiContextBuilderIT" time="0.022"/>
+  <system-out><![CDATA[2026-06-14T16:59:56.348+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.ai.AiContextBuilderIT]: AiContextBuilderIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T16:59:56.351+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.ai.AiContextBuilderIT
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.notification.DevPushSenderTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:07" hostname="MacBook-Pro-2.local" time="0.001">
+  <properties/>
+  <testcase name="recordsSendAndReturnsAccepted()" classname="com.aifb.platform.notification.DevPushSenderTest" time="0.001"/>
+  <system-out><![CDATA[2026-06-14T17:00:07.511+06:00  INFO 44583 --- [aifb-platform] [    Test worker] c.a.p.n.service.DevPushSender            : [FCM-DEV] → token=tok-1 title=Заголовок body=Текст
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

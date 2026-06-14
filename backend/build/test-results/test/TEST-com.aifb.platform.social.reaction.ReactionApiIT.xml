@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.social.reaction.ReactionApiIT" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:08" hostname="MacBook-Pro-2.local" time="0.332">
+  <properties/>
+  <testcase name="deleteReactionRequiresAuth()" classname="com.aifb.platform.social.reaction.ReactionApiIT" time="0.024"/>
+  <testcase name="getReactionsRequiresAuth()" classname="com.aifb.platform.social.reaction.ReactionApiIT" time="0.016"/>
+  <testcase name="reactingToPersonalTransactionIsForbidden()" classname="com.aifb.platform.social.reaction.ReactionApiIT" time="0.039"/>
+  <testcase name="reactRequiresAuth()" classname="com.aifb.platform.social.reaction.ReactionApiIT" time="0.003"/>
+  <testcase name="memberReactsAndGetReturnsIt()" classname="com.aifb.platform.social.reaction.ReactionApiIT" time="0.059"/>
+  <testcase name="guestCannotReact()" classname="com.aifb.platform.social.reaction.ReactionApiIT" time="0.04"/>
+  <testcase name="reReactReplacesEmoji()" classname="com.aifb.platform.social.reaction.ReactionApiIT" time="0.056"/>
+  <testcase name="deleteRemovesReaction()" classname="com.aifb.platform.social.reaction.ReactionApiIT" time="0.081"/>
+  <system-out><![CDATA[2026-06-14T17:00:08.499+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.social.reaction.ReactionApiIT]: ReactionApiIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T17:00:08.536+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.social.reaction.ReactionApiIT
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

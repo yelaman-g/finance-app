@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.notification.NotificationSchedulerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:07" hostname="MacBook-Pro-2.local" time="0.034">
+  <properties/>
+  <testcase name="reminderDoesNotFireOffThreshold()" classname="com.aifb.platform.notification.NotificationSchedulerTest" time="0.021"/>
+  <testcase name="recurringEventFiresAllMatchingOccurrencesInWindow()" classname="com.aifb.platform.notification.NotificationSchedulerTest" time="0.004"/>
+  <testcase name="eventWithLinkedReminderIsSkipped()" classname="com.aifb.platform.notification.NotificationSchedulerTest" time="0.001"/>
+  <testcase name="reminderFiresOnMatchingThreshold()" classname="com.aifb.platform.notification.NotificationSchedulerTest" time="0.001"/>
+  <testcase name="recurringEventFiresOnNearestOccurrence()" classname="com.aifb.platform.notification.NotificationSchedulerTest" time="0.001"/>
+  <system-out><![CDATA[2026-06-14T17:00:08.009+06:00  INFO 44583 --- [aifb-platform] [    Test worker] c.a.p.n.service.NotificationScheduler    : [FCM] scanAndSend(2026-07-01) — кандидатов передано в доставку: 0
+2026-06-14T17:00:08.018+06:00  INFO 44583 --- [aifb-platform] [    Test worker] c.a.p.n.service.NotificationScheduler    : [FCM] scanAndSend(2026-07-01) — кандидатов передано в доставку: 2
+2026-06-14T17:00:08.023+06:00  INFO 44583 --- [aifb-platform] [    Test worker] c.a.p.n.service.NotificationScheduler    : [FCM] scanAndSend(2026-07-01) — кандидатов передано в доставку: 0
+2026-06-14T17:00:08.026+06:00  INFO 44583 --- [aifb-platform] [    Test worker] c.a.p.n.service.NotificationScheduler    : [FCM] scanAndSend(2026-07-01) — кандидатов передано в доставку: 1
+2026-06-14T17:00:08.028+06:00  INFO 44583 --- [aifb-platform] [    Test worker] c.a.p.n.service.NotificationScheduler    : [FCM] scanAndSend(2026-07-01) — кандидатов передано в доставку: 1
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

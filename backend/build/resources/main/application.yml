@@ -25,7 +25,8 @@ spring:
     default-property-inclusion: non_null
 
 server:
-  port: ${SERVER_PORT:9090}
+  # Railway (и др. PaaS) задают порт через PORT; локально — SERVER_PORT или 9090.
+  port: ${PORT:${SERVER_PORT:9090}}
   error:
     include-message: never
     include-stacktrace: never
@@ -52,6 +53,11 @@ aifb:
     dev-mode: ${AI_DEV_MODE:true}
     max-tokens: ${AI_MAX_TOKENS:2048}
     api-key: ${ANTHROPIC_API_KEY:}
+  fcm:
+    dev-mode: ${FCM_DEV_MODE:true}
+    service-account-json: ${FCM_SERVICE_ACCOUNT_JSON:}
+    cron: ${NOTIFY_CRON:0 0 9 * * *}
+    zone: ${NOTIFY_ZONE:Asia/Almaty}
 
 management:
   endpoints:

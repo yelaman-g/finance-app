@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.finance.goal.GoalScopeIT" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:06" hostname="MacBook-Pro-2.local" time="0.072">
+  <properties/>
+  <testcase name="sharedGoalVisibleToFamilyAndContributable()" classname="com.aifb.platform.finance.goal.GoalScopeIT" time="0.033"/>
+  <testcase name="childCannotCreateSharedGoal()" classname="com.aifb.platform.finance.goal.GoalScopeIT" time="0.021"/>
+  <testcase name="personalGoalsExcludeShared()" classname="com.aifb.platform.finance.goal.GoalScopeIT" time="0.017"/>
+  <system-out><![CDATA[2026-06-14T17:00:06.049+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.finance.goal.GoalScopeIT]: GoalScopeIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T17:00:06.051+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.finance.goal.GoalScopeIT
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

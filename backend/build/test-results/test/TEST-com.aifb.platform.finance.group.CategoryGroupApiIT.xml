@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.finance.group.CategoryGroupApiIT" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:06" hostname="MacBook-Pro-2.local" time="0.05">
+  <properties/>
+  <testcase name="createAndListGroup()" classname="com.aifb.platform.finance.group.CategoryGroupApiIT" time="0.041"/>
+  <testcase name="createRejectsBlankName()" classname="com.aifb.platform.finance.group.CategoryGroupApiIT" time="0.007"/>
+  <testcase name="listRequiresAuth()" classname="com.aifb.platform.finance.group.CategoryGroupApiIT" time="0.002"/>
+  <system-out><![CDATA[2026-06-14T17:00:06.269+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.finance.group.CategoryGroupApiIT]: CategoryGroupApiIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T17:00:06.277+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.finance.group.CategoryGroupApiIT
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

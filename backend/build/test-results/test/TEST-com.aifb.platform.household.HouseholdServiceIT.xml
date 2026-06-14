@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.household.HouseholdServiceIT" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:07" hostname="MacBook-Pro-2.local" time="0.241">
+  <properties/>
+  <testcase name="rotateCodeChangesInviteCode()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.015"/>
+  <testcase name="joinByCodeAddsAdultMember()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.017"/>
+  <testcase name="createMakesCallerOwnerWithInviteCode()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.008"/>
+  <testcase name="ownerCannotChangeOwnRole()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.01"/>
+  <testcase name="joinWhenAlreadyInHouseholdConflicts()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.015"/>
+  <testcase name="memberLeaves()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.018"/>
+  <testcase name="ownerChangesMemberRoleToChild()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.023"/>
+  <testcase name="nonOwnerCannotChangeRole()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.017"/>
+  <testcase name="ownerRemovesMember()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.019"/>
+  <testcase name="createTwiceForSameUserConflicts()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.012"/>
+  <testcase name="getMineWithoutHouseholdNotFound()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.005"/>
+  <testcase name="cannotPromoteToSecondOwner()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.013"/>
+  <testcase name="joinWithBadCodeNotFound()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.005"/>
+  <testcase name="ownerDisbandsHousehold()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.027"/>
+  <testcase name="getMineHidesInviteCodeFromNonOwner()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.024"/>
+  <testcase name="ownerCannotLeaveMustDisband()" classname="com.aifb.platform.household.HouseholdServiceIT" time="0.01"/>
+  <system-out><![CDATA[2026-06-14T17:00:07.266+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.household.HouseholdServiceIT]: HouseholdServiceIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T17:00:07.268+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.household.HouseholdServiceIT
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

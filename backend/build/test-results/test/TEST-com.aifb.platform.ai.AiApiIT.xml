@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.ai.AiApiIT" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-06-14T10:59:56" hostname="MacBook-Pro-2.local" time="0.193">
+  <properties/>
+  <testcase name="analyzeBudgetReturnsAnalysis()" classname="com.aifb.platform.ai.AiApiIT" time="0.072"/>
+  <testcase name="chatRequiresAuth()" classname="com.aifb.platform.ai.AiApiIT" time="0.002"/>
+  <testcase name="insightsReturnsList()" classname="com.aifb.platform.ai.AiApiIT" time="0.033"/>
+  <testcase name="savingsPlanComputesMonthly()" classname="com.aifb.platform.ai.AiApiIT" time="0.038"/>
+  <testcase name="chatReturnsAiMessage()" classname="com.aifb.platform.ai.AiApiIT" time="0.044"/>
+  <system-out><![CDATA[2026-06-14T16:59:56.115+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.ai.AiApiIT]: AiApiIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T16:59:56.152+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.ai.AiApiIT
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

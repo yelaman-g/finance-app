@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.finance.budget.BudgetApiIT" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:05" hostname="MacBook-Pro-2.local" time="0.085">
+  <properties/>
+  <testcase name="createAndListBudget()" classname="com.aifb.platform.finance.budget.BudgetApiIT" time="0.052"/>
+  <testcase name="listRequiresAuth()" classname="com.aifb.platform.finance.budget.BudgetApiIT" time="0.003"/>
+  <testcase name="createRejectsNonPositiveAmount()" classname="com.aifb.platform.finance.budget.BudgetApiIT" time="0.03"/>
+  <system-out><![CDATA[2026-06-14T17:00:05.203+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.finance.budget.BudgetApiIT]: BudgetApiIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T17:00:05.214+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.finance.budget.BudgetApiIT
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

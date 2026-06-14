@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.shopping.ShoppingApiIT" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:08" hostname="MacBook-Pro-2.local" time="0.282">
+  <properties/>
+  <testcase name="toggleFlipsChecked()" classname="com.aifb.platform.shopping.ShoppingApiIT" time="0.077"/>
+  <testcase name="authRequired()" classname="com.aifb.platform.shopping.ShoppingApiIT" time="0.005"/>
+  <testcase name="deleteRemovesItem()" classname="com.aifb.platform.shopping.ShoppingApiIT" time="0.045"/>
+  <testcase name="guestCannotAdd()" classname="com.aifb.platform.shopping.ShoppingApiIT" time="0.059"/>
+  <testcase name="familyScopeMemberSeesOwnerItem()" classname="com.aifb.platform.shopping.ShoppingApiIT" time="0.056"/>
+  <testcase name="addAndListContainsItem()" classname="com.aifb.platform.shopping.ShoppingApiIT" time="0.035"/>
+  <system-out><![CDATA[2026-06-14T17:00:08.191+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.shopping.ShoppingApiIT]: ShoppingApiIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T17:00:08.211+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.shopping.ShoppingApiIT
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

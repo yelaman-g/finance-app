@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.aifb.platform.notification.NotificationServiceIT" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-06-14T11:00:08" hostname="MacBook-Pro-2.local" time="0.052">
+  <properties/>
+  <testcase name="deliverSendsOnceThenDedups()" classname="com.aifb.platform.notification.NotificationServiceIT" time="0.029"/>
+  <testcase name="registerTokenUpsertsByToken()" classname="com.aifb.platform.notification.NotificationServiceIT" time="0.021"/>
+  <system-out><![CDATA[2026-06-14T17:00:08.033+06:00  INFO 44583 --- [aifb-platform] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.aifb.platform.notification.NotificationServiceIT]: NotificationServiceIT does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-14T17:00:08.039+06:00  INFO 44583 --- [aifb-platform] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.aifb.platform.PlatformApplication for test class com.aifb.platform.notification.NotificationServiceIT
+2026-06-14T17:00:08.063+06:00  INFO 44583 --- [aifb-platform] [    Test worker] c.a.p.n.service.DevPushSender            : [FCM-DEV] → token=tok-x title=Скоро body=Текст
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
