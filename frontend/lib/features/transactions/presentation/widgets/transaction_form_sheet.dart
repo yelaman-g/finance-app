@@ -1,5 +1,6 @@
 import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/network/api_result.dart';
+import 'package:aifb/core/utils/thousands_formatter.dart';
 import 'package:aifb/features/categorization/presentation/providers/categorization_providers.dart';
 import 'package:aifb/features/transactions/data/models/category_model.dart';
 import 'package:aifb/features/transactions/data/models/transaction_model.dart';
@@ -44,7 +45,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
   }
 
   Future<void> _submit() async {
-    final amount = double.tryParse(_amount.text.replaceAll(',', '.'));
+    final amount = double.tryParse(unformatAmount(_amount.text));
     if (amount == null || amount <= 0 || _categoryId == null) {
       setState(() => _error = 'Укажите сумму и категорию');
       return;
@@ -149,6 +150,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
             controller: _amount,
             label: 'Сумма',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [ThousandsSeparatorInputFormatter()],
           ),
           const SizedBox(height: 12),
           // Category dropdown

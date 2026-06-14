@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/utils/thousands_formatter.dart';
 import 'package:aifb/features/ai_assistant/data/dto/ai_dtos.dart';
 import 'package:aifb/features/ai_assistant/presentation/providers/ai_dependency_provider.dart';
 import 'package:aifb/features/ai_assistant/presentation/providers/ai_extra_providers.dart';
@@ -90,7 +91,7 @@ class RemindersTab extends ConsumerWidget {
           await ref.read(aiAssistantRepositoryProvider).createReminder(
                 eventName: nameCtrl.text.trim(),
                 eventDate: date,
-                targetAmount: double.tryParse(targetCtrl.text),
+                targetAmount: double.tryParse(unformatAmount(targetCtrl.text)),
               );
           if (ctx.mounted) Navigator.pop(ctx, true);
         },
@@ -299,6 +300,7 @@ class _AddReminderSheetState extends State<_AddReminderSheet> {
             label: 'Целевая сумма (необязательно)',
             hint: '0',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [ThousandsSeparatorInputFormatter()],
           ),
           const SizedBox(height: 12),
           // Date picker row

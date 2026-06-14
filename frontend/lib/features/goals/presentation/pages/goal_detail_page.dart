@@ -1,6 +1,7 @@
 import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/core/network/api_result.dart';
+import 'package:aifb/core/utils/thousands_formatter.dart';
 import 'package:aifb/features/goals/data/models/goal_model.dart';
 import 'package:aifb/features/goals/presentation/providers/goals_providers.dart';
 import 'package:aifb/features/goals/presentation/widgets/goal_form_sheet.dart';
@@ -88,6 +89,7 @@ class GoalDetailPage extends ConsumerWidget {
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [ThousandsSeparatorInputFormatter()],
           decoration: const InputDecoration(hintText: 'Например, 5000'),
         ),
         actions: [
@@ -98,7 +100,7 @@ class GoalDetailPage extends ConsumerWidget {
           FilledButton(
             onPressed: () => Navigator.pop(
               ctx,
-              double.tryParse(controller.text.replaceAll(',', '.')),
+              double.tryParse(unformatAmount(controller.text)),
             ),
             child: const Text('Добавить'),
           ),

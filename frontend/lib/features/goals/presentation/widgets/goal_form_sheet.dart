@@ -1,5 +1,6 @@
 import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/network/api_result.dart';
+import 'package:aifb/core/utils/thousands_formatter.dart';
 import 'package:aifb/features/goals/data/models/goal_model.dart';
 import 'package:aifb/features/goals/presentation/providers/goals_providers.dart';
 import 'package:aifb/shared/widgets/hig_button.dart';
@@ -37,7 +38,15 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
     super.initState();
     if (widget.existing != null) {
       _name.text = widget.existing!.name;
-      _target.text = widget.existing!.targetAmount.toStringAsFixed(0);
+      // Pre-fill with formatted value so commas display correctly on edit
+      final rawAmount = widget.existing!.targetAmount.toStringAsFixed(0);
+      final fmt = ThousandsSeparatorInputFormatter();
+      _target.text = fmt
+          .formatEditUpdate(
+            const TextEditingValue(text: ''),
+            TextEditingValue(text: rawAmount),
+          )
+          .text;
       _deadline = widget.existing!.deadline;
     }
   }
@@ -50,7 +59,7 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
   }
 
   Future<void> _submit() async {
-    final target = double.tryParse(_target.text.replaceAll(',', '.'));
+    final target = double.tryParse(unformatAmount(_target.text));
     if (_name.text.trim().isEmpty || target == null || target <= 0) {
       setState(() => _error = 'Укажите название и цель > 0');
       return;
@@ -123,6 +132,7 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
             label: 'Целевая сумма',
             keyboardType:
                 const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [ThousandsSeparatorInputFormatter()],
           ),
           if (widget.existing == null) ...[
             const SizedBox(height: 4),

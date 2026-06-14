@@ -1,5 +1,6 @@
 import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class HigTextField extends StatelessWidget {
   const HigTextField({
@@ -10,6 +11,7 @@ class HigTextField extends StatelessWidget {
     this.obscureText = false,
     this.errorText,
     this.textCapitalization = TextCapitalization.sentences,
+    this.inputFormatters,
     super.key,
   });
 
@@ -20,6 +22,7 @@ class HigTextField extends StatelessWidget {
   final bool obscureText;
   final String? errorText;
   final TextCapitalization textCapitalization;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +32,7 @@ class HigTextField extends StatelessWidget {
       keyboardType: keyboardType,
       obscureText: obscureText,
       textCapitalization: textCapitalization,
+      inputFormatters: inputFormatters,
       style: TextStyle(fontSize: 17, color: hig.label),
       decoration: InputDecoration(
         labelText: label,

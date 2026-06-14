@@ -1,5 +1,6 @@
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/core/network/api_result.dart';
+import 'package:aifb/core/utils/thousands_formatter.dart';
 import 'package:aifb/features/budgets/presentation/providers/budgets_providers.dart';
 import 'package:aifb/features/groups/presentation/providers/groups_providers.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
@@ -39,7 +40,7 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
   }
 
   Future<void> _submit() async {
-    final amount = double.tryParse(_amount.text.replaceAll(',', '.'));
+    final amount = double.tryParse(unformatAmount(_amount.text));
     if (amount == null || amount <= 0 || _targetId == null) {
       setState(() => _error = 'Выберите цель и укажите сумму');
       return;
@@ -147,6 +148,7 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
             controller: _amount,
             label: 'Месячный лимит',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [ThousandsSeparatorInputFormatter()],
           ),
           if (_error != null) ...[
             const SizedBox(height: 8),

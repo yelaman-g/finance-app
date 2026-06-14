@@ -1,3 +1,4 @@
+import 'package:aifb/core/utils/thousands_formatter.dart';
 import 'package:aifb/features/calendar/presentation/providers/calendar_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -114,7 +115,8 @@ class _EventFormState extends State<_EventForm> {
             if (_freq == 'NONE')
               TextField(
                 controller: _budget,
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [ThousandsSeparatorInputFormatter()],
                 decoration:
                     const InputDecoration(labelText: 'Бюджет (необязательно)'),
               ),
@@ -161,7 +163,7 @@ class _EventFormState extends State<_EventForm> {
       'notifyDaysBefore': notifyDays,
     };
     if (_freq == 'NONE') {
-      final b = double.tryParse(_budget.text);
+      final b = double.tryParse(unformatAmount(_budget.text));
       if (b != null) body['budget'] = b;
     }
     try {
