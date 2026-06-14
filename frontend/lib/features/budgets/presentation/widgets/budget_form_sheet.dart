@@ -7,6 +7,7 @@ import 'package:aifb/features/transactions/presentation/providers/finance_provid
 import 'package:aifb/shared/widgets/hig_button.dart';
 import 'package:aifb/shared/widgets/hig_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Модальная форма создания месячного лимита (категория или группа расходов).
@@ -28,14 +29,17 @@ class _BudgetForm extends ConsumerStatefulWidget {
 
 class _BudgetFormState extends ConsumerState<_BudgetForm> {
   final _amount = TextEditingController();
+  final _threshold = TextEditingController(text: '80');
   String _targetType = 'CATEGORY';
   String? _targetId;
+  bool _shared = false;
   bool _saving = false;
   String? _error;
 
   @override
   void dispose() {
     _amount.dispose();
+    _threshold.dispose();
     super.dispose();
   }
 
@@ -45,6 +49,8 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
       setState(() => _error = 'Выберите цель и укажите сумму');
       return;
     }
+    final threshold =
+        (int.tryParse(_threshold.text) ?? 80).clamp(1, 100);
     setState(() {
       _saving = true;
       _error = null;
@@ -54,6 +60,8 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
           amount: amount,
           categoryId: _targetType == 'CATEGORY' ? _targetId : null,
           groupId: _targetType == 'GROUP' ? _targetId : null,
+          shared: _shared,
+          notifyThresholdPercent: threshold,
         );
     if (!mounted) return;
     switch (result) {
@@ -78,6 +86,7 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
         children: [
           Text('Новый лимит', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
+          // Target type selector (Category / Group)
           SegmentedButton<String>(
             segments: const [
               ButtonSegment(value: 'CATEGORY', label: Text('Категория')),
@@ -88,6 +97,16 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
               _targetType = s.first;
               _targetId = null;
             }),
+          ),
+          const SizedBox(height: 12),
+          // Scope selector: Personal / Family
+          SegmentedButton<bool>(
+            segments: const [
+              ButtonSegment(value: false, label: Text('Личный')),
+              ButtonSegment(value: true, label: Text('Семейный')),
+            ],
+            selected: {_shared},
+            onSelectionChanged: (s) => setState(() => _shared = s.first),
           ),
           const SizedBox(height: 12),
           if (_targetType == 'CATEGORY')
@@ -149,6 +168,23 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
             label: 'Месячный лимит',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [ThousandsSeparatorInputFormatter()],
+          ),
+          const SizedBox(height: 12),
+          HigTextField(
+            controller: _threshold,
+            label: 'Порог уведомления, %',
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 4),
+            child: Text(
+              'Уведомить, когда расходы достигнут ${_threshold.text.isEmpty ? '80' : _threshold.text}% лимита',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Theme.of(context).colorScheme.outline),
+            ),
           ),
           if (_error != null) ...[
             const SizedBox(height: 8),

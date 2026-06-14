@@ -9,6 +9,7 @@ class BudgetModel {
     required this.percentage,
     required this.status,
     required this.shared,
+    this.notifyThresholdPercent = 80,
   });
 
   factory BudgetModel.fromJson(Map<String, dynamic> json) => BudgetModel(
@@ -21,6 +22,8 @@ class BudgetModel {
         percentage: (json['percentage'] as num).toDouble(),
         status: json['status'] as String,
         shared: json['shared'] as bool? ?? false,
+        notifyThresholdPercent:
+            (json['notifyThresholdPercent'] as num?)?.toInt() ?? 80,
       );
 
   final String id;
@@ -32,4 +35,5 @@ class BudgetModel {
   final double percentage;
   final String status;
   final bool shared;
+  final int notifyThresholdPercent;
 }

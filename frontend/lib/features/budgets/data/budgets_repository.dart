@@ -17,11 +17,13 @@ class BudgetsRepository {
     String? categoryId,
     String? groupId,
     bool shared = false,
+    int notifyThresholdPercent = 80,
   }) =>
       _guard(() => _ds.create({
             'targetType': targetType,
             'amount': amount,
             'shared': shared,
+            'notifyThresholdPercent': notifyThresholdPercent,
             if (categoryId != null) 'categoryId': categoryId,
             if (groupId != null) 'groupId': groupId,
           }),);

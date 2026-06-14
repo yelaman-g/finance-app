@@ -109,12 +109,26 @@ class BudgetsPage extends ConsumerWidget {
                                 Row(
                                   children: [
                                     Expanded(
-                                      child: Text(
-                                        b.targetName,
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          color: hig.label,
-                                        ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            b.targetName,
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                              color: hig.label,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '${b.shared ? 'Семейный' : 'Личный'} · уведомление ${b.notifyThresholdPercent}%',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: hig.secondaryLabel,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                     Text(
