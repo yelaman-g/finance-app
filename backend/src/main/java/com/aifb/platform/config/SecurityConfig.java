@@ -33,7 +33,9 @@ public class SecurityConfig {
             "/actuator/health",
             "/swagger",
             "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/v3/api-docs/**",
+            // WebSocket upgrade — STOMP-level auth is enforced by WebSocketConfig interceptor
+            "/ws/**"
     };
 
     @Bean
