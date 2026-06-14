@@ -1,5 +1,9 @@
 import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/domain/scope.dart';
+import 'package:aifb/features/auth/domain/entities/auth_user.dart';
+import 'package:aifb/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:aifb/features/auth/presentation/state/auth_state.dart';
+import 'package:aifb/features/reactions/presentation/widgets/reaction_bar.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
 import 'package:aifb/features/transactions/presentation/widgets/transaction_form_sheet.dart';
 import 'package:aifb/shared/widgets/inset_section.dart';
@@ -8,26 +12,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class TransactionsPage extends ConsumerWidget {
-  const TransactionsPage({super.key});
+  const TransactionsPage({this.scope = Scope.personal, super.key});
+
+  final Scope scope;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hig = HigColors.of(context);
-    final async = ref.watch(transactionsProvider(Scope.personal));
+    final async = ref.watch(transactionsProvider(scope));
     final fmt = NumberFormat.decimalPattern();
+    final authState = ref.watch(authControllerProvider);
+    final AuthUser? currentUser =
+        authState is AuthAuthenticated ? authState.user : null;
 
     return Scaffold(
       backgroundColor: hig.pageBackground,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final created = await showTransactionForm(context);
-          if (created ?? false) ref.invalidate(transactionsProvider(Scope.personal));
+          if (created ?? false) ref.invalidate(transactionsProvider(scope));
         },
         icon: const Icon(Icons.add),
         label: const Text('Добавить'),
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(transactionsProvider(Scope.personal).future),
+        onRefresh: () => ref.refresh(transactionsProvider(scope).future),
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
@@ -49,6 +58,9 @@ class TransactionsPage extends ConsumerWidget {
                     child: Center(child: Text('Пока нет операций')),
                   );
                 }
+                final txIds = page.items.map((t) => t.id).toList();
+                final showReactions =
+                    scope == Scope.family && currentUser != null;
                 return SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
                   sliver: SliverToBoxAdapter(
@@ -72,19 +84,31 @@ class TransactionsPage extends ConsumerWidget {
                           ),
                           onDismissed: (_) async {
                             await ref.read(financeRepositoryProvider).delete(t.id);
-                            ref.invalidate(transactionsProvider(Scope.personal));
+                            ref.invalidate(transactionsProvider(scope));
                           },
-                          child: InsetTile(
-                            title: t.categoryName ?? '—',
-                            subtitle: subtitle,
-                            trailing: Text(
-                              '$sign${fmt.format(t.amount)}',
-                              style: TextStyle(
-                                color: t.isIncome ? hig.success : hig.label,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              InsetTile(
+                                title: t.categoryName ?? '—',
+                                subtitle: subtitle,
+                                trailing: Text(
+                                  '$sign${fmt.format(t.amount)}',
+                                  style: TextStyle(
+                                    color:
+                                        t.isIncome ? hig.success : hig.label,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
                               ),
-                            ),
+                              if (showReactions)
+                                ReactionBar(
+                                  txId: t.id,
+                                  currentUserId: currentUser!.id,
+                                  txIds: txIds,
+                                ),
+                            ],
                           ),
                         );
                       }).toList(),

@@ -22,6 +22,9 @@ class ApiEndpoints {
   // Transactions
   static const String transactions = '/transactions';
 
+  // Reactions (sub-resources of transactions)
+  static const String transactionReactions = '/transactions/reactions';
+
   // Statistics
   static const String statSummary = '/statistics/summary';
   static const String statByCategory = '/statistics/by-category';
