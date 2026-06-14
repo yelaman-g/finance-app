@@ -46,6 +46,11 @@ class MorePage extends ConsumerWidget {
               onTap: () => context.push(AppRoutes.wishlist.path),
             ),
             InsetTile(
+              title: 'Голосования',
+              leading: const Icon(Icons.how_to_vote_rounded),
+              onTap: () => context.push(AppRoutes.polls.path),
+            ),
+            InsetTile(
               title: 'Семья',
               leading: const Icon(Icons.group_rounded),
               onTap: () => context.push(AppRoutes.family.path),
