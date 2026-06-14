@@ -23,8 +23,12 @@ public class TestAuth {
     public record AuthedUser(UUID id, String email, String bearer) {}
 
     public AuthedUser createUser() {
+        return createUser("Test User");
+    }
+
+    public AuthedUser createUser(String fullName) {
         String email = "user-" + UUID.randomUUID() + "@example.com";
-        User user = new User(email, "Test User", "x", Set.of(Role.USER));
+        User user = new User(email, fullName, "x", Set.of(Role.USER));
         userRepository.saveAndFlush(user);
         String token = jwtService.issueAccessToken(
                 user.getId(), email, Set.of("USER"), 0);
