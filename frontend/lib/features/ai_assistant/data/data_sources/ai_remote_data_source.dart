@@ -13,6 +13,7 @@ abstract class AiRemoteDataSource {
   Future<List<Reminder>> getReminders();
   Future<Reminder> createReminder(Map<String, dynamic> body);
   Future<void> deleteReminder(String id);
+  Future<AiDigest> digest();
 }
 
 class AiRemoteDataSourceImpl implements AiRemoteDataSource {
@@ -79,6 +80,12 @@ class AiRemoteDataSourceImpl implements AiRemoteDataSource {
   @override
   Future<void> deleteReminder(String id) async {
     await _dio.delete<void>('${ApiEndpoints.aiReminders}/$id');
+  }
+
+  @override
+  Future<AiDigest> digest() async {
+    final res = await _dio.get<Map<String, dynamic>>(ApiEndpoints.aiDigest);
+    return AiDigest.fromJson(_unwrap(res.data));
   }
 
   InsightModel _insight(Map<String, dynamic> j) {

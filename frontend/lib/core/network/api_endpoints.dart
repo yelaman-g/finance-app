@@ -77,4 +77,5 @@ class ApiEndpoints {
   static const String aiAnalyzeBudget = '/ai/analyze-budget';
   static const String aiSavingsPlan = '/ai/savings-plan';
   static const String aiReminders = '/ai/reminders';
+  static const String aiDigest = '/ai/digest';
 }

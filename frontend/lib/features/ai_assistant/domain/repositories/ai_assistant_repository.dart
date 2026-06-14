@@ -20,4 +20,5 @@ abstract class AiAssistantRepository {
     double? savedAmount,
   });
   Future<void> deleteReminder(String id);
+  Future<AiDigest> digest();
 }

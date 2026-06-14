@@ -10,3 +10,7 @@ final budgetAnalysisProvider = FutureProvider.autoDispose<BudgetAnalysis>((ref) 
 final remindersProvider = FutureProvider.autoDispose<List<Reminder>>((ref) {
   return ref.watch(aiAssistantRepositoryProvider).getReminders();
 });
+
+final digestProvider = FutureProvider.autoDispose<AiDigest>((ref) {
+  return ref.watch(aiAssistantRepositoryProvider).digest();
+});

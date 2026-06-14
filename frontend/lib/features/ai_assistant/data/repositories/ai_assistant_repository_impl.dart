@@ -51,4 +51,7 @@ class AiAssistantRepositoryImpl implements AiAssistantRepository {
 
   @override
   Future<void> deleteReminder(String id) => _remote.deleteReminder(id);
+
+  @override
+  Future<AiDigest> digest() => _remote.digest();
 }

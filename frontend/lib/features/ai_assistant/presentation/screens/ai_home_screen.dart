@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'ai_assistant_screen.dart';
 import 'budget_analysis_tab.dart';
+import 'digest_tab.dart';
 import 'reminders_tab.dart';
 
 class AiHomeScreen extends StatelessWidget {
@@ -10,7 +11,7 @@ class AiHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('ИИ-помощник'),
@@ -18,12 +19,14 @@ class AiHomeScreen extends StatelessWidget {
             Tab(text: 'Чат'),
             Tab(text: 'Анализ'),
             Tab(text: 'Напоминания'),
+            Tab(text: 'Дайджест'),
           ]),
         ),
         body: const TabBarView(children: [
           AiAssistantScreen(),
           BudgetAnalysisTab(),
           RemindersTab(),
+          DigestTab(),
         ]),
       ),
     );

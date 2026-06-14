@@ -1,3 +1,35 @@
+class DigestEvent {
+  const DigestEvent({required this.title, required this.date});
+  final String title;
+  final DateTime date;
+  factory DigestEvent.fromJson(Map<String, dynamic> j) => DigestEvent(
+        title: j['title'] as String? ?? '',
+        date: DateTime.parse(j['date'] as String),
+      );
+}
+
+class AiDigest {
+  const AiDigest({
+    required this.tipOfDay,
+    required this.narrative,
+    required this.highlights,
+    required this.upcomingEvents,
+  });
+  final String tipOfDay;
+  final String narrative;
+  final List<String> highlights;
+  final List<DigestEvent> upcomingEvents;
+  factory AiDigest.fromJson(Map<String, dynamic> j) => AiDigest(
+        tipOfDay: j['tipOfDay'] as String? ?? '',
+        narrative: j['narrative'] as String? ?? '',
+        highlights:
+            (j['highlights'] as List<dynamic>? ?? <dynamic>[]).map((e) => e.toString()).toList(),
+        upcomingEvents: (j['upcomingEvents'] as List<dynamic>? ?? <dynamic>[])
+            .map((e) => DigestEvent.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+}
+
 class BudgetAnalysis {
   const BudgetAnalysis({required this.analysis, required this.tips});
   final String analysis;

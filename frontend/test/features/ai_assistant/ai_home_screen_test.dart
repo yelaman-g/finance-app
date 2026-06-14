@@ -62,10 +62,18 @@ class _FakeAiRepository implements AiAssistantRepository {
 
   @override
   Future<void> deleteReminder(String id) async {}
+
+  @override
+  Future<AiDigest> digest() async => const AiDigest(
+        tipOfDay: 'Тестовый совет',
+        narrative: 'Тестовое повествование',
+        highlights: [],
+        upcomingEvents: [],
+      );
 }
 
 void main() {
-  testWidgets('AiHomeScreen shows three tabs', (tester) async {
+  testWidgets('AiHomeScreen shows four tabs', (tester) async {
     await tester.pumpWidget(ProviderScope(
       overrides: [
         aiAssistantRepositoryProvider.overrideWithValue(_FakeAiRepository()),
@@ -81,5 +89,6 @@ void main() {
     expect(find.text('Чат'), findsOneWidget);
     expect(find.text('Анализ'), findsOneWidget);
     expect(find.text('Напоминания'), findsOneWidget);
+    expect(find.text('Дайджест'), findsOneWidget);
   });
 }
