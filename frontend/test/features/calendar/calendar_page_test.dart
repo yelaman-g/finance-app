@@ -6,6 +6,7 @@ import 'package:aifb/features/calendar/presentation/providers/calendar_providers
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class _FakeRepo implements EventRepository {
   @override
@@ -18,6 +19,10 @@ class _FakeRepo implements EventRepository {
 }
 
 void main() {
+  setUpAll(() async {
+    await initializeDateFormatting('ru_RU', null);
+  });
+
   testWidgets('CalendarPage renders calendar and empty-day hint', (tester) async {
     await tester.pumpWidget(ProviderScope(
       overrides: [eventRepositoryProvider.overrideWithValue(_FakeRepo())],

@@ -48,6 +48,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
       body: Column(
         children: [
           TableCalendar<EventOccurrence>(
+            locale: 'ru_RU',
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2035, 12, 31),
             focusedDay: _focusedDay,

@@ -5,6 +5,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 const _types = ['OTHER', 'BIRTHDAY', 'MEETING', 'SCHOOL'];
 const _freqs = ['NONE', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
 
+const _typeLabels = {
+  'OTHER': 'Другое',
+  'BIRTHDAY': 'День рождения',
+  'MEETING': 'Встреча',
+  'SCHOOL': 'Учёба',
+};
+const _freqLabels = {
+  'NONE': 'Без повтора',
+  'DAILY': 'Ежедневно',
+  'WEEKLY': 'Еженедельно',
+  'MONTHLY': 'Ежемесячно',
+  'YEARLY': 'Ежегодно',
+};
+
 Future<bool?> showEventForm(
   BuildContext context,
   WidgetRef ref, {
@@ -85,7 +99,7 @@ class _EventFormState extends State<_EventForm> {
               initialValue: _type,
               decoration: const InputDecoration(labelText: 'Тип'),
               items: _types
-                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                  .map((t) => DropdownMenuItem(value: t, child: Text(_typeLabels[t] ?? t)))
                   .toList(),
               onChanged: (v) => setState(() => _type = v ?? 'OTHER'),
             ),
@@ -93,7 +107,7 @@ class _EventFormState extends State<_EventForm> {
               initialValue: _freq,
               decoration: const InputDecoration(labelText: 'Повтор'),
               items: _freqs
-                  .map((f) => DropdownMenuItem(value: f, child: Text(f)))
+                  .map((f) => DropdownMenuItem(value: f, child: Text(_freqLabels[f] ?? f)))
                   .toList(),
               onChanged: (v) => setState(() => _freq = v ?? 'NONE'),
             ),
