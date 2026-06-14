@@ -35,6 +35,7 @@ class AppRoutes {
   static const admin = _Route('admin', '/admin');
   static const calendar = _Route('calendar', '/calendar');
   static const shopping = _Route('shopping', '/shopping');
+  static const wishlist = _Route('wishlist', '/wishlist');
 }
 
 class _Route {

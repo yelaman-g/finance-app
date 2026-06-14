@@ -55,6 +55,9 @@ class ApiEndpoints {
   // Shopping
   static const String shopping = '/shopping';
 
+  // Wishlist
+  static const String wishlist = '/wishlist';
+
   // Push
   static const String pushTokens = '/push/tokens';
   static const String pushTest = '/push/test';
