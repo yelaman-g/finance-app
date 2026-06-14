@@ -1,18 +1,28 @@
 {
   "project_info": {
-    "project_number": "000000000000",
-    "project_id": "aifb-dev-placeholder",
-    "storage_bucket": "aifb-dev-placeholder.appspot.com"
+    "project_number": "325854827017",
+    "project_id": "aifb-3326b",
+    "storage_bucket": "aifb-3326b.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
-        "android_client_info": { "package_name": "com.aifb.app" }
+        "mobilesdk_app_id": "1:325854827017:android:0795f7affd62ff27171ed8",
+        "android_client_info": {
+          "package_name": "com.example.aifb"
+        }
       },
       "oauth_client": [],
-      "api_key": [ { "current_key": "AIzaSyDUMMY-android-placeholder-key" } ],
-      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+      "api_key": [
+        {
+          "current_key": "AIzaSyCP4wLbN9XYNwTq1CZ3YbW1A_8KdZNc_Wg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"

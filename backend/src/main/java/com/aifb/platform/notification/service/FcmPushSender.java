@@ -12,8 +12,10 @@ import com.google.firebase.messaging.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -25,19 +27,24 @@ public class FcmPushSender implements PushSender {
     private static final Logger log = LoggerFactory.getLogger(FcmPushSender.class);
     private final FirebaseMessaging messaging;
 
-    public FcmPushSender(String serviceAccountJsonPath) {
-        if (serviceAccountJsonPath == null || serviceAccountJsonPath.isBlank()) {
+    public FcmPushSender(String serviceAccountJson) {
+        if (serviceAccountJson == null || serviceAccountJson.isBlank()) {
             throw new IllegalArgumentException(
                     "aifb.fcm.service-account-json must be set when aifb.fcm.dev-mode=false");
         }
-        try (InputStream in = new FileInputStream(serviceAccountJsonPath)) {
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(in))
-                    .build();
-            FirebaseApp app = FirebaseApp.getApps().isEmpty()
-                    ? FirebaseApp.initializeApp(options)
-                    : FirebaseApp.getInstance();
-            this.messaging = FirebaseMessaging.getInstance(app);
+        try {
+            String v = serviceAccountJson.trim();
+            InputStream in = v.startsWith("{")
+                    ? new ByteArrayInputStream(v.getBytes(StandardCharsets.UTF_8))
+                    : new FileInputStream(v);
+            try (in) {
+                FirebaseOptions options = FirebaseOptions.builder()
+                        .setCredentials(GoogleCredentials.fromStream(in))
+                        .build();
+                FirebaseApp app = FirebaseApp.getApps().isEmpty()
+                        ? FirebaseApp.initializeApp(options) : FirebaseApp.getInstance();
+                this.messaging = FirebaseMessaging.getInstance(app);
+            }
         } catch (Exception e) {
             throw new IllegalStateException("Failed to initialize Firebase Admin SDK", e);
         }

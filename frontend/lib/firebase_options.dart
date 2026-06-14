@@ -20,11 +20,11 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions _android = FirebaseOptions(
-    apiKey: 'AIzaSyDUMMY-android-placeholder-key',
-    appId: '1:000000000000:android:0000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'aifb-dev-placeholder',
-    storageBucket: 'aifb-dev-placeholder.appspot.com',
+    apiKey: 'AIzaSyCP4wLbN9XYNwTq1CZ3YbW1A_8KdZNc_Wg',
+    appId: '1:325854827017:android:0795f7affd62ff27171ed8',
+    messagingSenderId: '325854827017',
+    projectId: 'aifb-3326b',
+    storageBucket: 'aifb-3326b.firebasestorage.app',
   );
 
   static const FirebaseOptions _ios = FirebaseOptions(
