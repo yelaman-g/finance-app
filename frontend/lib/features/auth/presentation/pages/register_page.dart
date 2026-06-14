@@ -100,7 +100,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 HigTextField(
                   controller: _nameCtrl,
                   label: 'Полное имя',
-                  keyboardType: TextInputType.name,
+                  keyboardType: TextInputType.text,
                   errorText: state.fullNameError,
                 ),
                 const SizedBox(height: 12),

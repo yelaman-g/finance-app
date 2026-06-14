@@ -19,7 +19,7 @@ class Validators {
     if (v.isEmpty) return 'Password is required';
     if (v.length < 8) return 'At least 8 characters';
     if (v.length > 72) return 'At most 72 characters';
-    if (!RegExp(r'[A-Za-z]').hasMatch(v)) return 'Add a letter';
+    if (!RegExp(r'\p{L}', unicode: true).hasMatch(v)) return 'Add a letter';
     if (!RegExp(r'\d').hasMatch(v)) return 'Add a number';
     return null;
   }

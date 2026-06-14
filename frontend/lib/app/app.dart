@@ -2,6 +2,7 @@ import 'package:aifb/app/router/app_router.dart';
 import 'package:aifb/app/theme/app_theme.dart';
 import 'package:aifb/app/theme/theme_mode_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AifbApp extends ConsumerWidget {
@@ -19,6 +20,13 @@ class AifbApp extends ConsumerWidget {
       darkTheme: AppTheme.dark,
       themeMode: mode,
       routerConfig: router,
+      locale: const Locale('ru'),
+      supportedLocales: const [Locale('ru'), Locale('en')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
     );
   }
 }

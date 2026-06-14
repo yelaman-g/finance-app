@@ -124,8 +124,10 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
                 Expanded(
                   child: TextField(
                     controller: _textController,
+                    keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
-                      hintText: 'Ask about your finances...',
+                      hintText: 'Спросите о финансах семьи…',
                       filled: true,
                       fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
                       border: OutlineInputBorder(

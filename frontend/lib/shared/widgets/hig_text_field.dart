@@ -9,6 +9,7 @@ class HigTextField extends StatelessWidget {
     this.keyboardType,
     this.obscureText = false,
     this.errorText,
+    this.textCapitalization = TextCapitalization.sentences,
     super.key,
   });
 
@@ -18,6 +19,7 @@ class HigTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final bool obscureText;
   final String? errorText;
+  final TextCapitalization textCapitalization;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,7 @@ class HigTextField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
+      textCapitalization: textCapitalization,
       style: TextStyle(fontSize: 17, color: hig.label),
       decoration: InputDecoration(
         labelText: label,
