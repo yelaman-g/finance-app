@@ -11,6 +11,7 @@ import '../../../../app/router/routes.dart';
 import '../../../../core/domain/scope.dart';
 import '../../../../core/utils/hex_color.dart';
 import '../../../goals/presentation/providers/goals_providers.dart';
+import '../../../statistics/data/models/statistics_models.dart';
 import '../../../statistics/presentation/providers/statistics_providers.dart';
 import '../../../transactions/presentation/providers/finance_providers.dart';
 
@@ -71,12 +72,37 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         loading: () => _ChartShell(hig: hig, child: const _LoadingIndicator()),
         error: (e, _) => _ChartShell(
           hig: hig,
-          child: Text('Ошибка: $e', style: TextStyle(color: hig.danger)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Тренд расходов',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: hig.label,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(Icons.error_outline, color: hig.danger, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Не удалось загрузить данные',
+                      style: TextStyle(color: hig.danger, fontSize: 14),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         data: (points) => _FlatChartCard(
           hig: hig,
-          monthly: points.map((p) => p.expense).toList(),
-          totalThisMonth: points.isEmpty ? 0 : points.last.expense,
+          points: points,
         ),
       ),
 
@@ -379,18 +405,29 @@ class _BalanceStat extends StatelessWidget {
 class _FlatChartCard extends StatelessWidget {
   const _FlatChartCard({
     required this.hig,
-    required this.monthly,
-    required this.totalThisMonth,
+    required this.points,
   });
 
   final HigColors hig;
-  final List<double> monthly;
-  final double totalThisMonth;
+  final List<TrendPointModel> points;
+
+  /// Abbreviate "YYYY-MM" → "Jan", "Feb", etc.
+  static String _monthLabel(String yyyyMm) {
+    final parts = yyyyMm.split('-');
+    if (parts.length < 2) return yyyyMm;
+    const names = [
+      '', 'янв', 'фев', 'мар', 'апр', 'май', 'июн',
+      'июл', 'авг', 'сен', 'окт', 'ноя', 'дек',
+    ];
+    final m = int.tryParse(parts[1]) ?? 0;
+    return (m >= 1 && m <= 12) ? names[m] : parts[1];
+  }
 
   @override
   Widget build(BuildContext context) {
     final fmt = NumberFormat.decimalPattern();
-    final values = monthly.isEmpty ? <double>[0, 0] : monthly;
+    final totalThisMonth = points.isEmpty ? 0.0 : points.last.expense;
+
     return _ChartShell(
       hig: hig,
       child: Column(
@@ -410,32 +447,82 @@ class _FlatChartCard extends StatelessWidget {
             style: TextStyle(fontSize: 13, color: hig.secondaryLabel),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 160,
-            child: LineChart(
-              _chartData(values, hig),
-              duration: const Duration(milliseconds: 600),
-              curve: Curves.easeOutCubic,
+          if (points.isEmpty)
+            SizedBox(
+              height: 160,
+              child: Center(
+                child: Text(
+                  'Пока нет данных за период',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: hig.secondaryLabel,
+                  ),
+                ),
+              ),
+            )
+          else
+            SizedBox(
+              height: 160,
+              child: LineChart(
+                _chartData(hig),
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.easeOutCubic,
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 
-  LineChartData _chartData(List<double> values, HigColors hig) {
+  LineChartData _chartData(HigColors hig) {
+    // fl_chart needs ≥2 spots for a visible line; duplicate single point.
+    final effective = points.length == 1
+        ? [points.first, points.first]
+        : points;
+
     final spots = <FlSpot>[
-      for (var i = 0; i < values.length; i++) FlSpot(i.toDouble(), values[i]),
+      for (var i = 0; i < effective.length; i++)
+        FlSpot(i.toDouble(), effective[i].expense),
     ];
+
     return LineChartData(
       gridData: const FlGridData(show: false),
-      titlesData: const FlTitlesData(show: false),
       borderData: FlBorderData(show: false),
+      titlesData: FlTitlesData(
+        leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 22,
+            interval: 1,
+            getTitlesWidget: (value, meta) {
+              final idx = value.round();
+              if (idx < 0 || idx >= effective.length) {
+                return const SizedBox.shrink();
+              }
+              // Show label only at first, last, and one middle point to
+              // avoid crowding when there are many months.
+              final showIndices = {
+                0,
+                effective.length - 1,
+                effective.length ~/ 2,
+              };
+              if (!showIndices.contains(idx)) return const SizedBox.shrink();
+              return Text(
+                _monthLabel(effective[idx].month),
+                style: TextStyle(fontSize: 10, color: hig.secondaryLabel),
+              );
+            },
+          ),
+        ),
+      ),
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
           getTooltipColor: (_) => hig.label,
           tooltipRoundedRadius: 10,
-          getTooltipItems: (spots) => spots
+          getTooltipItems: (touchedSpots) => touchedSpots
               .map((s) => LineTooltipItem(
                     s.y.toStringAsFixed(0),
                     TextStyle(color: hig.card, fontSize: 12),
