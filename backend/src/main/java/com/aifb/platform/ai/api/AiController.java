@@ -42,6 +42,11 @@ public class AiController {
         return ApiResponse.ok(aiService.insights(principal.userId()));
     }
 
+    @GetMapping("/digest")
+    public ApiResponse<DigestResponse> digest(@CurrentUser AuthPrincipal principal) {
+        return ApiResponse.ok(aiService.digest(principal.userId()));
+    }
+
     @PostMapping("/savings-plan")
     public ApiResponse<SavingsPlanResponse> savingsPlan(@CurrentUser AuthPrincipal principal,
                                                         @Valid @RequestBody SavingsPlanRequest request) {
