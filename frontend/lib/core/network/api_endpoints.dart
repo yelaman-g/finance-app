@@ -61,6 +61,9 @@ class ApiEndpoints {
   // Polls
   static const String polls = '/polls';
 
+  // Capsules
+  static const String capsules = '/capsules';
+
   // Push
   static const String pushTokens = '/push/tokens';
   static const String pushTest = '/push/test';

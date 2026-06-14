@@ -37,6 +37,7 @@ class AppRoutes {
   static const shopping = _Route('shopping', '/shopping');
   static const wishlist = _Route('wishlist', '/wishlist');
   static const polls = _Route('polls', '/polls');
+  static const capsules = _Route('capsules', '/capsules');
 }
 
 class _Route {
