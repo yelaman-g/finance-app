@@ -8,12 +8,13 @@ import java.security.SecureRandom;
 public class InviteCodeGenerator {
 
     private static final String ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    private static final int LENGTH = 8;
+    private static final String PREFIX = "FAM-";
+    private static final int CODE_LENGTH = 6;
     private final SecureRandom random = new SecureRandom();
 
     public String generate() {
-        StringBuilder sb = new StringBuilder(LENGTH);
-        for (int i = 0; i < LENGTH; i++) {
+        StringBuilder sb = new StringBuilder(PREFIX);
+        for (int i = 0; i < CODE_LENGTH; i++) {
             sb.append(ALPHABET.charAt(random.nextInt(ALPHABET.length())));
         }
         return sb.toString();

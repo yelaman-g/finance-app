@@ -297,6 +297,15 @@ Frontend читает эти переменные из `frontend/.env` (объя
    | `GOOGLE_CLIENT_ID` + `GOOGLE_DEV_MODE=false` | для реального Google-входа (иначе dev) |
    | `FCM_SERVICE_ACCOUNT_JSON` + `FCM_DEV_MODE=false` | для реальной доставки push (иначе dev) |
 
+
+   **Включить реального ИИ-помощника (Claude) на Railway:**
+   Добавьте переменные сервиса:
+   - `ANTHROPIC_API_KEY=<ваш ключ>` — обязателен при `AI_DEV_MODE=false`; без него приложение падает на старте (fail-fast).
+   - `AI_DEV_MODE=false` — переключает с детерминированных ответов на реальный Claude.
+   - `ANTHROPIC_MODEL` — опционально; по умолчанию `claude-sonnet-4-6`.
+
+   > **Никогда не коммитьте ключ в репозиторий** — только переменная окружения Railway.
+
    Имя сервиса Postgres по умолчанию `Postgres` — если назвали иначе, поправьте `${{…}}`.
    `PORT` задаёт Railway сам — вручную не указывать. Flyway применит миграции `V1…V17`
    при старте (`ddl-auto: validate`).

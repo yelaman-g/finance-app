@@ -245,16 +245,18 @@ class _HouseholdView extends ConsumerWidget {
                         }
                         onChanged();
                       },
-                      itemBuilder: (_) => const [
-                        PopupMenuItem(
-                          value: 'ADULT',
-                          child: Text('Сделать ADULT'),
-                        ),
-                        PopupMenuItem(
-                          value: 'CHILD',
-                          child: Text('Сделать CHILD'),
-                        ),
-                        PopupMenuItem(
+                      itemBuilder: (_) => [
+                        if (m.role != 'ADULT')
+                          const PopupMenuItem(
+                            value: 'ADULT',
+                            child: Text('Сделать ADULT'),
+                          ),
+                        if (m.role != 'CHILD')
+                          const PopupMenuItem(
+                            value: 'CHILD',
+                            child: Text('Сделать CHILD'),
+                          ),
+                        const PopupMenuItem(
                           value: 'remove',
                           child: Text('Удалить'),
                         ),
