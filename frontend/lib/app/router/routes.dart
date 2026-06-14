@@ -38,6 +38,7 @@ class AppRoutes {
   static const wishlist = _Route('wishlist', '/wishlist');
   static const polls = _Route('polls', '/polls');
   static const capsules = _Route('capsules', '/capsules');
+  static const feed = _Route('feed', '/feed');
 }
 
 class _Route {

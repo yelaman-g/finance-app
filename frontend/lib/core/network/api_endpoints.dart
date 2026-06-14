@@ -64,6 +64,9 @@ class ApiEndpoints {
   // Capsules
   static const String capsules = '/capsules';
 
+  // Feed
+  static const String feed = '/feed';
+
   // Push
   static const String pushTokens = '/push/tokens';
   static const String pushTest = '/push/test';
