@@ -256,6 +256,11 @@ class _HouseholdView extends ConsumerWidget {
                             value: 'CHILD',
                             child: Text('Сделать CHILD'),
                           ),
+                        if (m.role != 'GUEST')
+                          const PopupMenuItem(
+                            value: 'GUEST',
+                            child: Text('Сделать GUEST'),
+                          ),
                         const PopupMenuItem(
                           value: 'remove',
                           child: Text('Удалить'),

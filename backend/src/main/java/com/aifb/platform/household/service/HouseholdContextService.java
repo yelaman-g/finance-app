@@ -24,6 +24,10 @@ public class HouseholdContextService {
         public boolean canManageSharedContent() {
             return role == HouseholdRole.OWNER || role == HouseholdRole.ADULT;
         }
+
+        public boolean canContribute() {
+            return role != HouseholdRole.GUEST;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -49,6 +53,15 @@ public class HouseholdContextService {
         HouseholdContext ctx = requireMembership(userId);
         if (!ctx.canManageSharedContent()) {
             throw new ForbiddenException("Недостаточно прав для семейного контента");
+        }
+        return ctx;
+    }
+
+    @Transactional(readOnly = true)
+    public HouseholdContext requireContribute(UUID userId) {
+        HouseholdContext ctx = requireMembership(userId);
+        if (!ctx.canContribute()) {
+            throw new ForbiddenException("Гость не может добавлять семейный контент");
         }
         return ctx;
     }

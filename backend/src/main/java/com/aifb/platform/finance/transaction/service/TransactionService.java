@@ -96,7 +96,7 @@ public class TransactionService {
                 throw new DomainException(ErrorCode.VALIDATION_FAILED,
                         "Категория обязательна для семейной операции");
             }
-            HouseholdContext ctx = householdContext.requireMembership(userId);
+            HouseholdContext ctx = householdContext.requireContribute(userId);
             category = categoryRepository.findVisibleByIdFamily(req.categoryId(), ctx.householdId())
                     .orElseThrow(() -> new NotFoundException("Категория не найдена"));
             validateType(category, req.type());

@@ -98,4 +98,35 @@ class TransactionScopeIT extends AbstractIntegrationTest {
         assertThat(service.list(owner, null, null, null, null, Scope.FAMILY, 0, 20).items())
                 .noneMatch(t -> t.id().equals(ownerTx.id()));
     }
+
+    @Test
+    void guestCannotCreateSharedTransaction() {
+        UUID owner = testAuth.createUser().id();
+        UUID member = testAuth.createUser().id();
+        String code = householdService.create(owner, new CreateHouseholdRequest("С")).inviteCode();
+        householdService.join(member, new JoinHouseholdRequest(code));
+        householdService.changeRole(owner, member, HouseholdRole.GUEST);
+        UUID cat = familyExpenseCat(owner);
+
+        assertThatThrownBy(() -> service.create(member, new CreateTransactionRequest(
+                cat, CategoryType.EXPENSE, new BigDecimal("100.00"), null, LocalDate.now(), true)))
+                .isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    void guestCanViewFamilyTransactions() {
+        UUID owner = testAuth.createUser().id();
+        UUID guest = testAuth.createUser().id();
+        String code = householdService.create(owner, new CreateHouseholdRequest("С")).inviteCode();
+        householdService.join(guest, new JoinHouseholdRequest(code));
+        householdService.changeRole(owner, guest, HouseholdRole.GUEST);
+        UUID cat = familyExpenseCat(owner);
+
+        TransactionResponse ownerTx = service.create(owner, new CreateTransactionRequest(
+                cat, CategoryType.EXPENSE, new BigDecimal("200.00"), null, LocalDate.now(), true));
+
+        PageResponse<TransactionResponse> fam =
+                service.list(guest, null, null, null, null, Scope.FAMILY, 0, 20);
+        assertThat(fam.items()).anyMatch(t -> t.id().equals(ownerTx.id()));
+    }
 }
