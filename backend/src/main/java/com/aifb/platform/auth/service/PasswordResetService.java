@@ -86,6 +86,6 @@ public class PasswordResetService {
     }
 
     private DomainException invalidCode() {
-        return new DomainException(ErrorCode.AUTH_RESET_CODE_INVALID, "Invalid or expired reset code");
+        return new DomainException(ErrorCode.AUTH_RESET_CODE_INVALID, "Неверный или устаревший код сброса");
     }
 }

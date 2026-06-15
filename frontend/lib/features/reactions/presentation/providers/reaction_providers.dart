@@ -1,3 +1,4 @@
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/network/dio_client.dart';
 import 'package:aifb/features/reactions/data/models/reaction_dto.dart';
@@ -24,7 +25,7 @@ final reactionsForProvider = FutureProvider.autoDispose
     return switch (result) {
       Ok<Map<String, List<ReactionDto>>>(value: final v) => v,
       Err<Map<String, List<ReactionDto>>>(failure: final f) =>
-        throw Exception(f.toString()),
+        throw Exception(f.userMessage),
     };
   },
 );

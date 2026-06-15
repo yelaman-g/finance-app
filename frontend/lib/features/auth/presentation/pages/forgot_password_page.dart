@@ -1,6 +1,6 @@
 import 'package:aifb/app/router/routes.dart';
 import 'package:aifb/app/theme/hig_colors.dart';
-import 'package:aifb/core/errors/failure.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/features/auth/presentation/controllers/forgot_password_controller.dart';
 import 'package:aifb/features/auth/presentation/state/forgot_password_state.dart';
 import 'package:aifb/shared/widgets/hig_button.dart';
@@ -68,7 +68,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
       if (f != null && f != prev?.failure) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(_failureMessage(f))));
+          ..showSnackBar(SnackBar(content: Text(f.userMessage)));
       }
       if (next.resetDone && !(prev?.resetDone ?? false)) {
         ScaffoldMessenger.of(context)
@@ -204,18 +204,3 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
       ];
 }
 
-String _failureMessage(Failure f) {
-  return switch (f) {
-    NetworkFailure(:final message) =>
-      message ?? 'Нет соединения. Попробуйте ещё раз.',
-    TimeoutFailure() => 'Превышено время ожидания. Попробуйте ещё раз.',
-    UnauthorizedFailure(:final message) => message ?? 'Сессия недействительна.',
-    ForbiddenFailure(:final message) => message ?? 'Доступ запрещён.',
-    NotFoundFailure(:final message) => message ?? 'Не найдено.',
-    ConflictFailure(:final message) => message ?? 'Конфликт данных.',
-    ValidationFailure(:final message) => message,
-    ServerFailure(:final message) =>
-      message ?? 'Ошибка сервера. Попробуйте ещё раз.',
-    UnknownFailure(:final message) => message ?? 'Что-то пошло не так.',
-  };
-}

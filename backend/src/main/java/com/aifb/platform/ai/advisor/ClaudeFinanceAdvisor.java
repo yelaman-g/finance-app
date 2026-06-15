@@ -51,7 +51,7 @@ public class ClaudeFinanceAdvisor implements FinanceAdvisor {
                     .forEach(t -> sb.append(t.text()));
             return sb.toString();
         } catch (Exception e) {
-            throw new DomainException(ErrorCode.AI_UNAVAILABLE, "AI service unavailable");
+            throw new DomainException(ErrorCode.AI_UNAVAILABLE, "Сервис ИИ недоступен");
         }
     }
 
@@ -83,7 +83,7 @@ public class ClaudeFinanceAdvisor implements FinanceAdvisor {
             resp.content().stream().flatMap(b -> b.text().stream()).forEach(t -> sb.append(t.text()));
             return new ChatReply(sb.toString(), List.of());
         } catch (Exception e) {
-            throw new DomainException(ErrorCode.AI_UNAVAILABLE, "AI service unavailable");
+            throw new DomainException(ErrorCode.AI_UNAVAILABLE, "Сервис ИИ недоступен");
         }
     }
 

@@ -1,4 +1,5 @@
 import 'package:aifb/core/domain/scope.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/features/groups/presentation/providers/groups_providers.dart';
 import 'package:aifb/features/transactions/data/models/category_model.dart';
@@ -75,7 +76,7 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
       case Err<CategoryModel>(failure: final f):
         setState(() {
           _saving = false;
-          _error = f.toString();
+          _error = f.userMessage;
         });
     }
   }

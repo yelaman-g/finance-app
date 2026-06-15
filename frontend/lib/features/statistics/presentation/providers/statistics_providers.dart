@@ -1,4 +1,5 @@
 import 'package:aifb/core/domain/scope.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/network/dio_client.dart';
 import 'package:aifb/features/statistics/data/models/member_breakdown_model.dart';
@@ -21,7 +22,7 @@ final summaryProvider =
       await ref.watch(statisticsRepositoryProvider).summary(scope: scope);
   return switch (result) {
     Ok<SummaryModel>(value: final v) => v,
-    Err<SummaryModel>(failure: final f) => throw Exception(f.toString()),
+    Err<SummaryModel>(failure: final f) => throw Exception(f.userMessage),
   };
 });
 
@@ -34,7 +35,7 @@ final expenseByCategoryProvider =
   return switch (result) {
     Ok<List<CategoryBreakdownModel>>(value: final v) => v,
     Err<List<CategoryBreakdownModel>>(failure: final f) =>
-      throw Exception(f.toString()),
+      throw Exception(f.userMessage),
   };
 });
 
@@ -46,7 +47,7 @@ final trendProvider =
   return switch (result) {
     Ok<List<TrendPointModel>>(value: final v) => v,
     Err<List<TrendPointModel>>(failure: final f) =>
-      throw Exception(f.toString()),
+      throw Exception(f.userMessage),
   };
 });
 
@@ -56,6 +57,6 @@ final memberBreakdownProvider =
   return switch (result) {
     Ok<List<MemberBreakdownModel>>(value: final v) => v,
     Err<List<MemberBreakdownModel>>(failure: final f) =>
-      throw Exception(f.toString()),
+      throw Exception(f.userMessage),
   };
 });

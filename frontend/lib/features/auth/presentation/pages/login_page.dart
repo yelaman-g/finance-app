@@ -1,6 +1,6 @@
 import 'package:aifb/app/router/routes.dart';
 import 'package:aifb/app/theme/hig_colors.dart';
-import 'package:aifb/core/errors/failure.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/features/auth/presentation/controllers/login_controller.dart';
 import 'package:aifb/features/auth/presentation/state/login_state.dart';
 import 'package:aifb/shared/widgets/hig_button.dart';
@@ -68,7 +68,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       if (f != null && f != prev?.failure) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(_failureMessage(f))));
+          ..showSnackBar(SnackBar(content: Text(f.userMessage)));
       }
     });
 
@@ -171,20 +171,3 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 }
 
-String _failureMessage(Failure f) {
-  return switch (f) {
-    NetworkFailure(:final message) =>
-      message ?? 'No internet connection. Please try again.',
-    TimeoutFailure() => 'Request timed out. Please try again.',
-    UnauthorizedFailure(:final message) =>
-      message ?? 'Invalid email or password.',
-    ForbiddenFailure(:final message) => message ?? 'Access denied.',
-    NotFoundFailure(:final message) => message ?? 'Not found.',
-    ConflictFailure(:final message) => message ?? 'Account already exists.',
-    ValidationFailure(:final message) => message,
-    ServerFailure(:final message) =>
-      message ?? 'Server error. Please try again.',
-    UnknownFailure(:final message) =>
-      message ?? 'Something went wrong. Please try again.',
-  };
-}

@@ -1,4 +1,5 @@
 import 'package:aifb/core/domain/scope.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/network/dio_client.dart';
 import 'package:aifb/features/budgets/data/budgets_data_source.dart';
@@ -21,6 +22,6 @@ final budgetsProvider =
       await ref.watch(budgetsRepositoryProvider).list(scope: scope);
   return switch (result) {
     Ok<List<BudgetModel>>(value: final v) => v,
-    Err<List<BudgetModel>>(failure: final f) => throw Exception(f.toString()),
+    Err<List<BudgetModel>>(failure: final f) => throw Exception(f.userMessage),
   };
 });

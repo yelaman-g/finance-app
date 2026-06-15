@@ -1,3 +1,4 @@
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/network/dio_client.dart';
 import 'package:aifb/features/categorization/data/categorization_data_source.dart';
@@ -17,6 +18,6 @@ final rulesProvider = FutureProvider.autoDispose<List<RuleModel>>((ref) async {
   final result = await ref.watch(categorizationRepositoryProvider).list();
   return switch (result) {
     Ok<List<RuleModel>>(value: final v) => v,
-    Err<List<RuleModel>>(failure: final f) => throw Exception(f.toString()),
+    Err<List<RuleModel>>(failure: final f) => throw Exception(f.userMessage),
   };
 });

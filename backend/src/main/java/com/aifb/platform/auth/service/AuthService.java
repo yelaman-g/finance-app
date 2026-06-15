@@ -49,7 +49,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         String email = normalizeEmail(request.email());
         if (userRepository.existsByEmailIgnoreCase(email)) {
-            throw new ConflictException(ErrorCode.AUTH_EMAIL_TAKEN, "Email is already registered");
+            throw new ConflictException(ErrorCode.AUTH_EMAIL_TAKEN, "Email уже зарегистрирован");
         }
 
         User user = new User(
@@ -67,7 +67,7 @@ public class AuthService {
         User user = userRepository.findByEmailIgnoreCase(normalizeEmail(request.email()))
                 .orElseThrow(() -> invalidCredentials());
         if (!user.isEnabled()) {
-            throw new UnauthorizedException(ErrorCode.AUTH_USER_BLOCKED, "User account is blocked");
+            throw new UnauthorizedException(ErrorCode.AUTH_USER_BLOCKED, "Аккаунт заблокирован");
         }
         if (user.getPasswordHash() == null
                 || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
@@ -82,7 +82,7 @@ public class AuthService {
         GoogleIdentity identity = googleTokenVerifier.verify(idToken);
         if (!identity.emailVerified()) {
             throw new UnauthorizedException(
-                    ErrorCode.AUTH_GOOGLE_TOKEN_INVALID, "Google email is not verified");
+                    ErrorCode.AUTH_GOOGLE_TOKEN_INVALID, "Email Google не подтверждён");
         }
         String email = normalizeEmail(identity.email());
         User user = userRepository.findByGoogleSubject(identity.subject())
@@ -99,7 +99,7 @@ public class AuthService {
                                 identity.subject(),
                                 identity.pictureUrl()))));
         if (!user.isEnabled()) {
-            throw new UnauthorizedException(ErrorCode.AUTH_USER_BLOCKED, "User account is blocked");
+            throw new UnauthorizedException(ErrorCode.AUTH_USER_BLOCKED, "Аккаунт заблокирован");
         }
         user.markLoggedIn();
         return issueSession(user);
@@ -126,7 +126,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public UserResponse me(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         return UserResponse.from(user);
     }
 
@@ -138,7 +138,7 @@ public class AuthService {
     @Transactional
     public void logoutAll(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         user.incrementTokenVersion();
         refreshTokenService.revokeAll(user);
     }
@@ -164,6 +164,6 @@ public class AuthService {
     private static UnauthorizedException invalidCredentials() {
         return new UnauthorizedException(
                 ErrorCode.AUTH_INVALID_CREDENTIALS,
-                "Invalid email or password");
+                "Неверный email или пароль");
     }
 }

@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
         Map<String, String> fields = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(fe ->
                 fields.put(fe.getField(), fe.getDefaultMessage()));
-        return build(ErrorCode.VALIDATION_FAILED, "Request validation failed", fields);
+        return build(ErrorCode.VALIDATION_FAILED, "Проверьте правильность заполнения полей", fields);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -47,38 +47,38 @@ public class GlobalExceptionHandler {
         Map<String, String> fields = new HashMap<>();
         ex.getConstraintViolations().forEach(v ->
                 fields.put(v.getPropertyPath().toString(), v.getMessage()));
-        return build(ErrorCode.VALIDATION_FAILED, "Request validation failed", fields);
+        return build(ErrorCode.VALIDATION_FAILED, "Проверьте правильность заполнения полей", fields);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Void>> handleUnreadable(HttpMessageNotReadableException ex) {
-        return build(ErrorCode.BAD_REQUEST, "Malformed JSON body", null);
+        return build(ErrorCode.BAD_REQUEST, "Некорректный запрос", null);
     }
 
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
     public ResponseEntity<ApiResponse<Void>> handleAuth(Exception ex) {
-        return build(ErrorCode.UNAUTHORIZED, "Authentication required", null);
+        return build(ErrorCode.UNAUTHORIZED, "Требуется вход", null);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
-        return build(ErrorCode.FORBIDDEN, "Access denied", null);
+        return build(ErrorCode.FORBIDDEN, "Недостаточно прав", null);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiResponse<Void>> handleMethod(HttpRequestMethodNotSupportedException ex) {
-        return build(ErrorCode.BAD_REQUEST, "Method not allowed", null);
+        return build(ErrorCode.BAD_REQUEST, "Метод не поддерживается", null);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNoHandler(NoHandlerFoundException ex) {
-        return build(ErrorCode.NOT_FOUND, "Route not found", null);
+        return build(ErrorCode.NOT_FOUND, "Не найдено", null);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleAny(Exception ex) {
         log.error("Unhandled exception", ex);
-        return build(ErrorCode.INTERNAL_ERROR, "Unexpected server error", null);
+        return build(ErrorCode.INTERNAL_ERROR, "Непредвиденная ошибка сервера", null);
     }
 
     private ResponseEntity<ApiResponse<Void>> build(ErrorCode code, String message, Map<String, String> fields) {

@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/utils/thousands_formatter.dart';
 import 'package:aifb/features/categorization/presentation/providers/categorization_providers.dart';
@@ -77,7 +78,7 @@ class _TransactionFormState extends ConsumerState<_TransactionForm> {
       case Err<dynamic>(failure: final f):
         setState(() {
           _saving = false;
-          _error = f.toString();
+          _error = f.userMessage;
         });
     }
   }

@@ -1,4 +1,5 @@
 import 'package:aifb/core/domain/scope.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/network/dio_client.dart';
 import 'package:aifb/features/transactions/data/finance_data_source.dart';
@@ -22,7 +23,7 @@ final categoriesProvider =
       await ref.watch(financeRepositoryProvider).categories(type: type);
   return switch (result) {
     Ok<List<CategoryModel>>(value: final v) => v,
-    Err<List<CategoryModel>>(failure: final f) => throw Exception(f.toString()),
+    Err<List<CategoryModel>>(failure: final f) => throw Exception(f.userMessage),
   };
 });
 
@@ -35,7 +36,7 @@ final transactionsProvider =
   return switch (result) {
     Ok<PageResult<TransactionModel>>(value: final v) => v,
     Err<PageResult<TransactionModel>>(failure: final f) =>
-      throw Exception(f.toString()),
+      throw Exception(f.userMessage),
   };
 });
 
@@ -47,6 +48,6 @@ final familyCategoriesProvider =
       .categories(type: type, scope: Scope.family);
   return switch (result) {
     Ok<List<CategoryModel>>(value: final v) => v,
-    Err<List<CategoryModel>>(failure: final f) => throw Exception(f.toString()),
+    Err<List<CategoryModel>>(failure: final f) => throw Exception(f.userMessage),
   };
 });

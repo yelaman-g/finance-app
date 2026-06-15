@@ -1,6 +1,6 @@
 import 'package:aifb/app/router/routes.dart';
 import 'package:aifb/app/theme/hig_colors.dart';
-import 'package:aifb/core/errors/failure.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/features/auth/presentation/controllers/register_controller.dart';
 import 'package:aifb/features/auth/presentation/state/register_state.dart';
 import 'package:aifb/shared/widgets/hig_button.dart';
@@ -71,7 +71,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       if (f != null && f != prev?.failure) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(_failureMessage(f))));
+          ..showSnackBar(SnackBar(content: Text(f.userMessage)));
       }
     });
 
@@ -196,21 +196,3 @@ class _TermsTile extends StatelessWidget {
   }
 }
 
-String _failureMessage(Failure f) {
-  return switch (f) {
-    NetworkFailure(:final message) =>
-      message ?? 'No internet connection. Please try again.',
-    TimeoutFailure() => 'Request timed out. Please try again.',
-    UnauthorizedFailure(:final message) =>
-      message ?? 'Authentication failed.',
-    ForbiddenFailure(:final message) => message ?? 'Access denied.',
-    NotFoundFailure(:final message) => message ?? 'Not found.',
-    ConflictFailure(:final message) =>
-      message ?? 'An account with this email already exists.',
-    ValidationFailure(:final message) => message,
-    ServerFailure(:final message) =>
-      message ?? 'Server error. Please try again.',
-    UnknownFailure(:final message) =>
-      message ?? 'Something went wrong. Please try again.',
-  };
-}

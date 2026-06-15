@@ -6,19 +6,19 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record ResetPasswordRequest(
-        @NotBlank(message = "Email is required")
-        @Email(message = "Email must be valid")
-        @Size(max = 320, message = "Email is too long")
+        @NotBlank
+        @Email
+        @Size(max = 320)
         String email,
 
-        @NotBlank(message = "Code is required")
-        @Pattern(regexp = "^\\d{6}$", message = "Code must be 6 digits")
+        @NotBlank
+        @Pattern(regexp = "^\\d{6}$", message = "должен состоять из 6 цифр")
         String code,
 
-        @NotBlank(message = "Password is required")
-        @Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters")
+        @NotBlank
+        @Size(min = 8, max = 72)
         @Pattern(
                 regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$",
-                message = "Password must contain at least one letter and one number")
+                message = "должен содержать буквы и цифры")
         String newPassword) {
 }

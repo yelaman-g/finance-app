@@ -74,9 +74,9 @@ public class JwtService {
             Integer ver = c.get("ver", Integer.class);
             return new AuthPrincipal(userId, email, roles, ver == null ? 0 : ver);
         } catch (ExpiredJwtException e) {
-            throw new UnauthorizedException(ErrorCode.AUTH_TOKEN_EXPIRED, "Access token expired");
+            throw new UnauthorizedException(ErrorCode.AUTH_TOKEN_EXPIRED, "Срок действия токена истёк");
         } catch (JwtException | IllegalArgumentException e) {
-            throw new UnauthorizedException(ErrorCode.AUTH_TOKEN_INVALID, "Invalid access token");
+            throw new UnauthorizedException(ErrorCode.AUTH_TOKEN_INVALID, "Недействительный токен доступа");
         }
     }
 

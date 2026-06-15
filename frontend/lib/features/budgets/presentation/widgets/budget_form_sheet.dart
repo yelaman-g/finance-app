@@ -1,4 +1,5 @@
 import 'package:aifb/core/domain/scope.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/utils/thousands_formatter.dart';
 import 'package:aifb/features/budgets/presentation/providers/budgets_providers.dart';
@@ -70,7 +71,7 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
       case Err<dynamic>(failure: final f):
         setState(() {
           _saving = false;
-          _error = f.toString();
+          _error = f.userMessage;
         });
     }
   }

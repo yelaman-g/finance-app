@@ -47,14 +47,14 @@ public class RefreshTokenService {
         RefreshToken current = refreshTokenRepository.findByTokenHash(hash(rawToken))
                 .orElseThrow(() -> new UnauthorizedException(
                         ErrorCode.AUTH_REFRESH_INVALID,
-                        "Invalid refresh token"));
+                        "Недействительный токен обновления"));
 
         User user = current.getUser();
         if (current.isRevoked()) {
             revokeAll(user);
             throw new UnauthorizedException(
                     ErrorCode.AUTH_REFRESH_REUSE_DETECTED,
-                    "Refresh token reuse detected");
+                    "Повторное использование токена обновления");
         }
         if (current.isExpired()) {
             current.revoke();

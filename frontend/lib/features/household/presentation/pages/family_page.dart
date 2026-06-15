@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/features/household/data/models/household_model.dart';
 import 'package:aifb/features/household/presentation/providers/household_providers.dart';
@@ -102,7 +103,7 @@ class _NoHouseholdState extends ConsumerState<_NoHousehold> {
     final result = await op();
     if (!mounted) return;
     if (result is Err<HouseholdModel>) {
-      setState(() => _error = result.failure.toString());
+      setState(() => _error = result.failure.userMessage);
     } else {
       widget.onChanged();
     }

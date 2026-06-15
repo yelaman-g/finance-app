@@ -50,6 +50,6 @@ public class UserSettingsController {
 
     private User loadUser(AuthPrincipal principal) {
         return userRepository.findById(principal.userId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 }

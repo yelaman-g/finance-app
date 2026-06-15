@@ -52,6 +52,6 @@ public class DevGoogleTokenVerifier implements GoogleTokenVerifier {
     }
 
     private static UnauthorizedException invalid() {
-        return new UnauthorizedException(ErrorCode.AUTH_GOOGLE_TOKEN_INVALID, "Invalid Google token");
+        return new UnauthorizedException(ErrorCode.AUTH_GOOGLE_TOKEN_INVALID, "Недействительный токен Google");
     }
 }

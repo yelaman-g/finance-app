@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/utils/thousands_formatter.dart';
 import 'package:aifb/features/goals/data/models/goal_model.dart';
@@ -93,7 +94,7 @@ class _GoalFormState extends ConsumerState<_GoalForm> {
       case Err<dynamic>(failure: final f):
         setState(() {
           _saving = false;
-          _error = f.toString();
+          _error = f.userMessage;
         });
     }
   }
