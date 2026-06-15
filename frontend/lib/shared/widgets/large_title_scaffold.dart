@@ -8,6 +8,7 @@ class LargeTitleScaffold extends StatelessWidget {
     required this.slivers,
     this.actions,
     this.floatingActionButton,
+    this.onRefresh,
     super.key,
   });
 
@@ -16,26 +17,33 @@ class LargeTitleScaffold extends StatelessWidget {
   final List<Widget>? actions;
   final Widget? floatingActionButton;
 
+  /// Если задан — включает pull-to-refresh поверх контента.
+  final Future<void> Function()? onRefresh;
+
   @override
   Widget build(BuildContext context) {
     final hig = HigColors.of(context);
+    final scrollView = CustomScrollView(
+      physics: onRefresh != null ? const AlwaysScrollableScrollPhysics() : null,
+      slivers: [
+        SliverAppBar.large(
+          title: Text(title),
+          actions: actions,
+          backgroundColor: hig.pageBackground,
+          surfaceTintColor: Colors.transparent,
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+          sliver: SliverList(delegate: SliverChildListDelegate(slivers)),
+        ),
+      ],
+    );
     return Scaffold(
       backgroundColor: hig.pageBackground,
       floatingActionButton: floatingActionButton,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar.large(
-            title: Text(title),
-            actions: actions,
-            backgroundColor: hig.pageBackground,
-            surfaceTintColor: Colors.transparent,
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-            sliver: SliverList(delegate: SliverChildListDelegate(slivers)),
-          ),
-        ],
-      ),
+      body: onRefresh != null
+          ? RefreshIndicator(onRefresh: onRefresh!, child: scrollView)
+          : scrollView,
     );
   }
 }

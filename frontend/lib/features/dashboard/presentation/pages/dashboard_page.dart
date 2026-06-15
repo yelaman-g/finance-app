@@ -9,11 +9,13 @@ import 'package:intl/intl.dart';
 
 import '../../../../app/router/routes.dart';
 import '../../../../core/domain/scope.dart';
+import '../../../../core/errors/error_text.dart';
 import '../../../../core/utils/hex_color.dart';
 import '../../../goals/presentation/providers/goals_providers.dart';
 import '../../../statistics/data/models/statistics_models.dart';
 import '../../../statistics/presentation/providers/statistics_providers.dart';
 import '../../../transactions/presentation/providers/finance_providers.dart';
+import '../../../transactions/presentation/widgets/transaction_form_sheet.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -24,6 +26,38 @@ class DashboardPage extends ConsumerStatefulWidget {
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
   Scope _scope = Scope.personal;
+
+  /// Сбрасывает данные главного экрана и дожидается их перезагрузки —
+  /// для pull-to-refresh и после добавления операции.
+  Future<void> _refresh() async {
+    ref
+      ..invalidate(summaryProvider(_scope))
+      ..invalidate(trendProvider(_scope))
+      ..invalidate(transactionsProvider(_scope))
+      ..invalidate(goalsProvider(_scope))
+      ..invalidate(memberBreakdownProvider);
+    await Future.wait<void>([
+      _settle(ref.read(summaryProvider(_scope).future)),
+      _settle(ref.read(trendProvider(_scope).future)),
+      _settle(ref.read(transactionsProvider(_scope).future)),
+      _settle(ref.read(goalsProvider(_scope).future)),
+    ]);
+  }
+
+  /// Дожидается future, проглатывая ошибку: её покажет соответствующая секция.
+  static Future<void> _settle(Future<Object?> f) async {
+    try {
+      await f;
+    } catch (_) {
+      // намеренно: ошибку отрисует error-состояние секции
+    }
+  }
+
+  Future<void> _addTransaction() async {
+    final created = await showTransactionForm(context);
+    if (!mounted) return;
+    if (created ?? false) await _refresh();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +86,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
       // ── Flat balance card ─────────────────────────────────────────
       summary.when(
-        loading: () => _BalanceCardShell(hig: hig, child: const _LoadingIndicator()),
+        loading: () => const _BalanceSkeleton(),
         error: (e, _) => _BalanceCardShell(
           hig: hig,
-          child: Text('Ошибка: $e', style: TextStyle(color: hig.danger)),
+          child: _ErrorContent(
+            hig: hig,
+            message: errorText(e),
+            onRetry: () => ref.invalidate(summaryProvider(_scope)),
+          ),
         ),
         data: (s) => _FlatBalanceCard(
           hig: hig,
@@ -69,35 +107,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
       // ── Spending trend chart ───────────────────────────────────────
       trend.when(
-        loading: () => _ChartShell(hig: hig, child: const _LoadingIndicator()),
+        loading: () => const _ChartSkeleton(),
         error: (e, _) => _ChartShell(
           hig: hig,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Тренд расходов',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: hig.label,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Icon(Icons.error_outline, color: hig.danger, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Не удалось загрузить данные',
-                      style: TextStyle(color: hig.danger, fontSize: 14),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          child: _ErrorContent(
+            hig: hig,
+            title: 'Тренд расходов',
+            message: errorText(e),
+            onRetry: () => ref.invalidate(trendProvider(_scope)),
           ),
         ),
         data: (points) => _FlatChartCard(
@@ -110,22 +127,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
       // ── Goals ──────────────────────────────────────────────────────
       goals.when(
-        loading: () => InsetSection(
-          header: 'Цели',
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: _LoadingIndicator(),
-            ),
-          ],
-        ),
+        loading: () => const _ListSkeleton(header: 'Цели'),
         error: (e, _) => InsetSection(
           header: 'Цели',
           children: [
-            InsetTile(
-              title: 'Ошибка загрузки',
-              subtitle: '$e',
-              leading: Icon(Icons.error_outline, color: hig.danger),
+            _ErrorTile(
+              hig: hig,
+              message: errorText(e),
+              onRetry: () => ref.invalidate(goalsProvider(_scope)),
             ),
           ],
         ),
@@ -158,22 +167,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
       // ── Recent transactions ────────────────────────────────────────
       txs.when(
-        loading: () => InsetSection(
-          header: 'Недавние операции',
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: _LoadingIndicator(),
-            ),
-          ],
-        ),
+        loading: () => const _ListSkeleton(header: 'Недавние операции'),
         error: (e, _) => InsetSection(
           header: 'Недавние операции',
           children: [
-            InsetTile(
-              title: 'Ошибка загрузки',
-              subtitle: '$e',
-              leading: Icon(Icons.error_outline, color: hig.danger),
+            _ErrorTile(
+              hig: hig,
+              message: errorText(e),
+              onRetry: () => ref.invalidate(transactionsProvider(_scope)),
             ),
           ],
         ),
@@ -196,7 +197,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               for (final t in items)
                 InsetTile(
                   title: t.categoryName ?? '—',
-                  subtitle: '${t.occurredOn.toIso8601String().split('T').first}',
+                  subtitle: _formatDate(t.occurredOn),
                   leading: Container(
                     width: 36,
                     height: 36,
@@ -257,6 +258,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     return LargeTitleScaffold(
       title: 'Главная',
+      onRefresh: _refresh,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _addTransaction,
+        icon: const Icon(Icons.add),
+        label: const Text('Добавить'),
+      ),
       slivers: slivers,
     );
   }
@@ -264,6 +271,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   static String _fmtAmount(double v) =>
       NumberFormat.currency(locale: 'en_US', symbol: '', decimalDigits: 0)
           .format(v.abs());
+
+  /// Дата в формате «15 июн 2026». Локаль `ru` для intl в приложении не
+  /// инициализирована (поэтому и график рисует месяцы вручную), так что
+  /// форматируем без intl-locale, чтобы не словить LocaleDataException.
+  static String _formatDate(DateTime d) {
+    const months = [
+      '', 'янв', 'фев', 'мар', 'апр', 'мая', 'июн',
+      'июл', 'авг', 'сен', 'окт', 'ноя', 'дек',
+    ];
+    final m = (d.month >= 1 && d.month <= 12) ? months[d.month] : '${d.month}';
+    return '${d.day} $m ${d.year}';
+  }
 }
 
 // ── Flat balance card ──────────────────────────────────────────────────────────
@@ -314,6 +333,7 @@ class _FlatBalanceCard extends StatelessWidget {
           Row(
             children: [
               _BalanceStat(
+                hig: hig,
                 label: 'Доход',
                 value: '+${fmt.format(income)} ₸',
                 color: hig.success,
@@ -321,6 +341,7 @@ class _FlatBalanceCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               _BalanceStat(
+                hig: hig,
                 label: 'Расход',
                 value: '-${fmt.format(expense)} ₸',
                 color: hig.danger,
@@ -356,12 +377,14 @@ class _BalanceCardShell extends StatelessWidget {
 
 class _BalanceStat extends StatelessWidget {
   const _BalanceStat({
+    required this.hig,
     required this.label,
     required this.value,
     required this.color,
     required this.icon,
   });
 
+  final HigColors hig;
   final String label;
   final String value;
   final Color color;
@@ -369,6 +392,8 @@ class _BalanceStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Цвет несёт иконка и знак ±; текст — высококонтрастный label/secondaryLabel,
+    // чтобы суммы статов проходили WCAG AA (зелёный на белом фоне его проваливал).
     return Expanded(
       child: Row(
         children: [
@@ -380,14 +405,14 @@ class _BalanceStat extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(fontSize: 12, color: color.withValues(alpha: 0.8)),
+                  style: TextStyle(fontSize: 12, color: hig.secondaryLabel),
                 ),
                 Text(
                   value,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: color,
+                    color: hig.label,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -411,7 +436,7 @@ class _FlatChartCard extends StatelessWidget {
   final HigColors hig;
   final List<TrendPointModel> points;
 
-  /// Abbreviate "YYYY-MM" → "Jan", "Feb", etc.
+  /// Abbreviate "YYYY-MM" → "янв", "фев", etc.
   static String _monthLabel(String yyyyMm) {
     final parts = yyyyMm.split('-');
     if (parts.length < 2) return yyyyMm;
@@ -595,7 +620,8 @@ class _GoalTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fmt = NumberFormat.currency(locale: 'en_US', symbol: '', decimalDigits: 0);
-    final progress = (current / target).clamp(0.0, 1.0);
+    // target может прийти 0 → защищаемся от деления на ноль / NaN в widthFactor.
+    final progress = target <= 0 ? 0.0 : (current / target).clamp(0.0, 1.0);
     final pct = '${(progress * 100).toStringAsFixed(0)}%';
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -640,18 +666,248 @@ class _GoalTile extends StatelessWidget {
   }
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+// ── Error states ─────────────────────────────────────────────────────────────
 
-class _LoadingIndicator extends StatelessWidget {
-  const _LoadingIndicator();
+/// Содержимое ошибки для карточек (баланс, график): сообщение + «Повторить».
+class _ErrorContent extends StatelessWidget {
+  const _ErrorContent({
+    required this.hig,
+    required this.message,
+    required this.onRetry,
+    this.title,
+  });
+
+  final HigColors hig;
+  final String message;
+  final VoidCallback onRetry;
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: SizedBox(
-        width: 24,
-        height: 24,
-        child: CircularProgressIndicator(strokeWidth: 2),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (title != null) ...[
+          Text(
+            title!,
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: hig.label,
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        Row(
+          children: [
+            Icon(Icons.error_outline, color: hig.danger, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(color: hig.secondaryLabel, fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            onPressed: onRetry,
+            child: const Text('Повторить'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Строка ошибки для секций-списков (Цели, Недавние операции).
+class _ErrorTile extends StatelessWidget {
+  const _ErrorTile({
+    required this.hig,
+    required this.message,
+    required this.onRetry,
+  });
+
+  final HigColors hig;
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return InsetTile(
+      title: message,
+      leading: Icon(Icons.error_outline, color: hig.danger),
+      trailing: TextButton(
+        onPressed: onRetry,
+        child: const Text('Повторить'),
+      ),
+    );
+  }
+}
+
+// ── Loading skeletons ──────────────────────────────────────────────────────────
+
+/// Пульсирующая обёртка для скелетонов. Уважает «уменьшить движение».
+class _Shimmer extends StatefulWidget {
+  const _Shimmer({required this.child});
+  final Widget child;
+
+  @override
+  State<_Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<_Shimmer>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (reduceMotion) {
+      _c
+        ..stop()
+        ..value = 1.0;
+    } else if (!_c.isAnimating) {
+      _c.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.45, end: 1.0)
+          .animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut)),
+      child: widget.child,
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({required this.width, required this.height, this.radius = 6});
+  final double width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final hig = HigColors.of(context);
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: hig.separator,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+}
+
+class _BalanceSkeleton extends StatelessWidget {
+  const _BalanceSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final hig = HigColors.of(context);
+    return _BalanceCardShell(
+      hig: hig,
+      child: const _Shimmer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SkeletonBox(width: 64, height: 12),
+            SizedBox(height: 12),
+            _SkeletonBox(width: 180, height: 34, radius: 8),
+            SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(child: _SkeletonBox(width: double.infinity, height: 14)),
+                SizedBox(width: 12),
+                Expanded(child: _SkeletonBox(width: double.infinity, height: 14)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChartSkeleton extends StatelessWidget {
+  const _ChartSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final hig = HigColors.of(context);
+    return _ChartShell(
+      hig: hig,
+      child: const _Shimmer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SkeletonBox(width: 140, height: 16),
+            SizedBox(height: 8),
+            _SkeletonBox(width: 120, height: 12),
+            SizedBox(height: 16),
+            _SkeletonBox(width: double.infinity, height: 160, radius: 10),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ListSkeleton extends StatelessWidget {
+  const _ListSkeleton({required this.header});
+  final String header;
+
+  @override
+  Widget build(BuildContext context) {
+    return InsetSection(
+      header: header,
+      children: [for (var i = 0; i < 3; i++) const _SkeletonRow()],
+    );
+  }
+}
+
+class _SkeletonRow extends StatelessWidget {
+  const _SkeletonRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: _Shimmer(
+        child: Row(
+          children: [
+            _SkeletonBox(width: 36, height: 36, radius: 8),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _SkeletonBox(width: 120, height: 14),
+                  SizedBox(height: 6),
+                  _SkeletonBox(width: 80, height: 12),
+                ],
+              ),
+            ),
+            SizedBox(width: 12),
+            _SkeletonBox(width: 56, height: 14),
+          ],
+        ),
       ),
     );
   }
