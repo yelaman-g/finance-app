@@ -13,6 +13,10 @@ CustomTransitionPage<T> fadeThroughPage<T>({
     transitionDuration: duration,
     reverseTransitionDuration: duration,
     transitionsBuilder: (context, animation, secondary, child) {
+      // Уважаем «уменьшить движение»: без fade/scale, мгновенный показ.
+      final reduceMotion =
+          MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+      if (reduceMotion) return child;
       final curved = CurvedAnimation(
         parent: animation,
         curve: Curves.easeOutCubic,

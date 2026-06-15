@@ -68,6 +68,21 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final txs = ref.watch(transactionsProvider(_scope));
     final goals = ref.watch(goalsProvider(_scope));
 
+    // Кроссфейд между состояниями секции (loading→data→error). Мгновенно при
+    // «уменьшить движение». Ключ меняется по состоянию — он и триггерит смену.
+    final secDur = MediaQuery.of(context).disableAnimations
+        ? Duration.zero
+        : const Duration(milliseconds: 220);
+    Widget sectioned(String name, AsyncValue<Object?> v, Widget child) {
+      final state = v.isLoading ? '$name-l' : (v.hasError ? '$name-e' : '$name-d');
+      return AnimatedSwitcher(
+        duration: secDur,
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeOutCubic,
+        child: KeyedSubtree(key: ValueKey(state), child: child),
+      );
+    }
+
     final slivers = <Widget>[
       // ── Scope selector ────────────────────────────────────────────
       Padding(
@@ -85,7 +100,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       const SizedBox(height: 12),
 
       // ── Flat balance card ─────────────────────────────────────────
-      summary.when(
+      sectioned('balance', summary, summary.when(
         loading: () => const _BalanceSkeleton(),
         error: (e, _) => _BalanceCardShell(
           hig: hig,
@@ -101,12 +116,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           income: s.income,
           expense: s.expense,
         ),
-      ),
+      )),
 
       const SizedBox(height: 16),
 
       // ── Spending trend chart ───────────────────────────────────────
-      trend.when(
+      sectioned('trend', trend, trend.when(
         loading: () => const _ChartSkeleton(),
         error: (e, _) => _ChartShell(
           hig: hig,
@@ -121,12 +136,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           hig: hig,
           points: points,
         ),
-      ),
+      )),
 
       const SizedBox(height: 16),
 
       // ── Goals ──────────────────────────────────────────────────────
-      goals.when(
+      sectioned('goals', goals, goals.when(
         loading: () => const _ListSkeleton(header: 'Цели'),
         error: (e, _) => InsetSection(
           header: 'Цели',
@@ -161,12 +176,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     ),
                 ],
               ),
-      ),
+      )),
 
       const SizedBox(height: 16),
 
       // ── Recent transactions ────────────────────────────────────────
-      txs.when(
+      sectioned('txs', txs, txs.when(
         loading: () => const _ListSkeleton(header: 'Недавние операции'),
         error: (e, _) => InsetSection(
           header: 'Недавние операции',
@@ -224,7 +239,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ],
           );
         },
-      ),
+      )),
 
       // ── Family member breakdown (only in Семья scope) ──────────────
       if (_scope == Scope.family) ...[
@@ -304,6 +319,9 @@ class _FlatBalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final fmt = NumberFormat.currency(locale: 'en_US', symbol: '', decimalDigits: 0);
     final theme = Theme.of(context);
+    final counterDur = MediaQuery.of(context).disableAnimations
+        ? Duration.zero
+        : const Duration(milliseconds: 800);
     return _BalanceCardShell(
       hig: hig,
       child: Column(
@@ -316,7 +334,7 @@ class _FlatBalanceCard extends StatelessWidget {
           const SizedBox(height: 6),
           TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0, end: net),
-            duration: const Duration(milliseconds: 800),
+            duration: counterDur,
             curve: Curves.easeOutCubic,
             builder: (context, v, _) => Text(
               '${fmt.format(v)} ₸',
@@ -452,6 +470,9 @@ class _FlatChartCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final fmt = NumberFormat.decimalPattern();
     final totalThisMonth = points.isEmpty ? 0.0 : points.last.expense;
+    final chartDur = MediaQuery.of(context).disableAnimations
+        ? Duration.zero
+        : const Duration(milliseconds: 600);
 
     return _ChartShell(
       hig: hig,
@@ -490,7 +511,7 @@ class _FlatChartCard extends StatelessWidget {
               height: 160,
               child: LineChart(
                 _chartData(hig),
-                duration: const Duration(milliseconds: 600),
+                duration: chartDur,
                 curve: Curves.easeOutCubic,
               ),
             ),
@@ -620,6 +641,9 @@ class _GoalTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fmt = NumberFormat.currency(locale: 'en_US', symbol: '', decimalDigits: 0);
+    final barDur = MediaQuery.of(context).disableAnimations
+        ? Duration.zero
+        : const Duration(milliseconds: 800);
     // target может прийти 0 → защищаемся от деления на ноль / NaN в widthFactor.
     final progress = target <= 0 ? 0.0 : (current / target).clamp(0.0, 1.0);
     final pct = '${(progress * 100).toStringAsFixed(0)}%';
@@ -645,7 +669,7 @@ class _GoalTile extends StatelessWidget {
           const SizedBox(height: 8),
           TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0, end: progress),
-            duration: const Duration(milliseconds: 800),
+            duration: barDur,
             curve: Curves.easeOutCubic,
             builder: (context, v, _) => ClipRRect(
               borderRadius: BorderRadius.circular(4),
