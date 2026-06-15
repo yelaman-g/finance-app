@@ -1,3 +1,4 @@
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
@@ -129,7 +130,7 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
           ),
           if (_error != null) ...[
             const SizedBox(height: 8),
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+            Text(_error!, style: TextStyle(color: HigColors.of(context).danger)),
           ],
           const SizedBox(height: 16),
           HigButton(label: 'Сохранить', loading: _saving, onPressed: _submit),

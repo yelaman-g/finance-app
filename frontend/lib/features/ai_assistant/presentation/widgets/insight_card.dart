@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:aifb/app/theme/hig_colors.dart';
 import '../../domain/entities/insight_model.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -22,7 +23,7 @@ class InsightCard extends StatelessWidget {
 
     Color getColor() {
       switch (insight.type) {
-        case InsightType.warning: return Colors.orangeAccent;
+        case InsightType.warning: return HigColors.of(context).warning;
         case InsightType.prediction: return theme.colorScheme.primary;
         case InsightType.achievement: return Colors.amber;
         case InsightType.recommendation: return theme.colorScheme.secondary;

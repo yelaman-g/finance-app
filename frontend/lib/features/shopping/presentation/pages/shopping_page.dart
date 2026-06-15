@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/shopping_providers.dart';
@@ -69,9 +70,9 @@ class _ShoppingPageState extends ConsumerState<ShoppingPage> {
                             title: item.checked
                                 ? Text(
                                     item.title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       decoration: TextDecoration.lineThrough,
-                                      color: Colors.grey,
+                                      color: HigColors.of(context).secondaryLabel,
                                     ),
                                   )
                                 : Text(item.title),

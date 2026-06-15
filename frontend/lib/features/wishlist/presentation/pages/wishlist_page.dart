@@ -3,6 +3,7 @@ import 'package:aifb/features/auth/presentation/state/auth_state.dart';
 import 'package:aifb/features/wishlist/data/dto/wishlist_item.dart';
 import 'package:aifb/features/wishlist/presentation/providers/wishlist_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class WishlistPage extends ConsumerStatefulWidget {
@@ -267,8 +268,8 @@ class _WishlistItemTile extends StatelessWidget {
                 style: TextStyle(
                   color: item.reserved
                       ? (item.reservedBy == currentUserId
-                          ? Colors.green
-                          : Colors.grey)
+                          ? HigColors.of(context).success
+                          : HigColors.of(context).secondaryLabel)
                       : null,
                 ),
               ),

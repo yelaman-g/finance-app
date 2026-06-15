@@ -206,8 +206,8 @@ class _ReminderCard extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Удалить',
-                style: TextStyle(color: Colors.red)),
+            child: Text('Удалить',
+                style: TextStyle(color: HigColors.of(context).danger)),
           ),
         ],
       ),

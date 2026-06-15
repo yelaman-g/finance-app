@@ -1,4 +1,5 @@
 import 'package:aifb/app/router/routes.dart';
+import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/app/theme/theme_mode_provider.dart';
 import 'package:aifb/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:aifb/features/auth/presentation/state/auth_state.dart';
@@ -149,7 +150,7 @@ class MorePage extends ConsumerWidget {
               ),
             InsetTile(
               title: 'Выйти',
-              leading: const Icon(Icons.logout_rounded, color: Colors.red),
+              leading: Icon(Icons.logout_rounded, color: HigColors.of(context).danger),
               onTap: () => ref.read(authControllerProvider.notifier).logout(),
             ),
           ],
