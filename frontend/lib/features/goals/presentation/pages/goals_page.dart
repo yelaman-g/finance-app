@@ -56,6 +56,8 @@ class GoalsPage extends ConsumerWidget {
                   sliver: SliverToBoxAdapter(
                     child: InsetSection(
                       children: goals.map((g) {
+                        final done = g.targetAmount > 0 &&
+                            g.savedAmount >= g.targetAmount;
                         return InkWell(
                           onTap: () => context
                               .push('${AppRoutes.goals.path}/${g.id}'),
@@ -69,6 +71,11 @@ class GoalsPage extends ConsumerWidget {
                               children: [
                                 Row(
                                   children: [
+                                    if (done) ...[
+                                      Icon(Icons.emoji_events_rounded,
+                                          color: hig.success, size: 18),
+                                      const SizedBox(width: 6),
+                                    ],
                                     Expanded(
                                       child: Text(
                                         g.name,
@@ -90,18 +97,20 @@ class GoalsPage extends ConsumerWidget {
                                   value: (g.percentage / 100)
                                       .clamp(0, 1)
                                       .toDouble(),
-                                  color: hig.accent,
+                                  color: done ? hig.success : hig.accent,
                                   backgroundColor: hig.separator,
                                   borderRadius: BorderRadius.circular(4),
                                   minHeight: 6,
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  '${fmt.format(g.savedAmount)} / '
-                                  '${fmt.format(g.targetAmount)}',
+                                  done
+                                      ? 'Цель достигнута'
+                                      : '${fmt.format(g.savedAmount)} / '
+                                          '${fmt.format(g.targetAmount)}',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: hig.secondaryLabel,
+                                    color: done ? hig.success : hig.secondaryLabel,
                                   ),
                                 ),
                               ],

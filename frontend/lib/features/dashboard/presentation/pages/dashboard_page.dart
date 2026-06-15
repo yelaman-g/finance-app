@@ -647,6 +647,7 @@ class _GoalTile extends StatelessWidget {
     // target может прийти 0 → защищаемся от деления на ноль / NaN в widthFactor.
     final progress = target <= 0 ? 0.0 : (current / target).clamp(0.0, 1.0);
     final pct = '${(progress * 100).toStringAsFixed(0)}%';
+    final done = progress >= 1.0;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
@@ -654,6 +655,10 @@ class _GoalTile extends StatelessWidget {
         children: [
           Row(
             children: [
+              if (done) ...[
+                Icon(Icons.emoji_events_rounded, color: hig.success, size: 16),
+                const SizedBox(width: 6),
+              ],
               Expanded(
                 child: Text(
                   title,
@@ -661,8 +666,13 @@ class _GoalTile extends StatelessWidget {
                 ),
               ),
               Text(
-                '$pct · ${fmt.format(current)} / ${fmt.format(target)} ₸',
-                style: TextStyle(fontSize: 12, color: hig.secondaryLabel),
+                done
+                    ? 'Цель достигнута'
+                    : '$pct · ${fmt.format(current)} / ${fmt.format(target)} ₸',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: done ? hig.success : hig.secondaryLabel,
+                ),
               ),
             ],
           ),
@@ -678,7 +688,7 @@ class _GoalTile extends StatelessWidget {
                   Container(height: 6, color: hig.separator),
                   FractionallySizedBox(
                     widthFactor: v,
-                    child: Container(height: 6, color: color),
+                    child: Container(height: 6, color: done ? hig.success : color),
                   ),
                 ],
               ),
