@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/features/household/data/models/household_model.dart';
@@ -36,7 +37,7 @@ class FamilyPage extends ConsumerWidget {
                 child: Center(child: CircularProgressIndicator()),
               ),
               error: (e, _) => SliverFillRemaining(
-                child: Center(child: Text('Ошибка: $e')),
+                child: Center(child: Text(errorText(e))),
               ),
               data: (h) => h == null
                   ? SliverPadding(
@@ -283,7 +284,7 @@ class _HouseholdView extends ConsumerWidget {
               ),
               error: (e, _) => Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text('Ошибка: $e', style: TextStyle(color: hig.danger)),
+                child: Text(errorText(e), style: TextStyle(color: hig.danger)),
               ),
               data: (rows) => rows.isEmpty
                   ? Padding(

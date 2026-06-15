@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/core/errors/failure_message.dart';
 import 'package:aifb/core/network/api_result.dart';
@@ -114,7 +115,7 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
           if (_targetType == 'CATEGORY')
             ref.watch(categoriesProvider('EXPENSE')).when(
                   loading: () => const LinearProgressIndicator(),
-                  error: (e, _) => Text('Ошибка категорий: $e'),
+                  error: (e, _) => Text(errorText(e)),
                   data: (cats) => DropdownButtonFormField<String>(
                     initialValue: _targetId,
                     isExpanded: true,
@@ -136,7 +137,7 @@ class _BudgetFormState extends ConsumerState<_BudgetForm> {
           else
             ref.watch(groupsProvider(Scope.personal)).when(
                   loading: () => const LinearProgressIndicator(),
-                  error: (e, _) => Text('Ошибка групп: $e'),
+                  error: (e, _) => Text(errorText(e)),
                   data: (groups) {
                     final expense =
                         groups.where((g) => g.type == 'EXPENSE').toList();

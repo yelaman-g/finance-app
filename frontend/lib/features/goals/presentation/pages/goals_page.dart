@@ -1,4 +1,5 @@
 import 'package:aifb/app/router/routes.dart';
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/app/theme/hig_colors.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/features/goals/presentation/providers/goals_providers.dart';
@@ -43,12 +44,14 @@ class GoalsPage extends ConsumerWidget {
                 child: Center(child: CircularProgressIndicator()),
               ),
               error: (e, _) => SliverFillRemaining(
-                child: Center(child: Text('Ошибка: $e')),
+                child: Center(child: Text(errorText(e))),
               ),
               data: (goals) {
                 if (goals.isEmpty) {
                   return const SliverFillRemaining(
-                    child: Center(child: Text('Целей пока нет')),
+                    child: Center(
+                        child: Text(
+                            'Целей пока нет. Создайте первую, чтобы начать копить.')),
                   );
                 }
                 return SliverPadding(

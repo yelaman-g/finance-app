@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../providers/ai_chat_provider.dart';
@@ -97,7 +98,7 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, st) => Center(child: Text('Error loading chat: $err')),
+              error: (err, st) => Center(child: Text(errorText(err))),
             ),
           ),
 

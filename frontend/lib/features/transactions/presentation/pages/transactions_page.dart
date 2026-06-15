@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/features/auth/domain/entities/auth_user.dart';
 import 'package:aifb/features/auth/presentation/controllers/auth_controller.dart';
@@ -50,12 +51,14 @@ class TransactionsPage extends ConsumerWidget {
                 child: Center(child: CircularProgressIndicator()),
               ),
               error: (e, _) => SliverFillRemaining(
-                child: Center(child: Text('Ошибка: $e')),
+                child: Center(child: Text(errorText(e))),
               ),
               data: (page) {
                 if (page.items.isEmpty) {
                   return const SliverFillRemaining(
-                    child: Center(child: Text('Пока нет операций')),
+                    child: Center(
+                        child: Text(
+                            'Пока нет операций. Нажмите «+», чтобы добавить первую.')),
                   );
                 }
                 final txIds = page.items.map((t) => t.id).toList();

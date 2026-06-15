@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/core/utils/thousands_formatter.dart';
 import 'package:aifb/features/ai_assistant/data/dto/ai_dtos.dart';
 import 'package:aifb/features/ai_assistant/presentation/providers/ai_dependency_provider.dart';
@@ -19,7 +20,7 @@ class RemindersTab extends ConsumerWidget {
       backgroundColor: hig.pageBackground,
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Ошибка: $e')),
+        error: (e, _) => Center(child: Text(errorText(e))),
         data: (items) => items.isEmpty
             ? Center(
                 child: Column(
@@ -29,7 +30,7 @@ class RemindersTab extends ConsumerWidget {
                         size: 64, color: hig.secondaryLabel),
                     const SizedBox(height: 16),
                     Text(
-                      'Пока нет напоминаний',
+                      'Пока нет напоминаний. Добавьте, чтобы не забыть о платеже.',
                       style: TextStyle(
                           fontSize: 17, color: hig.secondaryLabel),
                     ),

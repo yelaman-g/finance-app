@@ -1,3 +1,4 @@
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/features/categories/presentation/widgets/category_form_sheet.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
 import 'package:aifb/shared/widgets/inset_section.dart';
@@ -39,7 +40,7 @@ class _CategoriesPageState extends ConsumerState<CategoriesPage> {
         const SizedBox(height: 16),
         async.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Text('Ошибка: $e'),
+          error: (e, _) => Text(errorText(e)),
           data: (cats) {
             final own = cats.where((c) => !c.system).toList();
             final system = cats.where((c) => c.system).toList();

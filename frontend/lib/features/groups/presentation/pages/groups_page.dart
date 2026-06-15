@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/features/groups/presentation/providers/groups_providers.dart';
 import 'package:aifb/shared/widgets/hig_button.dart';
@@ -41,12 +42,14 @@ class GroupsPage extends ConsumerWidget {
                 child: Center(child: CircularProgressIndicator()),
               ),
               error: (e, _) => SliverFillRemaining(
-                child: Center(child: Text('Ошибка: $e')),
+                child: Center(child: Text(errorText(e))),
               ),
               data: (groups) {
                 if (groups.isEmpty) {
                   return const SliverFillRemaining(
-                    child: Center(child: Text('Групп пока нет')),
+                    child: Center(
+                        child: Text(
+                            'Групп пока нет. Создайте группу, чтобы объединить категории.')),
                   );
                 }
                 return SliverPadding(

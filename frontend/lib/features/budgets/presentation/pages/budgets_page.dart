@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/features/budgets/presentation/providers/budgets_providers.dart';
 import 'package:aifb/features/budgets/presentation/widgets/budget_form_sheet.dart';
@@ -81,12 +82,14 @@ class BudgetsPage extends ConsumerWidget {
                 child: Center(child: CircularProgressIndicator()),
               ),
               error: (e, _) => SliverFillRemaining(
-                child: Center(child: Text('Ошибка: $e')),
+                child: Center(child: Text(errorText(e))),
               ),
               data: (budgets) {
                 if (budgets.isEmpty) {
                   return const SliverFillRemaining(
-                    child: Center(child: Text('Лимитов пока нет')),
+                    child: Center(
+                        child: Text(
+                            'Лимитов пока нет. Создайте лимит, чтобы контролировать расходы.')),
                   );
                 }
                 return SliverPadding(

@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/core/domain/scope.dart';
 import 'package:aifb/core/network/api_result.dart';
 import 'package:aifb/core/utils/thousands_formatter.dart';
@@ -49,14 +50,15 @@ class GoalDetailPage extends ConsumerWidget {
         async.when(
           loading: () =>
               const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Ошибка: $e')),
+          error: (e, _) => Center(child: Text(errorText(e))),
           data: (items) {
             if (items.isEmpty) {
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 48),
                   child: Text(
-                    'Взносов пока нет',
+                    'Взносов пока нет. Нажмите «Пополнить», чтобы добавить первый.',
+                    textAlign: TextAlign.center,
                     style: TextStyle(color: hig.secondaryLabel),
                   ),
                 ),

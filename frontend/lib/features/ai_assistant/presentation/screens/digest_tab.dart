@@ -1,3 +1,4 @@
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/features/ai_assistant/presentation/providers/ai_extra_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,7 +17,7 @@ class DigestTab extends ConsumerWidget {
         error: (e, _) => ListView(
           children: [
             const SizedBox(height: 80),
-            Center(child: Text('Не удалось загрузить дайджест: $e')),
+            Center(child: Text('Не удалось загрузить дайджест. ${errorText(e)}')),
           ],
         ),
         data: (digest) {

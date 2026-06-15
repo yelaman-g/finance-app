@@ -1,4 +1,5 @@
 import 'package:aifb/app/theme/hig_colors.dart';
+import 'package:aifb/core/errors/error_text.dart';
 import 'package:aifb/features/categorization/data/models/rule_model.dart';
 import 'package:aifb/features/categorization/presentation/providers/categorization_providers.dart';
 import 'package:aifb/features/transactions/presentation/providers/finance_providers.dart';
@@ -37,12 +38,14 @@ class RulesPage extends ConsumerWidget {
                 child: Center(child: CircularProgressIndicator()),
               ),
               error: (e, _) => SliverFillRemaining(
-                child: Center(child: Text('Ошибка: $e')),
+                child: Center(child: Text(errorText(e))),
               ),
               data: (rules) {
                 if (rules.isEmpty) {
                   return const SliverFillRemaining(
-                    child: Center(child: Text('Правил пока нет')),
+                    child: Center(
+                        child: Text(
+                            'Правил пока нет. Добавьте правило для авто-категоризации.')),
                   );
                 }
                 return SliverPadding(
