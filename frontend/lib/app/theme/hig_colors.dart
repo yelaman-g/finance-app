@@ -24,18 +24,13 @@ class HigColors extends ThemeExtension<HigColors> {
   final Color warning;
   final Color danger;
 
-  // Бренд: индиго (переработка дизайна) вместо системного iOS-синего.
-  // Акцент задаёт ColorScheme (app_theme.dart → fromSeed(hig.accent)),
-  // поэтому одно значение перекрашивает и HigColors-, и Material-экраны.
-  // Нейтрали слегка подтонированы к индиго; success/warning/danger —
-  // функциональная семантика, не бренд, поэтому без изменений.
   static const light = HigColors(
-    pageBackground: Color(0xFFF3F2FA),
+    pageBackground: Color(0xFFF2F2F7),
     card: Color(0xFFFFFFFF),
     label: Color(0xFF000000),
     secondaryLabel: Color(0x993C3C43),
     separator: Color(0xFFC6C6C8),
-    accent: Color(0xFF4F46E5),
+    accent: Color(0xFF007AFF),
     success: Color(0xFF34C759),
     warning: Color(0xFFFF9F0A),
     danger: Color(0xFFFF3B30),
@@ -43,11 +38,11 @@ class HigColors extends ThemeExtension<HigColors> {
 
   static const dark = HigColors(
     pageBackground: Color(0xFF000000),
-    card: Color(0xFF1B1A22),
+    card: Color(0xFF1C1C1E),
     label: Color(0xFFFFFFFF),
     secondaryLabel: Color(0x99EBEBF5),
     separator: Color(0xFF38383A),
-    accent: Color(0xFF7065F0),
+    accent: Color(0xFF0A84FF),
     success: Color(0xFF30D158),
     warning: Color(0xFFFF9F0A),
     danger: Color(0xFFFF453A),

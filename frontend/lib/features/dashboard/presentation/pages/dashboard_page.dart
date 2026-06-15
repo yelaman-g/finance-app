@@ -322,61 +322,52 @@ class _FlatBalanceCard extends StatelessWidget {
     final counterDur = MediaQuery.of(context).disableAnimations
         ? Duration.zero
         : const Duration(milliseconds: 800);
-    // Брендовый «герой»: карта баланса залита акцентом (индиго), белый текст.
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: hig.accent,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Баланс',
-              style: TextStyle(fontSize: 13, color: Colors.white70),
+    return _BalanceCardShell(
+      hig: hig,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Баланс',
+            style: TextStyle(fontSize: 13, color: hig.secondaryLabel),
+          ),
+          const SizedBox(height: 6),
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: net),
+            duration: counterDur,
+            curve: Curves.easeOutCubic,
+            builder: (context, v, _) => Text(
+              '${fmt.format(v)} ₸',
+              style: (theme.textTheme.displayLarge ?? const TextStyle(fontSize: 38))
+                  .copyWith(
+                    color: hig.label,
+                    fontSize: 38,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -1,
+                  ),
             ),
-            const SizedBox(height: 6),
-            TweenAnimationBuilder<double>(
-              tween: Tween<double>(begin: 0, end: net),
-              duration: counterDur,
-              curve: Curves.easeOutCubic,
-              builder: (context, v, _) => Text(
-                '${fmt.format(v)} ₸',
-                style: (theme.textTheme.displayLarge ?? const TextStyle(fontSize: 38))
-                    .copyWith(
-                      color: Colors.white,
-                      fontSize: 38,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -1,
-                    ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _BalanceStat(
+                hig: hig,
+                label: 'Доход',
+                value: '+${fmt.format(income)} ₸',
+                color: hig.success,
+                icon: Icons.south_west_rounded,
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                _BalanceStat(
-                  label: 'Доход',
-                  value: '+${fmt.format(income)} ₸',
-                  icon: Icons.south_west_rounded,
-                  iconColor: Colors.white,
-                  labelColor: Colors.white70,
-                  valueColor: Colors.white,
-                ),
-                const SizedBox(width: 12),
-                _BalanceStat(
-                  label: 'Расход',
-                  value: '-${fmt.format(expense)} ₸',
-                  icon: Icons.north_east_rounded,
-                  iconColor: Colors.white,
-                  labelColor: Colors.white70,
-                  valueColor: Colors.white,
-                ),
-              ],
-            ),
-          ],
-        ),
+              const SizedBox(width: 12),
+              _BalanceStat(
+                hig: hig,
+                label: 'Расход',
+                value: '-${fmt.format(expense)} ₸',
+                color: hig.danger,
+                icon: Icons.north_east_rounded,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -404,28 +395,27 @@ class _BalanceCardShell extends StatelessWidget {
 
 class _BalanceStat extends StatelessWidget {
   const _BalanceStat({
+    required this.hig,
     required this.label,
     required this.value,
+    required this.color,
     required this.icon,
-    required this.iconColor,
-    required this.labelColor,
-    required this.valueColor,
   });
 
+  final HigColors hig;
   final String label;
   final String value;
+  final Color color;
   final IconData icon;
-  final Color iconColor;
-  final Color labelColor;
-  final Color valueColor;
 
   @override
   Widget build(BuildContext context) {
-    // Цвет несёт иконка и знак ±; на брендовом «герое» текст белый.
+    // Цвет несёт иконка и знак ±; текст — высококонтрастный label/secondaryLabel,
+    // чтобы суммы статов проходили WCAG AA (зелёный на белом фоне его проваливал).
     return Expanded(
       child: Row(
         children: [
-          Icon(icon, color: iconColor, size: 16),
+          Icon(icon, color: color, size: 16),
           const SizedBox(width: 6),
           Expanded(
             child: Column(
@@ -433,14 +423,14 @@ class _BalanceStat extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(fontSize: 12, color: labelColor),
+                  style: TextStyle(fontSize: 12, color: hig.secondaryLabel),
                 ),
                 Text(
                   value,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: valueColor,
+                    color: hig.label,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
